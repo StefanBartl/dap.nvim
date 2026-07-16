@@ -1,0 +1,158 @@
+*dap.txt*  Adapters & launch configs for nvim-dap, batteries included    *dap.nvim*
+
+Author:   Stefan Bartl
+Version:  0.1.0
+
+==============================================================================
+CONTENTS                                                          *dap-contents*
+
+  1. Introduction .............. |dap-intro|
+  2. Requirements .............. |dap-requirements|
+  3. Installation .............. |dap-installation|
+  4. Configuration ............. |dap-config|
+  5. Keymaps ................... |dap-keymaps|
+  6. User commands .............. |dap-commands|
+  7. Health check .............. |dap-health|
+  8. Architecture .............. |dap-architecture|
+
+==============================================================================
+1. INTRODUCTION                                                      *dap-intro*
+
+dap.nvim is a config layer on top of nvim-dap (mfussenegger/nvim-dap). It
+registers adapters and launch configurations for nine languages (Lua,
+JavaScript/TypeScript, C/C++, Go, Python, Rust, Zig, Assembly), auto-detects
+and validates adapter binaries with Mason fallback, wires up nvim-dap-ui and
+nvim-dap-virtual-text, and ships user-configurable keymaps, commands, and a
+which-key group label.
+
+Depends on lib.nvim (a deliberate shared dependency).
+
+==============================================================================
+2. REQUIREMENTS                                                *dap-requirements*
+
+  - Neovim 0.9 or later
+  - nvim-dap (mfussenegger/nvim-dap) — required, dap.nvim configures it
+  - lib.nvim
+  - Optional: nvim-dap-ui, nvim-dap-virtual-text, which-key.nvim, mason.nvim
+    (for adapter binary installation)
+
+==============================================================================
+3. INSTALLATION                                                *dap-installation*
+
+lazy.nvim: >lua
+  {
+    "StefanBartl/dap.nvim",
+    dependencies = {
+      "StefanBartl/lib.nvim",
+      "mfussenegger/nvim-dap",
+      "rcarriga/nvim-dap-ui",
+      "nvim-neotest/nvim-nio",
+      "theHamsta/nvim-dap-virtual-text",
+      "jbyuki/one-small-step-for-vimkind",
+    },
+    event = "VeryLazy",
+    opts = {},
+  }
+<
+packer.nvim: >lua
+  use({
+    "StefanBartl/dap.nvim",
+    requires = {
+      "StefanBartl/lib.nvim",
+      "mfussenegger/nvim-dap",
+      "rcarriga/nvim-dap-ui",
+      "nvim-neotest/nvim-nio",
+      "theHamsta/nvim-dap-virtual-text",
+      "jbyuki/one-small-step-for-vimkind",
+    },
+    config = function()
+      require("dap_nvim").setup({})
+    end,
+  })
+<
+
+==============================================================================
+4. CONFIGURATION                                                      *dap-config*
+
+>lua
+  require("dap_nvim").setup({
+    languages = {},  -- empty = all available
+
+    ui = {
+      enable = true,
+      virtual_text = true,
+      signs = true,
+      highlights = true,
+    },
+
+    keymaps = {
+      enable = true,
+      prefix = "<leader>d",
+    },
+
+    which_key = {
+      enable = true,
+    },
+
+    autocmds = {
+      enable = true,
+    },
+
+    adapters = {},
+    configurations = {},
+
+    auto_install = false,
+    log_level = vim.log.levels.WARN,
+  })
+<
+
+Every key is independently overridable.
+
+==============================================================================
+5. KEYMAPS                                                          *dap-keymaps*
+
+Installed under the configurable prefix (default "<leader>d") when
+|dap-config| `keymaps.enable` is true. Full table in doc/../docs/BINDINGS.md.
+
+  <leader>dc    Continue
+  <leader>ds    Step Over
+  <leader>di    Step Into
+  <leader>do    Step Out
+  <leader>dt    Terminate
+  <leader>dr    Restart
+  <leader>db    Toggle Breakpoint
+  <leader>dB    Conditional Breakpoint
+  <leader>dL    Log Point
+  <leader>dl    List Breakpoints
+  <leader>du    Toggle UI
+  <leader>de    Evaluate Expression/Selection (normal + visual)
+  <leader>dR    Open REPL
+
+==============================================================================
+6. USER COMMANDS                                                    *dap-commands*
+
+Always registered, independent of `keymaps.enable`.
+
+  :DapContinue            :DapStepOver          :DapStepInto
+  :DapStepOut              :DapTerminate          :DapRestart
+  :DapToggleBreakpoint     :DapListBreakpoints    :DapToggleUI
+  :DapEval
+
+==============================================================================
+7. HEALTH CHECK                                                        *dap-health*
+
+>vim
+  :checkhealth dap_nvim
+<
+
+Verifies Neovim version, nvim-dap presence, lib.nvim modules, optional UI
+companions, and per-language adapter availability.
+
+==============================================================================
+8. ARCHITECTURE                                                  *dap-architecture*
+
+See the "Architecture" section of README.md for the full module tree.
+lib.nvim provides notify, `cross` (platform detection / Mason path
+resolution), and `normalize` (path helpers).
+
+ vim:tw=78:ts=8:ft=help:norl:

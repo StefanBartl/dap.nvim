@@ -1,0 +1,47 @@
+---@module 'dap_nvim.ui.dapui'
+---@brief nvim-dap-ui setup: layout + auto-open/close listeners.
+
+local config = require("dap_nvim.config")
+
+local M = {}
+
+---@return boolean success
+function M.setup()
+  local ok_dapui, dapui = pcall(require, "dapui")
+  if not ok_dapui then
+    return false
+  end
+
+  local ok_dap, dap = pcall(require, "dap")
+  if not ok_dap then
+    return false
+  end
+
+  dap.listeners = dap.listeners or { before = {}, after = {} }
+  dap.listeners.before = dap.listeners.before or {}
+  dap.listeners.after = dap.listeners.after or {}
+
+  dapui.setup({
+    layouts = config.dapui_layout,
+  })
+
+  dap.listeners.after.event_initialized = dap.listeners.after.event_initialized or {}
+  dap.listeners.before.event_terminated = dap.listeners.before.event_terminated or {}
+  dap.listeners.before.event_exited = dap.listeners.before.event_exited or {}
+
+  dap.listeners.after.event_initialized["dapui_config"] = function()
+    dapui.open()
+  end
+
+  dap.listeners.before.event_terminated["dapui_config"] = function()
+    dapui.close()
+  end
+
+  dap.listeners.before.event_exited["dapui_config"] = function()
+    dapui.close()
+  end
+
+  return true
+end
+
+return M
