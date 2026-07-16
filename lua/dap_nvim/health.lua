@@ -69,7 +69,10 @@ function M.check()
   local registry = require("dap_nvim.registry")
 
   for _, lang in ipairs(registry.available_languages()) do
-    local valid, err = config.validate_adapter(lang)
+    -- Resolve aliases (typescript -> javascript, cpp -> c, ...) before
+    -- validating; adapter_binaries is keyed by the canonical name only.
+    local actual_lang = config.language_aliases[lang] or lang
+    local valid, err = config.validate_adapter(actual_lang)
     if valid then
       vim.health.ok(string.format("%s: adapter available", lang))
     else
