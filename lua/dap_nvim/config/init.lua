@@ -185,11 +185,19 @@ function M.validate_adapter(name)
   local path = M.get_adapter_path(name)
   if not path then
     if adapter.required then
+      if adapter.mason_pkg then
+        return false,
+          string.format(
+            "Required adapter '%s' not found. Install via Mason: %s",
+            name,
+            adapter.mason_pkg
+          )
+      end
       return false,
         string.format(
-          "Required adapter '%s' not found. Install via Mason: %s",
+          "Required adapter '%s' not found: '%s' is not on PATH and has no Mason package. Install it manually (system package manager).",
           name,
-          adapter.mason_pkg or adapter.binary
+          adapter.binary
         )
     end
     return false, string.format("Optional adapter '%s' not found", name)
