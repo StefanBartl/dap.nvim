@@ -12,6 +12,13 @@ local DEFAULTS = {
 
   ui = {
     enable = true,
+    -- Panel UI provider. Exactly one is wired: "dap-view" (default, modern and
+    -- lighter), "dap-ui" (opt-in, richer layout), "auto" (first installed), or
+    -- "none". An uninstalled preference falls back to the other provider.
+    provider = "dap-view",
+    -- Deliberately unset: `ui.dap_view` / `ui.dap_ui` are optional option
+    -- tables passed straight to the respective plugin's setup(). Absent means
+    -- "use the plugin's own defaults" (dap-view) resp. `config.dapui_layout`.
     virtual_text = true,
     signs = true,
     highlights = true,

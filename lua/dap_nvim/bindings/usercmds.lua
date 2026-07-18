@@ -40,12 +40,16 @@ function M.setup()
     dap().list_breakpoints()
   end, { desc = "[DAP] List Breakpoints" })
 
+  local function ui()
+    return require("dap_nvim.ui.provider")
+  end
+
   vim.api.nvim_create_user_command("DapToggleUI", function()
-    require("dapui").toggle()
+    ui().toggle()
   end, { desc = "[DAP] Toggle UI" })
 
   vim.api.nvim_create_user_command("DapEval", function()
-    require("dapui").eval()
+    ui().eval()
   end, { desc = "[DAP] Evaluate Expression" })
 end
 

@@ -1,5 +1,8 @@
 ---@module 'dap_nvim.ui'
----@brief Wires signs, highlights, nvim-dap-ui, and nvim-dap-virtual-text.
+---@brief Wires signs, highlights, the panel UI provider, and nvim-dap-virtual-text.
+---@description
+--- The panel UI is provided by exactly one of nvim-dap-view (default) or
+--- nvim-dap-ui (opt-in), selected via `ui.provider`; see ui/provider.lua.
 
 local M = {}
 
@@ -16,9 +19,9 @@ function M.setup(opts)
   end
 
   if opts.enable then
-    local ok_dapui, dapui_mod = pcall(require, "dap_nvim.ui.dapui")
-    if ok_dapui then
-      pcall(dapui_mod.setup)
+    local ok_provider, provider = pcall(require, "dap_nvim.ui.provider")
+    if ok_provider then
+      pcall(provider.setup, opts)
     end
   end
 

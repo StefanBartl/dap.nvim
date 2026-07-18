@@ -7,10 +7,13 @@
 - Language alias resolution (`typescript` → `javascript`, `cpp` → `c`, ...)
 - Adapter validation with Mason-path fallback (`config.validate_adapter`)
 - `registry.lua` lifecycle: register/unregister/enabled/available/stats
-- nvim-dap-ui + nvim-dap-virtual-text wiring, default signs/highlights
+- nvim-dap-virtual-text wiring, default signs/highlights
 - `config/DEFAULTS.lua` + `config/init.lua` merge system
 - User-configurable keymaps (single prefix), which-key group label, and a
   full `:Dap*` user-command set independent of keymaps
+- Pluggable panel UI (`ui.provider`): nvim-dap-view by default, nvim-dap-ui
+  opt-in, with fallback when the preferred one is missing — exactly one is
+  wired, and keymaps/commands dispatch through `ui/provider.lua`
 - `:checkhealth dap_nvim` covering nvim-dap/lib.nvim/UI companions/adapters
 - `docs/BINDINGS.md` cheatsheet (keymaps, commands, autocmds)
 - Built on lib.nvim as a deliberate shared dependency (notify, cross-platform
@@ -22,7 +25,6 @@
   adapters instead of only warning in `:checkhealth`
 - [ ] Per-language `configurations` override should support full *replace*
   as well as the current *append* semantics
-- [ ] Optional `nvim-dap-view` support alongside nvim-dap-ui
 - [ ] REPL/console keymap parity check against upstream nvim-dap defaults
   as new DAP features land
 - [ ] Consider exposing `registry.stats()` / `validate()` through

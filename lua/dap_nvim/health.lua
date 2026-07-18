@@ -45,10 +45,37 @@ function M.check()
 
   -- ── UI companions ─────────────────────────────────────────────────────────
   vim.health.start("dap.nvim: UI companions")
-  if pcall(require, "dapui") then
-    vim.health.ok("nvim-dap-ui installed")
+  local ui_opts = require("dap_nvim.config").get().ui or {}
+  local preference = ui_opts.provider or "dap-view"
+  local has_view = pcall(require, "dap-view")
+  local has_dapui = pcall(require, "dapui")
+
+  vim.health.info("ui.provider = " .. tostring(preference))
+
+  if has_view then
+    vim.health.ok("nvim-dap-view installed (default panel UI)")
   else
-    vim.health.warn("nvim-dap-ui not found (recommended for rich debugging UI)")
+    vim.health.info("nvim-dap-view not found (optional)")
+  end
+
+  if has_dapui then
+    vim.health.ok("nvim-dap-ui installed (opt-in via ui.provider = 'dap-ui')")
+  else
+    vim.health.info("nvim-dap-ui not found (optional)")
+  end
+
+  local active = require("dap_nvim.ui.provider").active()
+  if active then
+    vim.health.ok("active panel UI: " .. active)
+    if preference ~= "auto" and preference ~= active then
+      vim.health.warn(
+        string.format("'%s' is not installed — fell back to '%s'", preference, active)
+      )
+    end
+  elseif preference == "none" or not ui_opts.enable then
+    vim.health.info("panel UI disabled by configuration")
+  else
+    vim.health.warn("no panel UI active — install nvim-dap-view or nvim-dap-ui")
   end
 
   if pcall(require, "nvim-dap-virtual-text") then

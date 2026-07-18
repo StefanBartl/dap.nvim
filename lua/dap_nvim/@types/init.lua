@@ -13,7 +13,10 @@
 ---@field log_level integer Logging level (vim.log.levels)
 
 ---@class Dap.UiOptions
----@field enable boolean Enable nvim-dap-ui integration
+---@field enable boolean Enable the panel UI integration
+---@field provider Dap.UiProvider Panel UI to wire: 'dap-view' (default), 'dap-ui', 'auto' or 'none'
+---@field dap_view? table Options passed to `require("dap-view").setup()`
+---@field dap_ui? table Options passed to `require("dapui").setup()`
 ---@field virtual_text boolean Enable nvim-dap-virtual-text
 ---@field signs boolean Configure gutter signs
 ---@field highlights boolean Configure default highlight groups

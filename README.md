@@ -37,6 +37,7 @@ shared dependency.
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Configuration](#configuration)
+- [Panel UI](#panel-ui)
 - [Default Keymaps](#default-keymaps)
 - [User Commands](#user-commands)
 - [Health Check](#health-check)
@@ -68,8 +69,10 @@ binary (or Neovim plugin, for Lua) is actually available — see
 - [nvim-dap](https://github.com/mfussenegger/nvim-dap) (required — dap.nvim
   configures it, it does not replace it)
 - [lib.nvim](https://github.com/StefanBartl/lib.nvim)
-- Optional: [nvim-dap-ui](https://github.com/rcarriga/nvim-dap-ui),
-  [nvim-dap-virtual-text](https://github.com/theHamsta/nvim-dap-virtual-text),
+- Panel UI (optional, pick one): [nvim-dap-view](https://github.com/igorlfs/nvim-dap-view)
+  (default) **or** [nvim-dap-ui](https://github.com/rcarriga/nvim-dap-ui) (opt-in
+  via `ui.provider`) — see [Panel UI](#panel-ui)
+- Optional: [nvim-dap-virtual-text](https://github.com/theHamsta/nvim-dap-virtual-text),
   [which-key.nvim](https://github.com/folke/which-key.nvim), and
   [mason.nvim](https://github.com/williamboman/mason.nvim) for adapter binaries
 
@@ -83,8 +86,9 @@ binary (or Neovim plugin, for Lua) is actually available — see
   dependencies = {
     "StefanBartl/lib.nvim",
     "mfussenegger/nvim-dap",
-    "rcarriga/nvim-dap-ui",       -- optional, recommended
-    "nvim-neotest/nvim-nio",      -- required by nvim-dap-ui
+    "igorlfs/nvim-dap-view",      -- default panel UI
+    -- "rcarriga/nvim-dap-ui",    -- opt-in alternative (ui.provider = "dap-ui")
+    -- "nvim-neotest/nvim-nio",   -- required by nvim-dap-ui
     "theHamsta/nvim-dap-virtual-text", -- optional
     "jbyuki/one-small-step-for-vimkind", -- optional, Lua debugging
   },
@@ -101,8 +105,7 @@ use({
   requires = {
     "StefanBartl/lib.nvim",
     "mfussenegger/nvim-dap",
-    "rcarriga/nvim-dap-ui",
-    "nvim-neotest/nvim-nio",
+    "igorlfs/nvim-dap-view",
     "theHamsta/nvim-dap-virtual-text",
     "jbyuki/one-small-step-for-vimkind",
   },
@@ -134,7 +137,10 @@ require("dap_nvim").setup({
   languages = {},  -- empty = all available
 
   ui = {
-    enable = true,        -- nvim-dap-ui
+    enable = true,             -- wire a panel UI at all
+    provider = "dap-view",     -- "dap-view" | "dap-ui" | "auto" | "none"
+    -- dap_view = {},          -- optional, passed to dap-view's setup()
+    -- dap_ui = {},            -- optional, passed to dapui's setup()
     virtual_text = true,  -- nvim-dap-virtual-text
     signs = true,          -- gutter signs
     highlights = true,     -- default highlight groups
@@ -170,6 +176,41 @@ require("dap_nvim").setup({
 
 Every key is independently overridable — set only what you want to change.
 
+## Panel UI
+
+dap.nvim wires **exactly one** panel UI. Running nvim-dap-view and nvim-dap-ui
+side by side means two competing window layouts and two sets of auto-open/close
+listeners on the same nvim-dap events, so `ui.provider` picks one:
+
+| `ui.provider` | Behaviour |
+| --- | --- |
+| `"dap-view"` | **Default.** Wire [nvim-dap-view](https://github.com/igorlfs/nvim-dap-view) — lighter, single-window, no nvim-nio dependency |
+| `"dap-ui"` | Wire [nvim-dap-ui](https://github.com/rcarriga/nvim-dap-ui) with the layout from `config.dapui_layout` (or your `ui.dap_ui` table) |
+| `"auto"` | First of the two that is installed, nvim-dap-view winning |
+| `"none"` | No panel UI; signs, highlights and virtual text still apply |
+
+If the preferred provider is not installed but the other one is, dap.nvim falls
+back to it and warns once. `ui.enable = false` disables the panel UI entirely,
+regardless of `provider`.
+
+Both providers open on `event_initialized` and close when the session
+terminates or exits. `<leader>du` / `:DapToggleUI` and `<leader>de` / `:DapEval`
+route through the active provider, so the bindings do not change when you
+switch. One behavioural difference: nvim-dap-ui's eval opens a floating window,
+while nvim-dap-view has no float and instead adds the expression to its watch
+list.
+
+To go back to nvim-dap-ui:
+
+```lua
+opts = {
+  ui = { provider = "dap-ui" },
+}
+```
+
+`:checkhealth dap_nvim` reports both the configured preference and the provider
+that actually got wired.
+
 ## Default Keymaps
 
 See [docs/BINDINGS.md](docs/BINDINGS.md) for the full cheatsheet. Quick
@@ -201,7 +242,8 @@ independent of `keymaps.enable`. Full list in
 ```
 
 Verifies Neovim version, nvim-dap presence, lib.nvim modules, optional UI
-companions (nvim-dap-ui, nvim-dap-virtual-text, which-key), and per-language
+companions (the configured and active panel UI, nvim-dap-virtual-text,
+which-key), and per-language
 adapter availability (binary on `$PATH` or via Mason).
 
 ## Architecture
@@ -220,10 +262,13 @@ lua/dap_nvim/
   core/
     init.lua / setup.lua         nvim-dap presence check, capability detection, state init
     state.lua                   Minimal session state
-    capabilities.lua            Soft-dependency detection (dapui, virtual-text)
+    capabilities.lua            Soft-dependency detection (dap-view, dapui, virtual-text)
   adapters/                     dap.adapters.* registration, one file per language
   configurations/                dap.configurations.* launch configs, one file per language
-  ui/                           signs, highlights, nvim-dap-ui, nvim-dap-virtual-text
+  ui/                           signs, highlights, panel UI provider, nvim-dap-virtual-text
+    provider.lua                Resolves + dispatches to the active panel UI
+    dapview.lua                 nvim-dap-view wiring (default)
+    dapui.lua                   nvim-dap-ui wiring (opt-in)
   bindings/                     Every user-facing trigger — registration only
     init.lua                    orchestrates usercmds/keymaps/which_key/autocmds
     usercmds.lua                 registers all :Dap* user commands
