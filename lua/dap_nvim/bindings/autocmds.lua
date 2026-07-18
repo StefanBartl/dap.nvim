@@ -1,5 +1,8 @@
 ---@module 'dap_nvim.bindings.autocmds'
 ---@brief Cursorline toggle while the nvim-dap-ui window is open.
+---@description
+--- Only nvim-dap-ui emits the `DapUIWindowOpen`/`DapUIWindowClose` User events,
+--- so these autocmds are inert when the default nvim-dap-view provider is active.
 
 local M = {}
 

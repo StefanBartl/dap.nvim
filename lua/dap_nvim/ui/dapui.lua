@@ -1,12 +1,16 @@
 ---@module 'dap_nvim.ui.dapui'
 ---@brief nvim-dap-ui setup: layout + auto-open/close listeners.
+---@description
+--- Opt-in alternative to the default nvim-dap-view provider; selected via
+--- `ui.provider = "dap-ui"`. See ui/provider.lua.
 
 local config = require("dap_nvim.config")
 
 local M = {}
 
+---@param opts Dap.UiOptions
 ---@return boolean success
-function M.setup()
+function M.setup(opts)
   local ok_dapui, dapui = pcall(require, "dapui")
   if not ok_dapui then
     return false
@@ -21,7 +25,7 @@ function M.setup()
   dap.listeners.before = dap.listeners.before or {}
   dap.listeners.after = dap.listeners.after or {}
 
-  dapui.setup({
+  dapui.setup(opts.dap_ui or {
     layouts = config.dapui_layout,
   })
 

@@ -10,6 +10,7 @@ CONTENTS                                                          *dap-contents*
   2. Requirements .............. |dap-requirements|
   3. Installation .............. |dap-installation|
   4. Configuration ............. |dap-config|
+     Panel UI .................. |dap-panel-ui|
   5. Keymaps ................... |dap-keymaps|
   6. User commands .............. |dap-commands|
   7. Health check .............. |dap-health|
@@ -21,7 +22,8 @@ CONTENTS                                                          *dap-contents*
 dap.nvim is a config layer on top of nvim-dap (mfussenegger/nvim-dap). It
 registers adapters and launch configurations for nine languages (Lua,
 JavaScript/TypeScript, C/C++, Go, Python, Rust, Zig, Assembly), auto-detects
-and validates adapter binaries with Mason fallback, wires up nvim-dap-ui and
+and validates adapter binaries with Mason fallback, wires up a panel UI
+(nvim-dap-view by default, nvim-dap-ui opt-in — see |dap-panel-ui|) and
 nvim-dap-virtual-text, and ships user-configurable keymaps, commands, and a
 which-key group label.
 
@@ -33,7 +35,9 @@ Depends on lib.nvim (a deliberate shared dependency).
   - Neovim 0.9 or later
   - nvim-dap (mfussenegger/nvim-dap) — required, dap.nvim configures it
   - lib.nvim
-  - Optional: nvim-dap-ui, nvim-dap-virtual-text, which-key.nvim, mason.nvim
+  - Panel UI, optional, pick one: nvim-dap-view (default) or nvim-dap-ui
+    (opt-in via ui.provider) — see |dap-panel-ui|
+  - Optional: nvim-dap-virtual-text, which-key.nvim, mason.nvim
     (for adapter binary installation)
 
 ==============================================================================
@@ -45,8 +49,7 @@ lazy.nvim: >lua
     dependencies = {
       "StefanBartl/lib.nvim",
       "mfussenegger/nvim-dap",
-      "rcarriga/nvim-dap-ui",
-      "nvim-neotest/nvim-nio",
+      "igorlfs/nvim-dap-view",
       "theHamsta/nvim-dap-virtual-text",
       "jbyuki/one-small-step-for-vimkind",
     },
@@ -60,8 +63,7 @@ packer.nvim: >lua
     requires = {
       "StefanBartl/lib.nvim",
       "mfussenegger/nvim-dap",
-      "rcarriga/nvim-dap-ui",
-      "nvim-neotest/nvim-nio",
+      "igorlfs/nvim-dap-view",
       "theHamsta/nvim-dap-virtual-text",
       "jbyuki/one-small-step-for-vimkind",
     },
@@ -80,6 +82,9 @@ packer.nvim: >lua
 
     ui = {
       enable = true,
+      provider = "dap-view",  -- "dap-view"|"dap-ui"|"auto"|"none"
+      -- dap_view = {},       -- optional, passed to dap-view's setup()
+      -- dap_ui = {},         -- optional, passed to dapui's setup()
       virtual_text = true,
       signs = true,
       highlights = true,
@@ -107,6 +112,29 @@ packer.nvim: >lua
 <
 
 Every key is independently overridable.
+
+PANEL UI                                                        *dap-panel-ui*
+
+dap.nvim wires exactly one panel UI — running nvim-dap-view and nvim-dap-ui
+side by side means two competing layouts and two sets of auto-open/close
+listeners on the same nvim-dap events. `ui.provider` selects it:
+
+  "dap-view"  default; wires nvim-dap-view (igorlfs/nvim-dap-view)
+  "dap-ui"    wires nvim-dap-ui (rcarriga/nvim-dap-ui); needs nvim-nio
+  "auto"      first of the two that is installed, nvim-dap-view winning
+  "none"      no panel UI; signs, highlights and virtual text still apply
+
+If the preferred provider is not installed but the other is, dap.nvim falls
+back to it and warns once. `ui.enable = false` disables the panel UI entirely.
+
+Both providers open on `event_initialized` and close when the session
+terminates or exits. `<leader>du` / `:DapToggleUI` and `<leader>de` /
+`:DapEval` dispatch through the active provider, so the bindings are
+unchanged when switching. nvim-dap-ui's eval opens a floating window;
+nvim-dap-view has no float and adds the expression to its watch list instead.
+
+`:checkhealth dap_nvim` reports both the configured preference and the
+provider that was actually wired.
 
 ==============================================================================
 5. KEYMAPS                                                          *dap-keymaps*

@@ -9,6 +9,7 @@ M._features = {}
 function M.detect()
   M._features.dap = pcall(require, "dap")
   M._features.dapui = pcall(require, "dapui")
+  M._features.dapview = pcall(require, "dap-view")
   M._features.virtual_text = pcall(require, "nvim-dap-virtual-text")
 
   return M._features

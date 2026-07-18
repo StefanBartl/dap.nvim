@@ -29,8 +29,8 @@ Normal/visual-mode keymaps installed by `bindings.setup()`, gated by
 | `<leader>dB` | n | Conditional Breakpoint (prompts for condition) |
 | `<leader>dL` | n | Log Point (prompts for log message) |
 | `<leader>dl` | n | List Breakpoints |
-| `<leader>du` | n | Toggle UI (nvim-dap-ui) |
-| `<leader>de` | n, v | Evaluate Expression / Selection (nvim-dap-ui) |
+| `<leader>du` | n | Toggle UI (active panel UI provider) |
+| `<leader>de` | n, v | Evaluate Expression / Selection (dap-ui: float, dap-view: watch) |
 | `<leader>dR` | n | Open REPL |
 
 which-key gets a single group label for the prefix
@@ -50,8 +50,8 @@ Always registered, independent of `keymaps.enable`.
 | `:DapRestart` | Restart |
 | `:DapToggleBreakpoint` | Toggle Breakpoint |
 | `:DapListBreakpoints` | List Breakpoints |
-| `:DapToggleUI` | Toggle UI (nvim-dap-ui) |
-| `:DapEval` | Evaluate Expression (nvim-dap-ui) |
+| `:DapToggleUI` | Toggle UI (active panel UI provider) |
+| `:DapEval` | Evaluate Expression (dap-ui: float, dap-view: watch) |
 
 ## Autocommands
 

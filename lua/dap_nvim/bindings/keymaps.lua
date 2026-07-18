@@ -1,5 +1,5 @@
 ---@module 'dap_nvim.bindings.keymaps'
----@brief Default normal/visual-mode keymaps on top of nvim-dap / nvim-dap-ui.
+---@brief Default normal/visual-mode keymaps on top of nvim-dap and the panel UI.
 ---@description
 --- All keymaps live under a single, user-configurable prefix
 --- (`Dap.KeymapOptions.prefix`, default `<leader>d`) and are only installed
@@ -40,15 +40,18 @@ function M.setup(opts)
   end, desc("Log Point"))
   map("n", prefix .. "l", dap.list_breakpoints, desc("List Breakpoints"))
 
-  -- UI (soft dependency: nvim-dap-ui)
+  -- UI (routed through the active provider: nvim-dap-view or nvim-dap-ui)
+  local ui = function()
+    return require("dap_nvim.ui.provider")
+  end
   map("n", prefix .. "u", function()
-    require("dapui").toggle()
+    ui().toggle()
   end, desc("Toggle UI"))
   map("n", prefix .. "e", function()
-    require("dapui").eval()
+    ui().eval()
   end, desc("Evaluate Expression"))
   map("v", prefix .. "e", function()
-    require("dapui").eval()
+    ui().eval()
   end, desc("Evaluate Selection"))
 
   -- REPL
