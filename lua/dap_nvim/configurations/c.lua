@@ -1,6 +1,8 @@
 ---@module 'dap_nvim.configurations.c'
 ---@brief Launch configurations for C/C++ debugging
 
+local paths = require("dap_nvim.utils.paths")
+
 local M = {}
 
 ---@return boolean success
@@ -17,7 +19,7 @@ function M.load()
         type = "codelldb",
         request = "launch",
         program = function()
-          return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/", "file")
+          return vim.fn.input("Path to executable: ", paths.join(vim.fn.getcwd(), ""), "file")
         end,
         cwd = "${workspaceFolder}",
         stopOnEntry = false,
