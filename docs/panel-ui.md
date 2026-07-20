@@ -16,7 +16,7 @@ back to it and warns once. `ui.enable = false` disables the panel UI entirely,
 regardless of `provider`.
 
 Both providers open on `event_initialized` and close when the session
-terminates or exits. `<leader>du` / `:DapToggleUI` and `<leader>de` / `:DapEval`
+terminates or exits. `<leader>du` / `:Dap toggle-ui` and `<leader>de` / `:Dap eval`
 route through the active provider, so the bindings do not change when you
 switch. One behavioural difference: nvim-dap-ui's eval opens a floating window,
 while nvim-dap-view has no float and instead adds the expression to its watch

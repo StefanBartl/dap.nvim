@@ -38,20 +38,22 @@ which-key gets a single group label for the prefix
 
 ## User Commands
 
-Always registered, independent of `keymaps.enable`.
+One command, `:Dap <subcommand>` (built via
+[`lib.nvim.usercmd.composer`](https://github.com/StefanBartl/lib.nvim), with
+`<Tab>` completion). Always registered, independent of `keymaps.enable`.
 
 | command | desc |
 | --- | --- |
-| `:DapContinue` | Continue |
-| `:DapStepOver` | Step Over |
-| `:DapStepInto` | Step Into |
-| `:DapStepOut` | Step Out |
-| `:DapTerminate` | Terminate |
-| `:DapRestart` | Restart |
-| `:DapToggleBreakpoint` | Toggle Breakpoint |
-| `:DapListBreakpoints` | List Breakpoints |
-| `:DapToggleUI` | Toggle UI (active panel UI provider) |
-| `:DapEval` | Evaluate Expression (dap-ui: float, dap-view: watch) |
+| `:Dap continue` | Continue |
+| `:Dap step-over` | Step Over |
+| `:Dap step-into` | Step Into |
+| `:Dap step-out` | Step Out |
+| `:Dap terminate` | Terminate |
+| `:Dap restart` | Restart |
+| `:Dap toggle-breakpoint` | Toggle Breakpoint |
+| `:Dap list-breakpoints` | List Breakpoints |
+| `:Dap toggle-ui` | Toggle UI (active panel UI provider) |
+| `:Dap eval` | Evaluate Expression (dap-ui: float, dap-view: watch) |
 
 ## Autocommands
 

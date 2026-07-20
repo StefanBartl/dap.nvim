@@ -1,5 +1,12 @@
 ---@module 'dap_nvim.bindings.usercmds'
----@brief Registers user commands mirroring the default keymaps 1:1.
+---@brief Registers :Dap <subcommand>, one verb built via lib.nvim's
+---@brief composer (:Verb sub … + <Tab> completion + Markdown docgen).
+---@description
+--- All ten actions mirror the default keymaps 1:1 (see
+--- bindings/keymaps/init.lua) but are independent entry points — the
+--- keymaps call dap()/ui() Lua functions directly, not these commands.
+
+local composer = require("lib.nvim.usercmd.composer")
 
 local M = {}
 
@@ -7,50 +14,25 @@ function M.setup()
   local function dap()
     return require("dap")
   end
-
-  vim.api.nvim_create_user_command("DapContinue", function()
-    dap().continue()
-  end, { desc = "[DAP] Continue" })
-
-  vim.api.nvim_create_user_command("DapStepOver", function()
-    dap().step_over()
-  end, { desc = "[DAP] Step Over" })
-
-  vim.api.nvim_create_user_command("DapStepInto", function()
-    dap().step_into()
-  end, { desc = "[DAP] Step Into" })
-
-  vim.api.nvim_create_user_command("DapStepOut", function()
-    dap().step_out()
-  end, { desc = "[DAP] Step Out" })
-
-  vim.api.nvim_create_user_command("DapTerminate", function()
-    dap().terminate()
-  end, { desc = "[DAP] Terminate" })
-
-  vim.api.nvim_create_user_command("DapRestart", function()
-    dap().restart()
-  end, { desc = "[DAP] Restart" })
-
-  vim.api.nvim_create_user_command("DapToggleBreakpoint", function()
-    dap().toggle_breakpoint()
-  end, { desc = "[DAP] Toggle Breakpoint" })
-
-  vim.api.nvim_create_user_command("DapListBreakpoints", function()
-    dap().list_breakpoints()
-  end, { desc = "[DAP] List Breakpoints" })
-
   local function ui()
     return require("dap_nvim.ui.provider")
   end
 
-  vim.api.nvim_create_user_command("DapToggleUI", function()
-    ui().toggle()
-  end, { desc = "[DAP] Toggle UI" })
-
-  vim.api.nvim_create_user_command("DapEval", function()
-    ui().eval()
-  end, { desc = "[DAP] Evaluate Expression" })
+  composer.verb("Dap", {
+    desc = "nvim-dap session, breakpoint, and UI control",
+    routes = {
+      { path = { "continue" }, desc = "Continue", run = function() dap().continue() end },
+      { path = { "step-over" }, desc = "Step Over", run = function() dap().step_over() end },
+      { path = { "step-into" }, desc = "Step Into", run = function() dap().step_into() end },
+      { path = { "step-out" }, desc = "Step Out", run = function() dap().step_out() end },
+      { path = { "terminate" }, desc = "Terminate", run = function() dap().terminate() end },
+      { path = { "restart" }, desc = "Restart", run = function() dap().restart() end },
+      { path = { "toggle-breakpoint" }, desc = "Toggle Breakpoint", run = function() dap().toggle_breakpoint() end },
+      { path = { "list-breakpoints" }, desc = "List Breakpoints", run = function() dap().list_breakpoints() end },
+      { path = { "toggle-ui" }, desc = "Toggle UI", run = function() ui().toggle() end },
+      { path = { "eval" }, desc = "Evaluate Expression", run = function() ui().eval() end },
+    },
+  })
 end
 
 return M
