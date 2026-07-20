@@ -4,6 +4,8 @@
 --- Only nvim-dap-ui emits the `DapUIWindowOpen`/`DapUIWindowClose` User events,
 --- so these autocmds are inert when the default nvim-dap-view provider is active.
 
+local autocmd = require("lib.nvim.autocmd")
+
 local M = {}
 
 ---@param opts Dap.AutocmdOptions
@@ -12,24 +14,26 @@ function M.setup(opts)
     return
   end
 
+  -- Created directly via nvim_create_augroup(..., { clear = true }) rather
+  -- than lib.nvim.autocmd.group(): that helper caches groups by name and
+  -- skips the clear on subsequent calls, which would stack duplicate
+  -- autocmds if setup() ever re-runs.
   local group = vim.api.nvim_create_augroup("DapNvimAuto", { clear = true })
 
-  vim.api.nvim_create_autocmd("User", {
+  autocmd.create("User", function()
+    vim.wo.cursorline = true
+  end, {
     group = group,
     pattern = "DapUIWindowOpen",
     desc = "Enable cursorline while DAP UI is open",
-    callback = function()
-      vim.wo.cursorline = true
-    end,
   })
 
-  vim.api.nvim_create_autocmd("User", {
+  autocmd.create("User", function()
+    vim.wo.cursorline = false
+  end, {
     group = group,
     pattern = "DapUIWindowClose",
     desc = "Disable cursorline when DAP UI closes",
-    callback = function()
-      vim.wo.cursorline = false
-    end,
   })
 end
 
