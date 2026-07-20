@@ -128,8 +128,8 @@ If the preferred provider is not installed but the other is, dap.nvim falls
 back to it and warns once. `ui.enable = false` disables the panel UI entirely.
 
 Both providers open on `event_initialized` and close when the session
-terminates or exits. `<leader>du` / `:DapToggleUI` and `<leader>de` /
-`:DapEval` dispatch through the active provider, so the bindings are
+terminates or exits. `<leader>du` / `:Dap toggle-ui` and `<leader>de` /
+`:Dap eval` dispatch through the active provider, so the bindings are
 unchanged when switching. nvim-dap-ui's eval opens a floating window;
 nvim-dap-view has no float and adds the expression to its watch list instead.
 
@@ -159,12 +159,19 @@ Installed under the configurable prefix (default "<leader>d") when
 ==============================================================================
 6. USER COMMANDS                                                    *dap-commands*
 
-Always registered, independent of `keymaps.enable`.
-
-  :DapContinue            :DapStepOver          :DapStepInto
-  :DapStepOut              :DapTerminate          :DapRestart
-  :DapToggleBreakpoint     :DapListBreakpoints    :DapToggleUI
-  :DapEval
+One command, :Dap <subcommand> (built via lib.nvim.usercmd.composer, with
+<Tab> completion). Always registered, independent of `keymaps.enable`.
+                                                                       *:Dap*
+  :Dap continue                                             *:Dap-continue*
+  :Dap step-over                                            *:Dap-step-over*
+  :Dap step-into                                            *:Dap-step-into*
+  :Dap step-out                                              *:Dap-step-out*
+  :Dap terminate                                              *:Dap-terminate*
+  :Dap restart                                                  *:Dap-restart*
+  :Dap toggle-breakpoint                              *:Dap-toggle-breakpoint*
+  :Dap list-breakpoints                                *:Dap-list-breakpoints*
+  :Dap toggle-ui                                              *:Dap-toggle-ui*
+  :Dap eval                                                        *:Dap-eval*
 
 ==============================================================================
 7. HEALTH CHECK                                                        *dap-health*
