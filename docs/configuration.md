@@ -3,7 +3,7 @@
 Full defaults:
 
 ```lua
-require("dap").setup({
+require("wkddap").setup({
   languages = {},  -- empty = all available
 
   ui = {

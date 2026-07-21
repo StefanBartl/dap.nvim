@@ -45,7 +45,7 @@ use({
     "jbyuki/one-small-step-for-vimkind",
   },
   config = function()
-    require("dap").setup({})
+    require("wkddap").setup({})
   end,
 })
 ```
