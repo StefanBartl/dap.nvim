@@ -5,7 +5,7 @@ local M = {}
 ---@param opts Dap.Config
 ---@return boolean success
 function M.setup(opts)
-  local ok, setup = pcall(require, "dap.core.setup")
+  local ok, setup = pcall(require, "wkddap.core.setup")
   if not ok then
     return false
   end

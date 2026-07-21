@@ -21,12 +21,12 @@ function M.setup(opts)
     vim.env.NVIM_DAP_LOG_LEVEL = tostring(opts.log_level)
   end
 
-  local ok_cap, capabilities = pcall(require, "dap.core.capabilities")
+  local ok_cap, capabilities = pcall(require, "wkddap.core.capabilities")
   if ok_cap then
     pcall(capabilities.detect)
   end
 
-  local ok_state, state = pcall(require, "dap.core.state")
+  local ok_state, state = pcall(require, "wkddap.core.state")
   if ok_state then
     pcall(state.init)
   end
