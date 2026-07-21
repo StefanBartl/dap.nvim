@@ -2,12 +2,12 @@
 
 ```
 docs/BINDINGS.md              Cheatsheet: every keymap, user command, autocmd
-plugin/dap.lua                 Load guard (vim.g.loaded_dap_nvim)
-lua/dap_nvim/
+plugin/dap.lua                 Load guard (vim.g.loaded_dap)
+lua/dap/
   init.lua                     setup() — orchestrates core/adapters/configurations/ui/bindings
   @types/init.lua               LuaLS type definitions (Dap.Config, ...)
   registry.lua                  Language adapter registry with validation
-  health.lua                    :checkhealth dap_nvim
+  health.lua                    :checkhealth dap
   config/
     DEFAULTS.lua                Immutable defaults
     init.lua                    Merge + access to active config, adapter/binary metadata

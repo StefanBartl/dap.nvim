@@ -45,7 +45,7 @@ use({
     "jbyuki/one-small-step-for-vimkind",
   },
   config = function()
-    require("dap_nvim").setup({})
+    require("dap").setup({})
   end,
 })
 ```

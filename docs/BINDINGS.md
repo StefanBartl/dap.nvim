@@ -4,10 +4,10 @@ Machine-readable overview of every keymap, user command, and autocommand
 defined by `dap.nvim`. This file is documentation only and mirrors the
 source of truth:
 
-- keymaps   — `lua/dap_nvim/bindings/keymaps.lua`
-- commands  — `lua/dap_nvim/bindings/usercmds.lua`
-- autocmds  — `lua/dap_nvim/bindings/autocmds.lua`
-- which-key — `lua/dap_nvim/bindings/which_key.lua`
+- keymaps   — `lua/dap/bindings/keymaps.lua`
+- commands  — `lua/dap/bindings/usercmds.lua`
+- autocmds  — `lua/dap/bindings/autocmds.lua`
+- which-key — `lua/dap/bindings/which_key.lua`
 
 Any change there must be reflected here.
 

@@ -51,7 +51,7 @@ dependency.
 Then verify everything is wired up correctly:
 
 ```vim
-:checkhealth dap_nvim
+:checkhealth dap
 ```
 
 ## Documentation
@@ -62,6 +62,6 @@ Then verify everything is wired up correctly:
 - [Panel UI](docs/panel-ui.md) — choosing between nvim-dap-view and nvim-dap-ui via `ui.provider`.
 - [Commands and Keymaps](docs/commands.md) — quick reference for default keymaps and `:Dap*` user commands.
 - [docs/BINDINGS.md](docs/BINDINGS.md) — full cheatsheet of every keymap, user command, and autocommand.
-- [Health Check](docs/health.md) — what `:checkhealth dap_nvim` verifies.
+- [Health Check](docs/health.md) — what `:checkhealth dap` verifies.
 - [Architecture](docs/architecture.md) — module layout and file responsibilities.
 - [docs/ROADMAP.md](docs/ROADMAP.md) — implemented features and planned work.
