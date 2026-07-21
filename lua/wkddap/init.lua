@@ -37,7 +37,7 @@ function M.setup(opts)
   local cfg = config.setup(opts)
   M._config = cfg
 
-  local ok_core, core = pcall(require, "dap.core")
+  local ok_core, core = pcall(require, "wkddap.core")
   if not ok_core then
     require("wkddap.utils.notify").error("Failed to load core module")
     return false
@@ -49,7 +49,7 @@ function M.setup(opts)
     return false
   end
 
-  local ok_adapters, adapters_mod = pcall(require, "dap.adapters")
+  local ok_adapters, adapters_mod = pcall(require, "wkddap.adapters")
   if ok_adapters and type(adapters_mod.register_all) == "function" then
     local adapter_ok, adapter_err = pcall(adapters_mod.register_all, cfg.languages, cfg.adapters or {})
     if not adapter_ok then
@@ -57,7 +57,7 @@ function M.setup(opts)
     end
   end
 
-  local ok_configs, configurations_mod = pcall(require, "dap.configurations")
+  local ok_configs, configurations_mod = pcall(require, "wkddap.configurations")
   if ok_configs and type(configurations_mod.load_all) == "function" then
     local config_ok, config_err = pcall(configurations_mod.load_all, cfg.languages, cfg.configurations or {})
     if not config_ok then
@@ -65,7 +65,7 @@ function M.setup(opts)
     end
   end
 
-  local ok_ui, ui_mod = pcall(require, "dap.ui")
+  local ok_ui, ui_mod = pcall(require, "wkddap.ui")
   if ok_ui then
     pcall(ui_mod.setup, cfg.ui)
   end
@@ -93,7 +93,7 @@ end
 --- Get available languages
 ---@return string[]
 function M.available_languages()
-  local ok, registry = pcall(require, "dap.registry")
+  local ok, registry = pcall(require, "wkddap.registry")
   if ok then
     return registry.available_languages()
   end
@@ -103,7 +103,7 @@ end
 --- Get enabled languages
 ---@return string[]
 function M.enabled_languages()
-  local ok, registry = pcall(require, "dap.registry")
+  local ok, registry = pcall(require, "wkddap.registry")
   if ok then
     return registry.enabled_languages()
   end
