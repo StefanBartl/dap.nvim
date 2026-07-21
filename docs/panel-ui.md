@@ -30,5 +30,5 @@ opts = {
 }
 ```
 
-`:checkhealth dap_nvim` reports both the configured preference and the provider
+`:checkhealth dap` reports both the configured preference and the provider
 that actually got wired.

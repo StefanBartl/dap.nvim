@@ -3,7 +3,7 @@
 Full defaults:
 
 ```lua
-require("dap_nvim").setup({
+require("dap").setup({
   languages = {},  -- empty = all available
 
   ui = {

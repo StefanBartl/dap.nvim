@@ -68,7 +68,7 @@ packer.nvim: >lua
       "jbyuki/one-small-step-for-vimkind",
     },
     config = function()
-      require("dap_nvim").setup({})
+      require("dap").setup({})
     end,
   })
 <
@@ -77,7 +77,7 @@ packer.nvim: >lua
 4. CONFIGURATION                                                      *dap-config*
 
 >lua
-  require("dap_nvim").setup({
+  require("dap").setup({
     languages = {},  -- empty = all available
 
     ui = {
@@ -133,7 +133,7 @@ terminates or exits. `<leader>du` / `:Dap toggle-ui` and `<leader>de` /
 unchanged when switching. nvim-dap-ui's eval opens a floating window;
 nvim-dap-view has no float and adds the expression to its watch list instead.
 
-`:checkhealth dap_nvim` reports both the configured preference and the
+`:checkhealth dap` reports both the configured preference and the
 provider that was actually wired.
 
 ==============================================================================
@@ -177,7 +177,7 @@ One command, :Dap <subcommand> (built via lib.nvim.usercmd.composer, with
 7. HEALTH CHECK                                                        *dap-health*
 
 >vim
-  :checkhealth dap_nvim
+  :checkhealth dap
 <
 
 Verifies Neovim version, nvim-dap presence, lib.nvim modules, optional UI
