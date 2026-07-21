@@ -1,7 +1,7 @@
 # Health Check
 
 ```vim
-:checkhealth dap
+:checkhealth wkddap
 ```
 
 Verifies Neovim version, nvim-dap presence, lib.nvim modules, optional UI

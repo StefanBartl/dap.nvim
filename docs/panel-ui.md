@@ -30,5 +30,5 @@ opts = {
 }
 ```
 
-`:checkhealth dap` reports both the configured preference and the provider
+`:checkhealth wkddap` reports both the configured preference and the provider
 that actually got wired.

@@ -1,0 +1,193 @@
+*wkddap.txt*  Adapters & launch configs for nvim-dap, batteries included    *dap.nvim*
+
+Author:   Stefan Bartl
+Version:  0.1.0
+
+==============================================================================
+CONTENTS                                                          *wkddap-contents*
+
+  1. Introduction .............. |wkddap-intro|
+  2. Requirements .............. |wkddap-requirements|
+  3. Installation .............. |wkddap-installation|
+  4. Configuration ............. |wkddap-config|
+     Panel UI .................. |wkddap-panel-ui|
+  5. Keymaps ................... |wkddap-keymaps|
+  6. User commands .............. |wkddap-commands|
+  7. Health check .............. |wkddap-health|
+  8. Architecture .............. |wkddap-architecture|
+
+==============================================================================
+1. INTRODUCTION                                                      *wkddap-intro*
+
+dap.nvim is a config layer on top of nvim-dap (mfussenegger/nvim-dap). It
+registers adapters and launch configurations for nine languages (Lua,
+JavaScript/TypeScript, C/C++, Go, Python, Rust, Zig, Assembly), auto-detects
+and validates adapter binaries with Mason fallback, wires up a panel UI
+(nvim-dap-view by default, nvim-dap-ui opt-in — see |wkddap-panel-ui|) and
+nvim-dap-virtual-text, and ships user-configurable keymaps, commands, and a
+which-key group label.
+
+Depends on lib.nvim (a deliberate shared dependency).
+
+==============================================================================
+2. REQUIREMENTS                                                *wkddap-requirements*
+
+  - Neovim 0.9 or later
+  - nvim-dap (mfussenegger/nvim-dap) — required, dap.nvim configures it
+  - lib.nvim
+  - Panel UI, optional, pick one: nvim-dap-view (default) or nvim-dap-ui
+    (opt-in via ui.provider) — see |wkddap-panel-ui|
+  - Optional: nvim-dap-virtual-text, which-key.nvim, mason.nvim
+    (for adapter binary installation)
+
+==============================================================================
+3. INSTALLATION                                                *wkddap-installation*
+
+lazy.nvim: >lua
+  {
+    "StefanBartl/dap.nvim",
+    dependencies = {
+      "StefanBartl/lib.nvim",
+      "mfussenegger/nvim-dap",
+      "igorlfs/nvim-dap-view",
+      "theHamsta/nvim-dap-virtual-text",
+      "jbyuki/one-small-step-for-vimkind",
+    },
+    event = "VeryLazy",
+    opts = {},
+  }
+<
+packer.nvim: >lua
+  use({
+    "StefanBartl/dap.nvim",
+    requires = {
+      "StefanBartl/lib.nvim",
+      "mfussenegger/nvim-dap",
+      "igorlfs/nvim-dap-view",
+      "theHamsta/nvim-dap-virtual-text",
+      "jbyuki/one-small-step-for-vimkind",
+    },
+    config = function()
+      require("wkddap").setup({})
+    end,
+  })
+<
+
+==============================================================================
+4. CONFIGURATION                                                      *wkddap-config*
+
+>lua
+  require("wkddap").setup({
+    languages = {},  -- empty = all available
+
+    ui = {
+      enable = true,
+      provider = "dap-view",  -- "dap-view"|"dap-ui"|"auto"|"none"
+      -- dap_view = {},       -- optional, passed to dap-view's setup()
+      -- dap_ui = {},         -- optional, passed to dapui's setup()
+      virtual_text = true,
+      signs = true,
+      highlights = true,
+    },
+
+    keymaps = {
+      enable = true,
+      prefix = "<leader>d",
+    },
+
+    which_key = {
+      enable = true,
+    },
+
+    autocmds = {
+      enable = true,
+    },
+
+    adapters = {},
+    configurations = {},
+
+    auto_install = false,
+    log_level = vim.log.levels.WARN,
+  })
+<
+
+Every key is independently overridable.
+
+PANEL UI                                                        *wkddap-panel-ui*
+
+dap.nvim wires exactly one panel UI — running nvim-dap-view and nvim-dap-ui
+side by side means two competing layouts and two sets of auto-open/close
+listeners on the same nvim-dap events. `ui.provider` selects it:
+
+  "dap-view"  default; wires nvim-dap-view (igorlfs/nvim-dap-view)
+  "dap-ui"    wires nvim-dap-ui (rcarriga/nvim-dap-ui); needs nvim-nio
+  "auto"      first of the two that is installed, nvim-dap-view winning
+  "none"      no panel UI; signs, highlights and virtual text still apply
+
+If the preferred provider is not installed but the other is, dap.nvim falls
+back to it and warns once. `ui.enable = false` disables the panel UI entirely.
+
+Both providers open on `event_initialized` and close when the session
+terminates or exits. `<leader>du` / `:Dap toggle-ui` and `<leader>de` /
+`:Dap eval` dispatch through the active provider, so the bindings are
+unchanged when switching. nvim-dap-ui's eval opens a floating window;
+nvim-dap-view has no float and adds the expression to its watch list instead.
+
+`:checkhealth wkddap` reports both the configured preference and the
+provider that was actually wired.
+
+==============================================================================
+5. KEYMAPS                                                          *wkddap-keymaps*
+
+Installed under the configurable prefix (default "<leader>d") when
+|wkddap-config| `keymaps.enable` is true. Full table in doc/../docs/BINDINGS.md.
+
+  <leader>dc    Continue
+  <leader>ds    Step Over
+  <leader>di    Step Into
+  <leader>do    Step Out
+  <leader>dt    Terminate
+  <leader>dr    Restart
+  <leader>db    Toggle Breakpoint
+  <leader>dB    Conditional Breakpoint
+  <leader>dL    Log Point
+  <leader>dl    List Breakpoints
+  <leader>du    Toggle UI
+  <leader>de    Evaluate Expression/Selection (normal + visual)
+  <leader>dR    Open REPL
+
+==============================================================================
+6. USER COMMANDS                                                    *wkddap-commands*
+
+One command, :Dap <subcommand> (built via lib.nvim.usercmd.composer, with
+<Tab> completion). Always registered, independent of `keymaps.enable`.
+                                                                       *:Dap*
+  :Dap continue                                             *:Dap-continue*
+  :Dap step-over                                            *:Dap-step-over*
+  :Dap step-into                                            *:Dap-step-into*
+  :Dap step-out                                              *:Dap-step-out*
+  :Dap terminate                                              *:Dap-terminate*
+  :Dap restart                                                  *:Dap-restart*
+  :Dap toggle-breakpoint                              *:Dap-toggle-breakpoint*
+  :Dap list-breakpoints                                *:Dap-list-breakpoints*
+  :Dap toggle-ui                                              *:Dap-toggle-ui*
+  :Dap eval                                                        *:Dap-eval*
+
+==============================================================================
+7. HEALTH CHECK                                                        *wkddap-health*
+
+>vim
+  :checkhealth wkddap
+<
+
+Verifies Neovim version, nvim-dap presence, lib.nvim modules, optional UI
+companions, and per-language adapter availability.
+
+==============================================================================
+8. ARCHITECTURE                                                  *wkddap-architecture*
+
+See the "Architecture" section of README.md for the full module tree.
+lib.nvim provides notify, `cross` (platform detection / Mason path
+resolution), and `normalize` (path helpers).
+
+ vim:tw=78:ts=8:ft=help:norl:
