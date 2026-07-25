@@ -11,7 +11,7 @@
 
 > 💡 Pairs well with [debugging.nvim](https://github.com/StefanBartl/debugging.nvim):
 > dap.nvim wires up Debug Adapter Protocol sessions (breakpoints, stepping,
-> launch configs) for nine languages, while debugging.nvim inspects live
+> launch configs) for eight languages, while debugging.nvim inspects live
 > editor state (buffers, autocmds, messages) at runtime.
 
 ![Neovim](https://img.shields.io/badge/Neovim-0.9%2B-57A143?logo=neovim&logoColor=white)
@@ -22,7 +22,7 @@
 ---
 
 A config layer on top of [nvim-dap](https://github.com/mfussenegger/nvim-dap)
-that registers adapters and launch configurations for nine languages (Lua,
+that registers adapters and launch configurations for eight languages (Lua,
 JavaScript/TypeScript, C/C++, Go, Python, Rust, Zig, Assembly), auto-detects
 and validates adapter binaries (with Mason fallback), wires up
 nvim-dap-ui/nvim-dap-virtual-text, and ships user-configurable keymaps,

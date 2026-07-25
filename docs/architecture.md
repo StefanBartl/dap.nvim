@@ -15,8 +15,12 @@ lua/wkddap/
     init.lua / setup.lua         nvim-dap presence check, capability detection, state init
     state.lua                   Minimal session state
     capabilities.lua            Soft-dependency detection (dap-view, dapui, virtual-text)
-  adapters/                     dap.adapters.* registration, one file per language
-  configurations/                dap.configurations.* launch configs, one file per language
+  languages/                     One module per language: dap.adapters.* setup() +
+                                 dap.configurations.* load(), kept together since the
+                                 two are always in lockstep (assembly, c, go,
+                                 javascript, lua, python, rust, zig)
+  adapters/init.lua              Orchestrates adapter registration via registry.register()
+  configurations/init.lua        Orchestrates configuration loading from languages/*
   ui/                           signs, highlights, panel UI provider, nvim-dap-virtual-text
     provider.lua                Resolves + dispatches to the active panel UI
     dapview.lua                 nvim-dap-view wiring (default)
@@ -27,7 +31,8 @@ lua/wkddap/
     keymaps/init.lua             default keymaps under the configurable prefix
     which_key/init.lua           optional which-key group label
     autocmds/init.lua            DAP UI cursorline toggle
-  utils/                        notify, executable/Mason path resolution, path helpers, validation
+  utils/                        notify, executable/Mason path + auto-install, path
+                                 helpers, validation, doc/tags generation
 ```
 
 lib.nvim provides notify, `cross` (platform detection, Mason `.cmd` fallback

@@ -8,7 +8,9 @@
 ---@field which_key Dap.WhichKeyOptions which-key integration
 ---@field autocmds Dap.AutocmdOptions Autocommand configuration
 ---@field adapters? table<string, table> Custom adapter overrides
----@field configurations? table<string, table[]> Custom launch configurations
+---@field configurations? table<string, table[]> Custom launch configurations, keyed
+---  by language (appended by default; set `replace = true` on the list to
+---  replace the language's configurations instead)
 ---@field auto_install boolean Auto-install missing adapters via Mason
 ---@field log_level integer Logging level (vim.log.levels)
 

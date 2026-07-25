@@ -20,9 +20,10 @@ CONTENTS                                                          *wkddap-conten
 1. INTRODUCTION                                                      *wkddap-intro*
 
 dap.nvim is a config layer on top of nvim-dap (mfussenegger/nvim-dap). It
-registers adapters and launch configurations for nine languages (Lua,
+registers adapters and launch configurations for eight languages (Lua,
 JavaScript/TypeScript, C/C++, Go, Python, Rust, Zig, Assembly), auto-detects
-and validates adapter binaries with Mason fallback, wires up a panel UI
+and validates adapter binaries with Mason fallback (auto-installable, see
+|wkddap-config|), wires up a panel UI
 (nvim-dap-view by default, nvim-dap-ui opt-in — see |wkddap-panel-ui|) and
 nvim-dap-virtual-text, and ships user-configurable keymaps, commands, and a
 which-key group label.
@@ -104,8 +105,13 @@ packer.nvim: >lua
     },
 
     adapters = {},
+
+    -- Appended to a language's built-in configurations by default; add
+    -- `replace = true` to the list to replace them instead.
     configurations = {},
 
+    -- Install missing required adapters via `:MasonInstall` (mason.nvim
+    -- must be installed separately).
     auto_install = false,
     log_level = vim.log.levels.WARN,
   })
@@ -169,9 +175,14 @@ One command, :Dap <subcommand> (built via lib.nvim.usercmd.composer, with
   :Dap terminate                                              *:Dap-terminate*
   :Dap restart                                                  *:Dap-restart*
   :Dap toggle-breakpoint                              *:Dap-toggle-breakpoint*
+  :Dap conditional-breakpoint [condition]      *:Dap-conditional-breakpoint*
+                    Prompts for the condition when omitted.
+  :Dap log-point [message]                              *:Dap-log-point*
+                    Prompts for the message when omitted.
   :Dap list-breakpoints                                *:Dap-list-breakpoints*
   :Dap toggle-ui                                              *:Dap-toggle-ui*
   :Dap eval                                                        *:Dap-eval*
+  :Dap repl                                                        *:Dap-repl*
 
 ==============================================================================
 7. HEALTH CHECK                                                        *wkddap-health*
@@ -181,12 +192,18 @@ One command, :Dap <subcommand> (built via lib.nvim.usercmd.composer, with
 <
 
 Verifies Neovim version, nvim-dap presence, lib.nvim modules, optional UI
-companions, and per-language adapter availability.
+companions, per-language adapter availability, and registry state
+(`registry.stats()` counts plus any `registry.validate()` errors for
+already-enabled languages).
 
 ==============================================================================
 8. ARCHITECTURE                                                  *wkddap-architecture*
 
 See the "Architecture" section of README.md for the full module tree.
+Each language's adapter and launch configurations live together in a single
+`lua/wkddap/languages/<lang>.lua` module (`setup()` + `load()`), required by
+`adapters/init.lua` (via `registry.register()`) and `configurations/init.lua`
+respectively.
 lib.nvim provides notify, `cross` (platform detection / Mason path
 resolution), and `normalize` (path helpers).
 

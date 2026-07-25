@@ -32,14 +32,20 @@ require("wkddap").setup({
   -- Custom adapter overrides, keyed by language (merged by each adapter module)
   adapters = {},
 
-  -- Custom launch configurations, keyed by language (appended to defaults)
+  -- Custom launch configurations, keyed by language (appended to defaults
+  -- unless the list also has `replace = true`, which replaces instead)
   configurations = {
     go = {
       { type = "go", name = "Debug Package", request = "launch", program = "${fileDirname}" },
     },
+    python = {
+      replace = true, -- discard the built-in python configurations entirely
+      { type = "python", name = "Custom", request = "launch", program = "${file}" },
+    },
   },
 
-  auto_install = false,           -- reserved: Mason auto-install
+  auto_install = false,  -- install missing required adapters via `:MasonInstall`
+                          -- (mason.nvim must be installed separately)
   log_level = vim.log.levels.WARN,
 })
 ```

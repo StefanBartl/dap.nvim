@@ -134,15 +134,6 @@ M.dapui_layout = {
   },
 }
 
---- Mason auto-install configuration
----@type string[]
-M.mason_ensure_installed = {
-  "js-debug-adapter",
-  "codelldb",
-  "delve",
-  "debugpy",
-}
-
 --- Get adapter binary path with Mason fallback
 ---@param name string Adapter name
 ---@return string|nil path

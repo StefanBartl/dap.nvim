@@ -1,5 +1,7 @@
 ---@module 'dap.configurations'
----@brief Loads launch configurations (dap.configurations.*) for the requested languages.
+---@brief Loads launch configurations (dap.configurations.*) for the requested
+---@brief languages, by requiring each language's `wkddap.languages.<lang>`
+---@brief module and calling its `load()`.
 
 local notify = require("lib.nvim.notify").create("[dap.nvim.configurations]")
 
@@ -7,7 +9,11 @@ local M = {}
 
 --- Load all configurations for specified languages
 ---@param languages string[] List of languages
----@param custom_configs table? Custom configuration overrides, keyed by language
+---@param custom_configs table? Custom configuration overrides, keyed by
+---  language. Each value is a list of dap config entries; by default it is
+---  appended to the language's existing configurations. Set `replace = true`
+---  alongside the entries to replace instead:
+---  `{ replace = true, { type = "python", request = "launch", name = "…" } }`
 ---@return boolean success
 function M.load_all(languages, custom_configs)
   local config = require("wkddap.config")
@@ -20,7 +26,7 @@ function M.load_all(languages, custom_configs)
   for _, lang in ipairs(languages) do
     local actual_lang = config.language_aliases[lang] or lang
 
-    local config_module = string.format("wkddap.configurations.%s", actual_lang)
+    local config_module = string.format("wkddap.languages.%s", actual_lang)
     local ok, mod = pcall(require, config_module)
 
     if ok and type(mod.load) == "function" then
@@ -34,10 +40,16 @@ function M.load_all(languages, custom_configs)
   if custom_configs and next(custom_configs) then
     local dap = require("dap")
     for lang, configs in pairs(custom_configs) do
-      if dap.configurations[lang] then
-        vim.list_extend(dap.configurations[lang], configs)
+      local replace = configs.replace == true
+      local entries = {}
+      for _, entry in ipairs(configs) do
+        table.insert(entries, entry)
+      end
+
+      if replace or not dap.configurations[lang] then
+        dap.configurations[lang] = entries
       else
-        dap.configurations[lang] = configs
+        vim.list_extend(dap.configurations[lang], entries)
       end
     end
   end

@@ -1,9 +1,25 @@
----@module 'dap.configurations.assembly'
----@brief Launch configurations for Assembly debugging (NASM/GAS via GDB)
+---@module 'dap.languages.assembly'
+---@brief Assembly: adapter (GDB) + launch configurations (NASM/GAS via GDB)
 
 local paths = require("wkddap.utils.paths")
 
 local M = {}
+
+---@return boolean success
+function M.setup()
+  local ok_dap, dap = pcall(require, "dap")
+  if not ok_dap then
+    return false
+  end
+
+  dap.adapters.gdb = {
+    type = "executable",
+    command = "gdb",
+    args = { "-i", "dap" },
+  }
+
+  return true
+end
 
 ---@return boolean success
 function M.load()

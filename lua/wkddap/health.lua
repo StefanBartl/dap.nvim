@@ -115,6 +115,27 @@ function M.check()
   else
     vim.health.info("No languages enabled yet")
   end
+
+  -- ── Registry ───────────────────────────────────────────────────────────────
+  vim.health.start("dap.nvim: registry")
+  local stats = registry.stats()
+  vim.health.info(
+    string.format(
+      "available: %d, registered: %d, enabled: %d",
+      stats.available,
+      stats.registered,
+      stats.enabled
+    )
+  )
+
+  local valid, errors = registry.validate()
+  if valid then
+    vim.health.ok("all enabled adapters still valid")
+  else
+    for _, err in ipairs(errors) do
+      vim.health.warn(err)
+    end
+  end
 end
 
 return M

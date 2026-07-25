@@ -37,7 +37,8 @@ local DEFAULTS = {
     enable = true,
   },
 
-  -- Auto-install missing adapter binaries via mason.nvim.
+  -- Auto-install missing required adapter binaries via `:MasonInstall`
+  -- (mason.nvim must be installed separately).
   auto_install = false,
 
   log_level = vim.log.levels.WARN,

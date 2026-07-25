@@ -44,7 +44,7 @@ function M.register(language)
     return false, err
   end
 
-  local adapter_module = string.format("wkddap.adapters.%s", actual_lang)
+  local adapter_module = string.format("wkddap.languages.%s", actual_lang)
   local ok, adapter = pcall(require, adapter_module)
   if not ok then
     local msg = string.format("Failed to load adapter module: %s", adapter_module)

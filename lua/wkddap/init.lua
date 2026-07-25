@@ -49,6 +49,10 @@ function M.setup(opts)
     return false
   end
 
+  if cfg.auto_install then
+    pcall(require("wkddap.utils.mason").ensure_installed, cfg.languages)
+  end
+
   local ok_adapters, adapters_mod = pcall(require, "wkddap.adapters")
   if ok_adapters and type(adapters_mod.register_all) == "function" then
     local adapter_ok, adapter_err =
