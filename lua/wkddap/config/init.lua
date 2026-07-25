@@ -39,7 +39,12 @@ end
 ---@type table<string, {binary?: string, mason_pkg?: string, required?: boolean, type: 'binary'|'plugin'}>
 M.adapter_binaries = {
   lua = { type = "plugin", binary = "osv", required = false },
-  javascript = { type = "binary", binary = "js-debug-adapter", mason_pkg = "js-debug-adapter", required = true },
+  javascript = {
+    type = "binary",
+    binary = "js-debug-adapter",
+    mason_pkg = "js-debug-adapter",
+    required = true,
+  },
   go = { type = "binary", binary = "dlv", mason_pkg = "delve", required = true },
   python = { type = "binary", binary = "debugpy", mason_pkg = "debugpy", required = true },
   c = { type = "binary", binary = "codelldb", mason_pkg = "codelldb", required = true },
@@ -65,8 +70,18 @@ M.language_aliases = {
 ---@type table<string, {text: string, texthl: string, linehl?: string, numhl?: string}>
 M.signs = {
   DapBreakpoint = { text = "●", texthl = "DapBreakpoint", linehl = "", numhl = "" },
-  DapBreakpointCondition = { text = "◆", texthl = "DapBreakpointCondition", linehl = "", numhl = "" },
-  DapBreakpointRejected = { text = "○", texthl = "DapBreakpointRejected", linehl = "", numhl = "" },
+  DapBreakpointCondition = {
+    text = "◆",
+    texthl = "DapBreakpointCondition",
+    linehl = "",
+    numhl = "",
+  },
+  DapBreakpointRejected = {
+    text = "○",
+    texthl = "DapBreakpointRejected",
+    linehl = "",
+    numhl = "",
+  },
   DapLogPoint = { text = "◉", texthl = "DapLogPoint", linehl = "", numhl = "" },
   DapStopped = { text = "→", texthl = "DapStopped", linehl = "DapStoppedLine", numhl = "" },
 }

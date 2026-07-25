@@ -7,10 +7,9 @@ local M = {}
 
 --- Register all adapters for specified languages
 ---@param languages string[] List of languages
----@param custom_adapters table? Custom adapter overrides (reserved for future use)
+---@param _custom_adapters table? Custom adapter overrides (reserved for future use)
 ---@return boolean success
----@diagnostic disable-next-line: unused-local
-function M.register_all(languages, custom_adapters)
+function M.register_all(languages, _custom_adapters)
   local registry = require("wkddap.registry")
 
   if not languages or #languages == 0 then

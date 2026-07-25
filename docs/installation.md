@@ -62,3 +62,9 @@ Manual:
 - **Delve (Go):** `go install github.com/go-delve/delve/cmd/dlv@latest`
 - **debugpy (Python):** `pip install debugpy`
 - **CodeLLDB:** download from [GitHub Releases](https://github.com/vadimcn/codelldb/releases)
+
+## Help tags
+
+`:h wkddap` works out of the box — `setup()` regenerates `doc/tags` itself
+(only when missing or older than `doc/wkddap.txt`), so there's no manual
+`:helptags` step after updating the plugin.

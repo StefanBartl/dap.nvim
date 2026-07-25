@@ -17,14 +17,15 @@ function M.setup()
     return false
   end
 
-  dap.adapters.codelldb = dap.adapters.codelldb or {
-    type = "server",
-    port = "${port}",
-    executable = {
-      command = adapter_path,
-      args = { "--port", "${port}" },
-    },
-  }
+  dap.adapters.codelldb = dap.adapters.codelldb
+    or {
+      type = "server",
+      port = "${port}",
+      executable = {
+        command = adapter_path,
+        args = { "--port", "${port}" },
+      },
+    }
 
   return true
 end

@@ -22,6 +22,7 @@ Disable everything with `keymaps = { enable = false }`, or just change
 One command, `:Dap <subcommand>` (built via
 [`lib.nvim.usercmd.composer`](https://github.com/StefanBartl/lib.nvim), with
 `<Tab>` completion): `continue`, `step-over`, `step-into`, `step-out`,
-`terminate`, `restart`, `toggle-breakpoint`, `list-breakpoints`, `toggle-ui`,
-`eval` — always registered, independent of `keymaps.enable`. Full list in
+`terminate`, `restart`, `toggle-breakpoint`, `conditional-breakpoint`,
+`log-point`, `list-breakpoints`, `toggle-ui`, `eval`, `repl` — always
+registered, independent of `keymaps.enable`. Full list in
 [docs/BINDINGS.md](BINDINGS.md).

@@ -18,7 +18,9 @@ function M.load()
       type = "lldb",
       request = "launch",
       program = function()
-        return paths.normalize(vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/zig-out/bin/", "file"))
+        return paths.normalize(
+          vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/zig-out/bin/", "file")
+        )
       end,
       cwd = "${workspaceFolder}",
       stopOnEntry = false,
@@ -29,7 +31,9 @@ function M.load()
       request = "launch",
       program = function()
         vim.system({ "zig", "build" }):wait()
-        return paths.normalize(vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/zig-out/bin/", "file"))
+        return paths.normalize(
+          vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/zig-out/bin/", "file")
+        )
       end,
       cwd = "${workspaceFolder}",
       stopOnEntry = false,

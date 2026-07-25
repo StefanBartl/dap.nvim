@@ -11,7 +11,9 @@ local M = {}
 function M.setup(opts)
   local ok = pcall(require, "dap")
   if not ok then
-    notify.error("nvim-dap (mfussenegger/nvim-dap) not installed — dap.nvim is a config layer on top of it")
+    notify.error(
+      "nvim-dap (mfussenegger/nvim-dap) not installed — dap.nvim is a config layer on top of it"
+    )
     return false
   end
 

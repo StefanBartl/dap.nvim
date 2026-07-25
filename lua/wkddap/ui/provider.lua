@@ -97,9 +97,7 @@ end
 local function dispatch(actions, what)
   local provider = _active
   if not provider then
-    notify.warn(
-      string.format("%s: no DAP UI active (install nvim-dap-view or nvim-dap-ui)", what)
-    )
+    notify.warn(string.format("%s: no DAP UI active (install nvim-dap-view or nvim-dap-ui)", what))
     return
   end
 

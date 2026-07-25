@@ -17,11 +17,12 @@ function M.setup()
     return false
   end
 
-  dap.adapters.lldb = dap.adapters.lldb or {
-    type = "executable",
-    command = adapter_path,
-    name = "lldb",
-  }
+  dap.adapters.lldb = dap.adapters.lldb
+    or {
+      type = "executable",
+      command = adapter_path,
+      name = "lldb",
+    }
 
   return true
 end

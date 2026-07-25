@@ -3,7 +3,7 @@
 ```
 docs/BINDINGS.md              Cheatsheet: every keymap, user command, autocmd
 plugin/dap.lua                 Load guard (vim.g.loaded_wkddap)
-lua/dap/
+lua/wkddap/
   init.lua                     setup() — orchestrates core/adapters/configurations/ui/bindings
   @types/init.lua               LuaLS type definitions (Dap.Config, ...)
   registry.lua                  Language adapter registry with validation
@@ -23,10 +23,10 @@ lua/dap/
     dapui.lua                   nvim-dap-ui wiring (opt-in)
   bindings/                     Every user-facing trigger — registration only
     init.lua                    orchestrates usercmds/keymaps/which_key/autocmds
-    usercmds.lua                 registers all :Dap* user commands
-    keymaps.lua                  default keymaps under the configurable prefix
-    which_key.lua                 optional which-key group label
-    autocmds.lua                  DAP UI cursorline toggle
+    usercmds/init.lua            registers all :Dap* user commands
+    keymaps/init.lua             default keymaps under the configurable prefix
+    which_key/init.lua           optional which-key group label
+    autocmds/init.lua            DAP UI cursorline toggle
   utils/                        notify, executable/Mason path resolution, path helpers, validation
 ```
 

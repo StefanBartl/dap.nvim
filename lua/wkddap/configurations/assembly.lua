@@ -19,7 +19,9 @@ function M.load()
         type = "gdb",
         request = "launch",
         program = function()
-          return paths.normalize(vim.fn.input("Path to executable: ", paths.join(vim.fn.getcwd(), ""), "file"))
+          return paths.normalize(
+            vim.fn.input("Path to executable: ", paths.join(vim.fn.getcwd(), ""), "file")
+          )
         end,
         cwd = "${workspaceFolder}",
         stopAtBeginningOfMainSubprogram = false,

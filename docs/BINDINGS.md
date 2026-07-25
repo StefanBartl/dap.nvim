@@ -4,10 +4,10 @@ Machine-readable overview of every keymap, user command, and autocommand
 defined by `dap.nvim`. This file is documentation only and mirrors the
 source of truth:
 
-- keymaps   — `lua/dap/bindings/keymaps.lua`
-- commands  — `lua/dap/bindings/usercmds.lua`
-- autocmds  — `lua/dap/bindings/autocmds.lua`
-- which-key — `lua/dap/bindings/which_key.lua`
+- keymaps   — `lua/wkddap/bindings/keymaps/init.lua`
+- commands  — `lua/wkddap/bindings/usercmds/init.lua`
+- autocmds  — `lua/wkddap/bindings/autocmds/init.lua`
+- which-key — `lua/wkddap/bindings/which_key/init.lua`
 
 Any change there must be reflected here.
 
@@ -41,6 +41,7 @@ which-key gets a single group label for the prefix
 One command, `:Dap <subcommand>` (built via
 [`lib.nvim.usercmd.composer`](https://github.com/StefanBartl/lib.nvim), with
 `<Tab>` completion). Always registered, independent of `keymaps.enable`.
+Every default keymap has a 1:1 `:Dap` equivalent.
 
 | command | desc |
 | --- | --- |
@@ -51,9 +52,12 @@ One command, `:Dap <subcommand>` (built via
 | `:Dap terminate` | Terminate |
 | `:Dap restart` | Restart |
 | `:Dap toggle-breakpoint` | Toggle Breakpoint |
+| `:Dap conditional-breakpoint [condition]` | Conditional Breakpoint (prompts if `condition` omitted) |
+| `:Dap log-point [message]` | Log Point (prompts if `message` omitted) |
 | `:Dap list-breakpoints` | List Breakpoints |
 | `:Dap toggle-ui` | Toggle UI (active panel UI provider) |
 | `:Dap eval` | Evaluate Expression (dap-ui: float, dap-view: watch) |
+| `:Dap repl` | Open REPL |
 
 ## Autocommands
 

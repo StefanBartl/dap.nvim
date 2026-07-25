@@ -51,17 +51,23 @@ function M.setup(opts)
 
   local ok_adapters, adapters_mod = pcall(require, "wkddap.adapters")
   if ok_adapters and type(adapters_mod.register_all) == "function" then
-    local adapter_ok, adapter_err = pcall(adapters_mod.register_all, cfg.languages, cfg.adapters or {})
+    local adapter_ok, adapter_err =
+      pcall(adapters_mod.register_all, cfg.languages, cfg.adapters or {})
     if not adapter_ok then
-      require("wkddap.utils.notify").warn(string.format("Adapter registration failed: %s", adapter_err))
+      require("wkddap.utils.notify").warn(
+        string.format("Adapter registration failed: %s", adapter_err)
+      )
     end
   end
 
   local ok_configs, configurations_mod = pcall(require, "wkddap.configurations")
   if ok_configs and type(configurations_mod.load_all) == "function" then
-    local config_ok, config_err = pcall(configurations_mod.load_all, cfg.languages, cfg.configurations or {})
+    local config_ok, config_err =
+      pcall(configurations_mod.load_all, cfg.languages, cfg.configurations or {})
     if not config_ok then
-      require("wkddap.utils.notify").warn(string.format("Configuration loading failed: %s", config_err))
+      require("wkddap.utils.notify").warn(
+        string.format("Configuration loading failed: %s", config_err)
+      )
     end
   end
 
@@ -71,6 +77,10 @@ function M.setup(opts)
   end
 
   require("wkddap.bindings").setup(cfg)
+
+  vim.schedule(function()
+    pcall(require("wkddap.utils.helptags").generate)
+  end)
 
   M._initialized = true
   vim.g.loaded_wkddap = 1
