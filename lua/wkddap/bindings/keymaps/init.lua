@@ -33,10 +33,16 @@ function M.setup(opts)
   -- Breakpoints
   map("n", prefix .. "b", dap.toggle_breakpoint, desc("Toggle Breakpoint"))
   map("n", prefix .. "B", function()
-    dap.set_breakpoint(vim.fn.input("Breakpoint condition: "))
+    require("lib.nvim.ui.kit").input({
+      title = "Breakpoint condition: ",
+      on_submit = function(cond) dap.set_breakpoint(cond) end,
+    })
   end, desc("Conditional Breakpoint"))
   map("n", prefix .. "L", function()
-    dap.set_breakpoint(nil, nil, vim.fn.input("Log message: "))
+    require("lib.nvim.ui.kit").input({
+      title = "Log message: ",
+      on_submit = function(msg) dap.set_breakpoint(nil, nil, msg) end,
+    })
   end, desc("Log Point"))
   map("n", prefix .. "l", dap.list_breakpoints, desc("List Breakpoints"))
 
