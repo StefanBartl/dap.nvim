@@ -12,18 +12,31 @@ function M.pick_process()
   end
 
   return coroutine.create(function()
-    vim.ui.select(vim.fn.systemlist("ps -eo pid,comm"), {
-      prompt = "Select process:",
-      format_item = function(item)
-        return item
+    -- kit.select's on_select never fires on cancel (Esc/q just closes),
+    -- unlike vim.ui.select which always invoked its callback. nvim-dap
+    -- resumes `co` and blocks waiting for it, so cancelling must still
+    -- resume with nil or the DAP launch hangs forever. Guard via on_close,
+    -- deferred one tick so a real selection's on_select (which runs
+    -- synchronously right after close) has already resumed by the time
+    -- this runs.
+    local resumed = false
+    local surf = require("lib.nvim.ui.kit").select({
+      items = vim.fn.systemlist("ps -eo pid,comm"),
+      title = "Select process:",
+      on_select = function(choice)
+        resumed = true
+        coroutine.resume(co, choice and tonumber(choice:match("^%s*(%d+)")) or nil)
       end,
-    }, function(choice)
-      if choice then
-        coroutine.resume(co, tonumber(choice:match("^%s*(%d+)")))
-      else
-        coroutine.resume(co, nil)
-      end
-    end)
+    })
+    if surf then
+      surf:on_close(function()
+        vim.schedule(function()
+          if not resumed then
+            coroutine.resume(co, nil)
+          end
+        end)
+      end)
+    end
   end)
 end
 
