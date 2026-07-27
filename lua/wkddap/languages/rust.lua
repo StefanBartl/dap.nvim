@@ -44,10 +44,20 @@ function M.load()
       name = "Launch",
       type = "codelldb",
       request = "launch",
+      -- nvim-dap resolves config functions inside coroutine.wrap(), so an
+      -- async prompt works via the same yield/resume idiom nvim-dap's own
+      -- async pickers use: yield, let kit.input's on_submit resume the
+      -- suspended coroutine with the typed value.
       program = function()
-        return paths.normalize(
-          vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/target/debug/", "file")
-        )
+        local co = coroutine.running()
+        require("lib.nvim.ui.kit").input({
+          title = "Path to executable: ",
+          default = vim.fn.getcwd() .. "/target/debug/",
+          completion = "file",
+          on_submit = function(input) coroutine.resume(co, input) end,
+          on_cancel = function() coroutine.resume(co, "") end,
+        })
+        return paths.normalize(coroutine.yield())
       end,
       cwd = "${workspaceFolder}",
       stopOnEntry = false,
