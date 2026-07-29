@@ -37,3 +37,16 @@ lua/wkddap/
 
 lib.nvim provides notify, `cross` (platform detection, Mason `.cmd` fallback
 on Windows), and `normalize` (Windows-safe path normalization).
+
+## Security notes
+
+No command is ever shell-interpolated: adapter definitions and `vim.system`
+calls (e.g. `languages/zig.lua`'s `zig build` step) pass argv as a table, and
+`utils/validation.lua`'s process picker (`ps -eo pid,comm`) is a fixed
+string, not built from user input. Paths and breakpoint conditions typed via
+`:Dap conditional-breakpoint`/`log-point` or the `program()` prompts are
+user-supplied by design — this is a local debugger config layer, not a
+network-facing surface — and are normalized (`utils/paths.lua`) rather than
+executed. `.gitattributes` pins line endings to LF so `stylua`/`luacheck`
+(see CI) behave the same on every contributor's checkout regardless of their
+local `core.autocrlf`.

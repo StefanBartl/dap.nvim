@@ -68,17 +68,19 @@ describe("wkddap.languages program() prompts (kit.input completion=\"file\")", f
       case.mod, case.key, case.idx
     ), function()
       local lang = reload(case.mod)
-      -- "Launch (build first)" (zig idx 2) shells out to `zig build` first;
-      -- stub vim.system so the spec doesn't need a real zig toolchain.
+      lang.load()
+      local program = package.loaded["dap"].configurations[case.key][case.idx].program
+
+      -- "Launch (build first)" (zig idx 2) shells out to `zig build` from
+      -- inside program() itself, so the stub must still be in place when
+      -- start() actually invokes it below -- load() only builds the config
+      -- table, it never calls program().
       local orig_system = vim.system
       vim.system = function()
         return { wait = function() return { code = 0 } end }
       end
-      lang.load()
-      vim.system = orig_system
-
-      local program = package.loaded["dap"].configurations[case.key][case.idx].program
       local opts, result = start(program)
+      vim.system = orig_system
 
       assert.is_not_nil(opts, "kit.input was called")
       assert.are.equal("file", opts.completion, "prompted with completion = \"file\"")
@@ -91,15 +93,15 @@ describe("wkddap.languages program() prompts (kit.input completion=\"file\")", f
       case.mod, case.key, case.idx
     ), function()
       local lang = reload(case.mod)
+      lang.load()
+      local program = package.loaded["dap"].configurations[case.key][case.idx].program
+
       local orig_system = vim.system
       vim.system = function()
         return { wait = function() return { code = 0 } end }
       end
-      lang.load()
-      vim.system = orig_system
-
-      local program = package.loaded["dap"].configurations[case.key][case.idx].program
       local opts, result = start(program)
+      vim.system = orig_system
 
       opts.on_cancel()
       assert.are.equal(paths.normalize(""), result(), "cancel resolves the same as vim.fn.input's old Esc -> \"\"")
