@@ -3,7 +3,7 @@
 A [plenary.nvim](https://github.com/nvim-lua/plenary.nvim) busted-style
 suite. Specs stick to code paths that don't require a real debug adapter
 binary (codelldb, delve, debugpy, gdb, ...) or `nvim-dap`/`nvim-dap-ui`
-themselves to be installed — registry/usercmd/helptags logic only.
+themselves to be installed — registry/usercmd logic only.
 
 ## Running locally
 

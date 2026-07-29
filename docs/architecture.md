@@ -32,7 +32,7 @@ lua/wkddap/
     which_key/init.lua           optional which-key group label
     autocmds/init.lua            DAP UI cursorline toggle
   utils/                        notify, executable/Mason path + auto-install, path
-                                 helpers, validation, doc/tags generation
+                                 helpers, validation
 ```
 
 lib.nvim provides notify, `cross` (platform detection, Mason `.cmd` fallback

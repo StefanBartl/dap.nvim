@@ -82,10 +82,6 @@ function M.setup(opts)
 
   require("wkddap.bindings").setup(cfg)
 
-  vim.schedule(function()
-    pcall(require("wkddap.utils.helptags").generate)
-  end)
-
   M._initialized = true
   vim.g.loaded_wkddap = 1
 
