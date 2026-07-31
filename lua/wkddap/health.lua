@@ -136,6 +136,9 @@ function M.check()
       vim.health.warn(err)
     end
   end
+
+  -- ── composer route pre-flight ─────────────────────────────────────────────
+  require("lib.nvim.usercmd.composer").checkhealth("Dap")
 end
 
 return M
