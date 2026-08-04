@@ -1,7 +1,7 @@
----@module 'dap.adapters'
----@brief Registers adapters (dap.adapters.*) for the requested languages via
----@brief registry.register(), which requires each language's
----@brief `wkddap.languages.<lang>` module and calls its `setup()`.
+---@module 'wkddap.adapters'
+--- Registers adapters (dap.adapters.*) for the requested languages via
+--- registry.register(), which requires each language's
+--- `wkddap.languages.<lang>` module and calls its `setup()`.
 
 local notify = require("lib.nvim.notify").create("[dap.nvim.adapters]")
 

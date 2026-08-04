@@ -1,5 +1,5 @@
----@module 'dap.ui.signs'
----@brief Defines the default DAP gutter signs.
+---@module 'wkddap.ui.signs'
+--- Defines the default DAP gutter signs.
 
 local config = require("wkddap.config")
 

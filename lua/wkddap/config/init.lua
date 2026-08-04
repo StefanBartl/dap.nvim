@@ -1,6 +1,6 @@
----@module 'dap.config'
----@brief Runtime configuration store, plus adapter/binary metadata for dap.nvim.
----@description
+---@module 'wkddap.config'
+--- Runtime configuration store, plus adapter/binary metadata for dap.nvim.
+---
 --- Merges user options over the immutable DEFAULTS and exposes the active
 --- config via `get()`. Also carries the static per-language adapter/binary
 --- table (Mason package names, UI signs/highlights/layout) consumed by the

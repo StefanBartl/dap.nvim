@@ -1,5 +1,5 @@
----@module 'dap.languages.python'
----@brief Python: adapter (debugpy) + launch configurations
+---@module 'wkddap.languages.python'
+--- Python: adapter (debugpy) + launch configurations
 
 local config = require("wkddap.config")
 

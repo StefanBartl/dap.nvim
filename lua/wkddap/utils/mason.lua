@@ -1,6 +1,6 @@
----@module 'dap.utils.mason'
----@brief Drives `:MasonInstall` for required adapter binaries that are
----@brief currently unresolvable, when `auto_install` is enabled.
+---@module 'wkddap.utils.mason'
+--- Drives `:MasonInstall` for required adapter binaries that are
+--- currently unresolvable, when `auto_install` is enabled.
 
 local notify = require("lib.nvim.notify").create("[dap.nvim.mason]")
 

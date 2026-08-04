@@ -1,6 +1,6 @@
----@module 'dap.languages.rust'
----@brief Rust: adapter (CodeLLDB) + launch configurations (with rustc
----@brief pretty-printer setup)
+---@module 'wkddap.languages.rust'
+--- Rust: adapter (CodeLLDB) + launch configurations (with rustc
+--- pretty-printer setup)
 
 local config = require("wkddap.config")
 local paths = require("wkddap.utils.paths")

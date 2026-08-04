@@ -1,6 +1,6 @@
----@module 'dap.languages.lua'
----@brief Lua: adapter + launch configurations for debugging via
----@brief one-small-step-for-vimkind (OSV)
+---@module 'wkddap.languages.lua'
+--- Lua: adapter + launch configurations for debugging via
+--- one-small-step-for-vimkind (OSV)
 
 local notify = require("lib.nvim.notify").create("[dap.nvim.languages.lua]")
 

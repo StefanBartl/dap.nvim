@@ -1,5 +1,5 @@
----@module 'dap.ui.highlights'
----@brief Applies the default DAP highlight groups.
+---@module 'wkddap.ui.highlights'
+--- Applies the default DAP highlight groups.
 
 local config = require("wkddap.config")
 

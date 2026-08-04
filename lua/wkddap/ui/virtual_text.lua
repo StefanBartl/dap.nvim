@@ -1,5 +1,5 @@
----@module 'dap.ui.virtual_text'
----@brief nvim-dap-virtual-text setup (soft dependency).
+---@module 'wkddap.ui.virtual_text'
+--- nvim-dap-virtual-text setup (soft dependency).
 
 local config = require("wkddap.config")
 

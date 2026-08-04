@@ -1,5 +1,5 @@
----@module 'dap.languages.zig'
----@brief Zig: adapter (CodeLLDB/lldb) + launch configurations
+---@module 'wkddap.languages.zig'
+--- Zig: adapter (CodeLLDB/lldb) + launch configurations
 
 local config = require("wkddap.config")
 local paths = require("wkddap.utils.paths")

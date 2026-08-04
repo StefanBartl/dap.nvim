@@ -1,7 +1,7 @@
----@module 'dap.bindings.usercmds'
----@brief Registers :Dap <subcommand>, one verb built via lib.nvim's
----@brief composer (:Verb sub … + <Tab> completion + Markdown docgen).
----@description
+---@module 'wkddap.bindings.usercmds'
+--- Registers :Dap <subcommand>, one verb built via lib.nvim's
+--- composer (:Verb sub … + <Tab> completion + Markdown docgen).
+---
 --- Every action mirrors a default keymap 1:1 (see bindings/keymaps/init.lua)
 --- but is an independent entry point — the keymaps call dap()/ui() Lua
 --- functions directly, not these commands.

@@ -1,6 +1,6 @@
----@module 'dap.ui'
----@brief Wires signs, highlights, the panel UI provider, and nvim-dap-virtual-text.
----@description
+---@module 'wkddap.ui'
+--- Wires signs, highlights, the panel UI provider, and nvim-dap-virtual-text.
+---
 --- The panel UI is provided by exactly one of nvim-dap-view (default) or
 --- nvim-dap-ui (opt-in), selected via `ui.provider`; see ui/provider.lua.
 

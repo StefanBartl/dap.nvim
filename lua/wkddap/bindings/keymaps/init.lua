@@ -1,6 +1,6 @@
----@module 'dap.bindings.keymaps'
----@brief Default normal/visual-mode keymaps on top of nvim-dap and the panel UI.
----@description
+---@module 'wkddap.bindings.keymaps'
+--- Default normal/visual-mode keymaps on top of nvim-dap and the panel UI.
+---
 --- All keymaps live under a single, user-configurable prefix
 --- (`Dap.KeymapOptions.prefix`, default `<leader>d`) and are only installed
 --- when `keymaps.enable` is true. Every mapping carries its own `desc`, so
@@ -40,6 +40,7 @@ function M.setup(opts)
   --- With no count (the overwhelmingly common case), this calls `step_fn()`
   --- directly and registers no listener at all -- zero behavior change from
   --- before.
+  ---@internal
   ---@param step_fn fun(opts?: table) dap.step_over, dap.step_into, or dap.step_out
   ---@param name string unique suffix for the listener key (one chain per step kind)
   ---@return fun() rhs for vim.keymap.set

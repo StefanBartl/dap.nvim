@@ -1,5 +1,5 @@
----@module 'dap.languages.go'
----@brief Go: adapter (Delve) + launch configurations
+---@module 'wkddap.languages.go'
+--- Go: adapter (Delve) + launch configurations
 
 local config = require("wkddap.config")
 

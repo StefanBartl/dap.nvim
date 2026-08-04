@@ -1,6 +1,6 @@
----@module 'dap.ui.dapview'
----@brief nvim-dap-view setup: user options + auto-open/close listeners.
----@description
+---@module 'wkddap.ui.dapview'
+--- nvim-dap-view setup: user options + auto-open/close listeners.
+---
 --- The default panel UI. Mirrors the nvim-dap-ui wiring (see ui/dapui.lua) so
 --- both providers open on `event_initialized` and close on session end.
 

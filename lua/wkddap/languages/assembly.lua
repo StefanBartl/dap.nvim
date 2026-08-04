@@ -1,5 +1,5 @@
----@module 'dap.languages.assembly'
----@brief Assembly: adapter (GDB) + launch configurations (NASM/GAS via GDB)
+---@module 'wkddap.languages.assembly'
+--- Assembly: adapter (GDB) + launch configurations (NASM/GAS via GDB)
 
 local paths = require("wkddap.utils.paths")
 

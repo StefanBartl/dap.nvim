@@ -1,6 +1,6 @@
----@module 'dap.utils.executable'
----@brief Executable/Mason binary resolution helpers.
----@description
+---@module 'wkddap.utils.executable'
+--- Executable/Mason binary resolution helpers.
+---
 --- Thin re-export of `lib.nvim.cross.executable`, which this module's own
 --- implementation was upstreamed into (identical PATH/Mason-bin resolution
 --- logic).

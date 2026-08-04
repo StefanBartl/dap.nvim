@@ -1,5 +1,6 @@
 ---@meta
----@module 'dap.@types'
+---@module 'wkddap.@types'
+--- Type declarations for dap.nvim's configuration options.
 
 ---@class Dap.Config
 ---@field languages string[] Languages to enable (empty = all available)

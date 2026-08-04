@@ -1,5 +1,5 @@
----@module 'dap.utils.notify'
----@brief Thin, prefixed wrapper over lib.nvim.notify for dap.nvim modules.
+---@module 'wkddap.utils.notify'
+--- Thin, prefixed wrapper over lib.nvim.notify for dap.nvim modules.
 
 local notify = require("lib.nvim.notify").create("[dap.nvim]")
 

@@ -1,6 +1,6 @@
----@module 'dap.ui.provider'
----@brief Resolves and dispatches to the active DAP panel UI provider.
----@description
+---@module 'wkddap.ui.provider'
+--- Resolves and dispatches to the active DAP panel UI provider.
+---
 --- dap.nvim supports two mutually exclusive panel UIs: `nvim-dap-view` (the
 --- default, modern and lighter) and `nvim-dap-ui` (opt-in, richer layout).
 --- Exactly one is wired per session; keymaps and user commands route through
@@ -16,6 +16,7 @@ local M = {}
 ---@type Dap.UiProvider|nil
 local _active = nil
 
+---@internal
 ---@param name 'dap-view'|'dap-ui'
 ---@return boolean
 local function installed(name)
@@ -27,6 +28,7 @@ end
 
 --- Pick the provider to wire, honouring the configured preference and falling
 --- back to the other one when the preferred plugin is not installed.
+---@internal
 ---@param preference Dap.UiProvider
 ---@return 'dap-view'|'dap-ui'|nil provider
 local function resolve(preference)
@@ -92,6 +94,7 @@ function M.active()
 end
 
 --- Call `fn_name` on the active provider, or report that no UI is available.
+---@internal
 ---@param actions table<string, fun():nil>
 ---@param what string Human-readable action name, used in the fallback message.
 local function dispatch(actions, what)
@@ -115,6 +118,7 @@ end
 
 --- Call `method` on nvim-dap-view, falling back to its user command when the
 --- installed version does not expose that function on the module.
+---@internal
 ---@param method string
 ---@param command string
 local function dap_view_call(method, command)

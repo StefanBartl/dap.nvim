@@ -1,7 +1,7 @@
----@module 'dap.configurations'
----@brief Loads launch configurations (dap.configurations.*) for the requested
----@brief languages, by requiring each language's `wkddap.languages.<lang>`
----@brief module and calling its `load()`.
+---@module 'wkddap.configurations'
+--- Loads launch configurations (dap.configurations.*) for the requested
+--- languages, by requiring each language's `wkddap.languages.<lang>`
+--- module and calling its `load()`.
 
 local notify = require("lib.nvim.notify").create("[dap.nvim.configurations]")
 

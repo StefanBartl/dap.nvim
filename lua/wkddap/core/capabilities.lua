@@ -1,11 +1,13 @@
----@module 'dap.core.capabilities'
----@brief Feature detection for optional companion plugins.
+---@module 'wkddap.core.capabilities'
+--- Feature detection for optional companion plugins.
 
 local M = {}
 
 ---@type table<string, boolean>
 M._features = {}
 
+--- Probe for nvim-dap and its optional companion plugins.
+---@return table<string, boolean> features
 function M.detect()
   M._features.dap = pcall(require, "dap")
   M._features.dapui = pcall(require, "dapui")

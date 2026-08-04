@@ -1,5 +1,5 @@
----@module 'dap.core.state'
----@brief Minimal runtime session state.
+---@module 'wkddap.core.state'
+--- Minimal runtime session state.
 
 local M = {}
 

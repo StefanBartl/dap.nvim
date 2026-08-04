@@ -1,6 +1,6 @@
----@module 'dap.config.DEFAULTS'
----@brief Immutable default configuration for dap.nvim.
----@description
+---@module 'wkddap.config.DEFAULTS'
+--- Immutable default configuration for dap.nvim.
+---
 --- Single source of truth. `config/init.lua` deep-merges user options over a copy
 --- of this table; it is never mutated at runtime.
 

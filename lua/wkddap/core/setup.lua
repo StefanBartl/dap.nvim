@@ -1,5 +1,5 @@
----@module 'dap.core.setup'
----@brief Core initialization: verifies nvim-dap, detects capabilities, inits state.
+---@module 'wkddap.core.setup'
+--- Core initialization: verifies nvim-dap, detects capabilities, inits state.
 
 local notify = require("lib.nvim.notify").create("[dap.nvim]")
 

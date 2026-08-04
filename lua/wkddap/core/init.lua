@@ -1,4 +1,5 @@
----@module 'dap.core'
+---@module 'wkddap.core'
+--- Entry point for core initialization, delegating to core/setup.lua.
 
 local M = {}
 

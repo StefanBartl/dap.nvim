@@ -1,5 +1,5 @@
----@module 'dap.utils.validation'
----@brief Small validators used by adapter/configuration modules.
+---@module 'wkddap.utils.validation'
+--- Small validators used by adapter/configuration modules.
 
 local M = {}
 

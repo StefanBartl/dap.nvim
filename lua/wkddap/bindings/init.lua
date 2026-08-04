@@ -1,5 +1,5 @@
----@module 'dap.bindings'
----@brief Orchestrates dap.nvim's bindings: usercmds, keymaps, which-key, autocmds.
+---@module 'wkddap.bindings'
+--- Orchestrates dap.nvim's bindings: usercmds, keymaps, which-key, autocmds.
 
 local notify = require("lib.nvim.notify").create("[dap.nvim.bindings]")
 

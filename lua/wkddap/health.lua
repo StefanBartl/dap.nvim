@@ -1,8 +1,9 @@
 ---@module 'wkddap.health'
----@brief :checkhealth wkddap — environment, lib.nvim deps, adapters, externals.
+--- :checkhealth wkddap — environment, lib.nvim deps, adapters, externals.
 
 local M = {}
 
+---@internal
 ---@param mod string
 ---@param label string
 ---@param level "ok"|"warn"|"info"

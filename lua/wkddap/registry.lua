@@ -1,5 +1,5 @@
----@module 'dap.registry'
----@brief Language adapter registry with validation and lifecycle management.
+---@module 'wkddap.registry'
+--- Language adapter registry with validation and lifecycle management.
 
 local config = require("wkddap.config")
 local notify = require("lib.nvim.notify").create("[dap.nvim.registry]")

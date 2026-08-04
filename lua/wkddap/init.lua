@@ -1,6 +1,6 @@
 ---@module 'wkddap'
----@brief Public entry point for dap.nvim.
----@description
+--- Public entry point for dap.nvim.
+---
 --- A config layer on top of mfussenegger/nvim-dap: multi-language adapters and
 --- launch configurations (Lua, JS/TS, C/C++, Go, Python, Rust, Zig, Assembly),
 --- automatic adapter detection/validation, nvim-dap-ui + nvim-dap-virtual-text

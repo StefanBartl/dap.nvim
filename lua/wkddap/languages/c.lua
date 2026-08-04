@@ -1,5 +1,5 @@
----@module 'dap.languages.c'
----@brief C/C++: adapter (CodeLLDB, also registers plain lldb) + launch configurations
+---@module 'wkddap.languages.c'
+--- C/C++: adapter (CodeLLDB, also registers plain lldb) + launch configurations
 
 local config = require("wkddap.config")
 local paths = require("wkddap.utils.paths")

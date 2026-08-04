@@ -1,5 +1,5 @@
----@module 'dap.utils.paths'
----@brief Path helpers, delegating normalization to lib.nvim for Windows safety.
+---@module 'wkddap.utils.paths'
+--- Path helpers, delegating normalization to lib.nvim for Windows safety.
 
 local normalize = require("lib.nvim.normalize")
 

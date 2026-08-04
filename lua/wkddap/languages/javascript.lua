@@ -1,5 +1,5 @@
----@module 'dap.languages.javascript'
----@brief JavaScript/TypeScript: adapter (js-debug-adapter) + launch configurations
+---@module 'wkddap.languages.javascript'
+--- JavaScript/TypeScript: adapter (js-debug-adapter) + launch configurations
 
 local config = require("wkddap.config")
 

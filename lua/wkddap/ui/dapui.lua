@@ -1,6 +1,6 @@
----@module 'dap.ui.dapui'
----@brief nvim-dap-ui setup: layout + auto-open/close listeners.
----@description
+---@module 'wkddap.ui.dapui'
+--- nvim-dap-ui setup: layout + auto-open/close listeners.
+---
 --- Opt-in alternative to the default nvim-dap-view provider; selected via
 --- `ui.provider = "dap-ui"`. See ui/provider.lua.
 
