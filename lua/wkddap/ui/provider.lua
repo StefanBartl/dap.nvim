@@ -73,7 +73,7 @@ function M.setup(opts)
     return nil
   end
 
-  local module = provider == "dap-view" and "dap.ui.dapview" or "dap.ui.dapui"
+  local module = provider == "dap-view" and "wkddap.ui.dapview" or "wkddap.ui.dapui"
   local ok, impl = pcall(require, module)
   if not ok then
     return nil
