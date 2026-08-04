@@ -8,7 +8,9 @@ local autocmd = require("lib.nvim.autocmd")
 
 local M = {}
 
+--- Register the cursorline-toggle autocmds, if enabled.
 ---@param opts Dap.AutocmdOptions
+---@return nil
 function M.setup(opts)
   if not opts.enable then
     return

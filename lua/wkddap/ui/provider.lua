@@ -65,6 +65,7 @@ end
 --- Wire the configured provider. Returns the provider that was actually set up.
 ---@param opts Dap.UiOptions
 ---@return 'dap-view'|'dap-ui'|nil provider
+---@see wkddap.ui.dapview, wkddap.ui.dapui
 function M.setup(opts)
   _active = nil
 

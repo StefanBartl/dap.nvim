@@ -8,8 +8,10 @@ local config = require("wkddap.config")
 
 local M = {}
 
+--- Set up nvim-dap-ui as the panel UI provider.
 ---@param opts Dap.UiOptions
 ---@return boolean success
+---@see wkddap.ui.dapview
 function M.setup(opts)
   local ok_dapui, dapui = pcall(require, "dapui")
   if not ok_dapui then

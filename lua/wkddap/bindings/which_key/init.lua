@@ -11,6 +11,7 @@ local M = {}
 ---Register the dap.nvim group label with which-key, if available.
 ---@param prefix string The configured keymap prefix (default "<leader>d")
 ---@return boolean registered
+---@see wkddap.bindings.keymaps
 function M.setup(prefix)
   local ok, wk = pcall(require, "which-key")
   if not ok or type(wk) ~= "table" then

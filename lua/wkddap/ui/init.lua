@@ -6,7 +6,9 @@
 
 local M = {}
 
+--- Wire signs, highlights, the panel UI provider, and virtual-text.
 ---@param opts Dap.UiOptions
+---@return nil
 function M.setup(opts)
   local ok_signs, signs = pcall(require, "wkddap.ui.signs")
   if ok_signs and opts.signs then

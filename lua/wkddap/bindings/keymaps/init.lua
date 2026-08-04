@@ -8,7 +8,10 @@
 
 local M = {}
 
+--- Install the default DAP keymaps under `opts.prefix`, if enabled.
 ---@param opts Dap.KeymapOptions
+---@return nil
+---@see wkddap.bindings.usercmds
 function M.setup(opts)
   if not opts.enable then
     return

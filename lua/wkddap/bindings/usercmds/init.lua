@@ -10,6 +10,9 @@ local composer = require("lib.nvim.usercmd.composer")
 
 local M = {}
 
+--- Register the :Dap user command and all its subcommands.
+---@return nil
+---@see wkddap.bindings.keymaps
 function M.setup()
   local function dap()
     return require("dap")

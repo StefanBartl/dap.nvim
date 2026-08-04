@@ -6,8 +6,10 @@
 
 local M = {}
 
+--- Set up nvim-dap-view as the panel UI provider.
 ---@param opts Dap.UiOptions
 ---@return boolean success
+---@see wkddap.ui.dapui
 function M.setup(opts)
   local ok_view, dap_view = pcall(require, "dap-view")
   if not ok_view then
