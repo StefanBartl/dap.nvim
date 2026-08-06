@@ -43,6 +43,11 @@ function M.check()
   check_require("lib.nvim.notify", "notify", "warn")
   check_require("lib.nvim.cross", "cross (platform detection)", "warn")
   check_require("lib.nvim.normalize", "normalize (path helpers)", "warn")
+  if pcall(require, "lib.nvim.map") then
+    vim.health.ok("lib.nvim.map available (enhanced keymaps)")
+  else
+    vim.health.info("lib.nvim.map not found — using vim.keymap.set fallback")
+  end
 
   -- ── UI companions ─────────────────────────────────────────────────────────
   vim.health.start("dap.nvim: UI companions")

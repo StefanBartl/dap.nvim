@@ -33,7 +33,7 @@ local function start(program_fn)
   end
 end
 
-describe("wkddap.languages program() prompts (kit.input completion=\"file\")", function()
+describe('wkddap.languages program() prompts (kit.input completion="file")', function()
   before_each(function()
     package.loaded["dap"] = { configurations = {} }
     package.loaded["lib.nvim.ui.kit"] = {
@@ -64,47 +64,69 @@ describe("wkddap.languages program() prompts (kit.input completion=\"file\")", f
   }
 
   for _, case in ipairs(cases) do
-    it(("%s configurations.%s[%d].program: completion=\"file\" + submit -> normalized path"):format(
-      case.mod, case.key, case.idx
-    ), function()
-      local lang = reload(case.mod)
-      lang.load()
-      local program = package.loaded["dap"].configurations[case.key][case.idx].program
+    it(
+      ('%s configurations.%s[%d].program: completion="file" + submit -> normalized path'):format(
+        case.mod,
+        case.key,
+        case.idx
+      ),
+      function()
+        local lang = reload(case.mod)
+        lang.load()
+        local program = package.loaded["dap"].configurations[case.key][case.idx].program
 
-      -- "Launch (build first)" (zig idx 2) shells out to `zig build` from
-      -- inside program() itself, so the stub must still be in place when
-      -- start() actually invokes it below -- load() only builds the config
-      -- table, it never calls program().
-      local orig_system = vim.system
-      vim.system = function()
-        return { wait = function() return { code = 0 } end }
+        -- "Launch (build first)" (zig idx 2) shells out to `zig build` from
+        -- inside program() itself, so the stub must still be in place when
+        -- start() actually invokes it below -- load() only builds the config
+        -- table, it never calls program().
+        local orig_system = vim.system
+        vim.system = function()
+          return {
+            wait = function()
+              return { code = 0 }
+            end,
+          }
+        end
+        local opts, result = start(program)
+        vim.system = orig_system
+
+        assert.is_not_nil(opts, "kit.input was called")
+        assert.are.equal("file", opts.completion, 'prompted with completion = "file"')
+
+        opts.on_submit("/tmp/foo/bar")
+        assert.are.equal(paths.normalize("/tmp/foo/bar"), result(), "submitted path is normalized")
       end
-      local opts, result = start(program)
-      vim.system = orig_system
+    )
 
-      assert.is_not_nil(opts, "kit.input was called")
-      assert.are.equal("file", opts.completion, "prompted with completion = \"file\"")
+    it(
+      ("%s configurations.%s[%d].program: <Esc> resolves like the old empty-string cancel"):format(
+        case.mod,
+        case.key,
+        case.idx
+      ),
+      function()
+        local lang = reload(case.mod)
+        lang.load()
+        local program = package.loaded["dap"].configurations[case.key][case.idx].program
 
-      opts.on_submit("/tmp/foo/bar")
-      assert.are.equal(paths.normalize("/tmp/foo/bar"), result(), "submitted path is normalized")
-    end)
+        local orig_system = vim.system
+        vim.system = function()
+          return {
+            wait = function()
+              return { code = 0 }
+            end,
+          }
+        end
+        local opts, result = start(program)
+        vim.system = orig_system
 
-    it(("%s configurations.%s[%d].program: <Esc> resolves like the old empty-string cancel"):format(
-      case.mod, case.key, case.idx
-    ), function()
-      local lang = reload(case.mod)
-      lang.load()
-      local program = package.loaded["dap"].configurations[case.key][case.idx].program
-
-      local orig_system = vim.system
-      vim.system = function()
-        return { wait = function() return { code = 0 } end }
+        opts.on_cancel()
+        assert.are.equal(
+          paths.normalize(""),
+          result(),
+          'cancel resolves the same as vim.fn.input\'s old Esc -> ""'
+        )
       end
-      local opts, result = start(program)
-      vim.system = orig_system
-
-      opts.on_cancel()
-      assert.are.equal(paths.normalize(""), result(), "cancel resolves the same as vim.fn.input's old Esc -> \"\"")
-    end)
+    )
   end
 end)

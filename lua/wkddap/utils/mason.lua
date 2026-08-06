@@ -9,6 +9,7 @@ local M = {}
 --- Install any required, Mason-backed adapters that aren't currently
 --- resolvable (not on PATH, not already under mason/bin).
 ---@param languages string[] Languages being set up (empty = all available)
+---@return nil
 function M.ensure_installed(languages)
   if not pcall(require, "mason") then
     notify.warn("auto_install is enabled but mason.nvim is not installed")

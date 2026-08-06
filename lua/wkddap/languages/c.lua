@@ -59,8 +59,12 @@ function M.load()
             title = "Path to executable: ",
             default = paths.join(vim.fn.getcwd(), ""),
             completion = "file",
-            on_submit = function(input) coroutine.resume(co, input) end,
-            on_cancel = function() coroutine.resume(co, "") end,
+            on_submit = function(input)
+              coroutine.resume(co, input)
+            end,
+            on_cancel = function()
+              coroutine.resume(co, "")
+            end,
           })
           return paths.normalize(coroutine.yield())
         end,

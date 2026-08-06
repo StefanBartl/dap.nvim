@@ -1,4 +1,6 @@
-*wkddap.txt*  Adapters & launch configs for nvim-dap, batteries included    *dap.nvim*
+*wkddap.txt*  Adapters & launch configs for nvim-dap, batteries included
+
+                                                       *wkddap* *dap.nvim*
 
 Author:   Stefan Bartl
 Version:  0.1.0

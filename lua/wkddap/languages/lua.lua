@@ -51,8 +51,12 @@ function M.load()
         require("lib.nvim.ui.kit").input({
           title = "Host [127.0.0.1]: ",
           default = "127.0.0.1",
-          on_submit = function(input) coroutine.resume(co, input) end,
-          on_cancel = function() coroutine.resume(co, "127.0.0.1") end,
+          on_submit = function(input)
+            coroutine.resume(co, input)
+          end,
+          on_cancel = function()
+            coroutine.resume(co, "127.0.0.1")
+          end,
         })
         return coroutine.yield()
       end,
@@ -61,8 +65,12 @@ function M.load()
         require("lib.nvim.ui.kit").input({
           title = "Port [8086]: ",
           default = "8086",
-          on_submit = function(input) coroutine.resume(co, tonumber(input) or 8086) end,
-          on_cancel = function() coroutine.resume(co, 8086) end,
+          on_submit = function(input)
+            coroutine.resume(co, tonumber(input) or 8086)
+          end,
+          on_cancel = function()
+            coroutine.resume(co, 8086)
+          end,
         })
         return coroutine.yield()
       end,

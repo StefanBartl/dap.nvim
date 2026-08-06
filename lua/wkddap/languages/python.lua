@@ -2,6 +2,8 @@
 --- Python: adapter (debugpy) + launch configurations
 
 local config = require("wkddap.config")
+local cross = require("lib.nvim.cross")
+local paths = require("wkddap.utils.paths")
 
 local M = {}
 
@@ -42,7 +44,10 @@ function M.load()
       pythonPath = function()
         local venv = vim.env.VIRTUAL_ENV
         if venv then
-          return venv .. "/bin/python"
+          if cross.is_windows() then
+            return paths.join(venv, "Scripts", "python.exe")
+          end
+          return paths.join(venv, "bin", "python")
         end
         return "python3"
       end,

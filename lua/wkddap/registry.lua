@@ -40,24 +40,19 @@ function M.register(language)
 
   local valid, err = config.validate_adapter(actual_lang)
   if not valid then
-    notify.warn(err or ("unknown adapter: " .. actual_lang))
-    return false, err
+    return false, err or ("unknown adapter: " .. actual_lang)
   end
 
   local adapter_module = string.format("wkddap.languages.%s", actual_lang)
   local ok, adapter = pcall(require, adapter_module)
   if not ok then
-    local msg = string.format("Failed to load adapter module: %s", adapter_module)
-    notify.error(msg)
-    return false, msg
+    return false, string.format("Failed to load adapter module: %s", adapter_module)
   end
 
   if type(adapter.setup) == "function" then
     local setup_ok, setup_err = pcall(adapter.setup)
     if not setup_ok then
-      local msg = string.format("Adapter setup failed for %s: %s", actual_lang, setup_err)
-      notify.error(msg)
-      return false, msg
+      return false, string.format("Adapter setup failed for %s: %s", actual_lang, setup_err)
     end
   end
 
@@ -68,6 +63,9 @@ function M.register(language)
 end
 
 --- Unregister a language adapter
+---
+--- Low-level status-only op (see Refactoring "fail late"): callers decide
+--- whether/how to report the outcome to the user.
 ---@param language string Language identifier
 ---@return boolean success
 function M.unregister(language)
@@ -79,7 +77,6 @@ function M.unregister(language)
   _registered[language] = nil
   _enabled[actual_lang] = nil
 
-  notify.info(string.format("Unregistered: %s", language))
   return true
 end
 
@@ -122,7 +119,11 @@ function M.enabled_languages()
   return langs
 end
 
---- Register multiple languages
+--- Register multiple languages.
+---
+--- Unlike `register()`, this is itself a user-facing aggregation entry point
+--- (there is no other wrapper reporting per-item failures for this path), so
+--- it notifies per skipped language in addition to returning the results.
 ---@param languages string[] List of languages to register (empty = all available)
 ---@return table<string, boolean> success_map
 function M.register_all(languages)

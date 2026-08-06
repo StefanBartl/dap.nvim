@@ -77,18 +77,32 @@ function M.setup()
         path = { "conditional-breakpoint" },
         desc = "Conditional Breakpoint (condition, or prompts when omitted)",
         run = function(ctx)
-          local condition = #ctx.rest > 0 and table.concat(ctx.rest, " ")
-            or vim.fn.input("Breakpoint condition: ")
-          dap().set_breakpoint(condition)
+          if #ctx.rest > 0 then
+            dap().set_breakpoint(table.concat(ctx.rest, " "))
+            return
+          end
+          require("lib.nvim.ui.kit").input({
+            title = "Breakpoint condition: ",
+            on_submit = function(condition)
+              dap().set_breakpoint(condition)
+            end,
+          })
         end,
       },
       {
         path = { "log-point" },
         desc = "Log Point (message, or prompts when omitted)",
         run = function(ctx)
-          local message = #ctx.rest > 0 and table.concat(ctx.rest, " ")
-            or vim.fn.input("Log message: ")
-          dap().set_breakpoint(nil, nil, message)
+          if #ctx.rest > 0 then
+            dap().set_breakpoint(nil, nil, table.concat(ctx.rest, " "))
+            return
+          end
+          require("lib.nvim.ui.kit").input({
+            title = "Log message: ",
+            on_submit = function(message)
+              dap().set_breakpoint(nil, nil, message)
+            end,
+          })
         end,
       },
       {

@@ -30,6 +30,11 @@ commands, and a which-key group label. Built on
 [lib.nvim](https://github.com/StefanBartl/lib.nvim) as a deliberate shared
 dependency.
 
+## Table of Contents
+
+- [Quickstart](#quickstart)
+- [Documentation](#documentation)
+
 ## Quickstart
 
 ```lua
