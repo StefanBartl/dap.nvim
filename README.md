@@ -61,12 +61,13 @@ Then verify everything is wired up correctly:
 
 ## Documentation
 
-- [Features](docs/features.md) — supported languages, adapters, and filetype aliases.
+- [Features](docs/FEATURES/README.md) — languages, adapters, panel UI, keymaps/commands, health checks.
 - [Installation](docs/installation.md) — requirements, lazy.nvim/packer.nvim setup, and adapter binary installation.
 - [Configuration](docs/configuration.md) — full `setup()` options and their defaults.
 - [Panel UI](docs/panel-ui.md) — choosing between nvim-dap-view and nvim-dap-ui via `ui.provider`.
 - [Commands and Keymaps](docs/commands.md) — quick reference for default keymaps and `:Dap*` user commands.
 - [docs/BINDINGS.md](docs/BINDINGS.md) — full cheatsheet of every keymap, user command, and autocommand.
+- [Workflow](docs/WORKFLOW.md) — how the pieces combine in daily debugging use, with gotchas.
 - [Health Check](docs/health.md) — what `:checkhealth wkddap` verifies.
 - [Architecture](docs/architecture.md) — module layout and file responsibilities.
 - [docs/ROADMAP.md](docs/ROADMAP.md) — implemented features and planned work.
