@@ -28,8 +28,11 @@ local function prefetch_sysroot()
     return
   end
   vim.system({ "rustc", "--print", "sysroot" }, { text = true }, function(res)
+    -- vim.system-Callbacks laufen in einem Fast-Event-Context: `vim.fn.trim`
+    -- ist eine Vimscript-Funktion und wirft dort E5560. `vim.trim` ist reines
+    -- Lua und damit hier erlaubt.
     if res.code == 0 and res.stdout and res.stdout ~= "" then
-      sysroot_cache = vim.fn.trim(res.stdout)
+      sysroot_cache = vim.trim(res.stdout)
     end
   end)
 end
@@ -44,7 +47,7 @@ local function rustc_sysroot()
     return ""
   end
   -- Fallback only: the prefetch above has not landed yet.
-  sysroot_cache = vim.fn.trim(
+  sysroot_cache = vim.trim(
     vim.system({ "rustc", "--print", "sysroot" }, { text = true }):wait().stdout or ""
   )
   return sysroot_cache
