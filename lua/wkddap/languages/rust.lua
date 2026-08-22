@@ -7,6 +7,49 @@ local paths = require("wkddap.utils.paths")
 
 local M = {}
 
+---@internal
+---Cached `rustc --print sysroot`. The value is a property of the toolchain,
+---not of the session, so once is enough.
+---@type string|nil
+local sysroot_cache = nil
+
+---@internal
+---Warm `sysroot_cache` in the background.
+---
+---`initCommands` below needs the sysroot to point LLDB at Rust's
+---pretty-printers, and used to obtain it with `vim.system(...):wait()` --
+---blocking the editor on every debug session start. Prefetching it when the
+---language module loads means the value is virtually always there by the time
+---a session actually starts; the blocking call survives only as the fallback
+---for the race where it is not.
+---@return nil
+local function prefetch_sysroot()
+  if sysroot_cache or vim.fn.executable("rustc") ~= 1 then
+    return
+  end
+  vim.system({ "rustc", "--print", "sysroot" }, { text = true }, function(res)
+    if res.code == 0 and res.stdout and res.stdout ~= "" then
+      sysroot_cache = vim.fn.trim(res.stdout)
+    end
+  end)
+end
+
+---@internal
+---@return string sysroot  empty string when rustc is unavailable
+local function rustc_sysroot()
+  if sysroot_cache then
+    return sysroot_cache
+  end
+  if vim.fn.executable("rustc") ~= 1 then
+    return ""
+  end
+  -- Fallback only: the prefetch above has not landed yet.
+  sysroot_cache = vim.fn.trim(
+    vim.system({ "rustc", "--print", "sysroot" }, { text = true }):wait().stdout or ""
+  )
+  return sysroot_cache
+end
+
 ---@return boolean success
 function M.setup()
   local ok_dap, dap = pcall(require, "dap")
@@ -28,6 +71,8 @@ function M.setup()
         args = { "--port", "${port}" },
       },
     }
+
+  prefetch_sysroot()
 
   return true
 end
@@ -66,13 +111,11 @@ function M.load()
       cwd = "${workspaceFolder}",
       stopOnEntry = false,
       initCommands = function()
-        local rustc_sysroot = vim.fn.trim(
-          vim.system({ "rustc", "--print", "sysroot" }, { text = true }):wait().stdout or ""
-        )
+        local sysroot = rustc_sysroot()
         local script_import = 'command script import "'
-          .. rustc_sysroot
+          .. sysroot
           .. '/lib/rustlib/etc/lldb_lookup.py"'
-        local commands_file = rustc_sysroot .. "/lib/rustlib/etc/lldb_commands"
+        local commands_file = sysroot .. "/lib/rustlib/etc/lldb_commands"
         local commands = {}
         local file = io.open(commands_file, "r")
         if file then
