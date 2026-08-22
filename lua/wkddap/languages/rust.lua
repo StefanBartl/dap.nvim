@@ -4,6 +4,7 @@
 
 local config = require("wkddap.config")
 local paths = require("wkddap.utils.paths")
+local executable = require("wkddap.utils.executable")
 
 local M = {}
 
@@ -24,7 +25,7 @@ local sysroot_cache = nil
 ---for the race where it is not.
 ---@return nil
 local function prefetch_sysroot()
-  if sysroot_cache or vim.fn.executable("rustc") ~= 1 then
+  if sysroot_cache or not executable.exists("rustc") then
     return
   end
   vim.system({ "rustc", "--print", "sysroot" }, { text = true }, function(res)
@@ -43,7 +44,7 @@ local function rustc_sysroot()
   if sysroot_cache then
     return sysroot_cache
   end
-  if vim.fn.executable("rustc") ~= 1 then
+  if not executable.exists("rustc") then
     return ""
   end
   -- Fallback only: the prefetch above has not landed yet.
