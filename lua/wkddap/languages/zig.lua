@@ -66,20 +66,50 @@ function M.load()
       name = "Launch (build first)",
       type = "lldb",
       request = "launch",
+      -- `zig build` used to run through `vim.system(...):wait()`, which froze
+      -- Neovim for the entire build -- on a real project that is seconds to
+      -- minutes, and the editor showed nothing at all while it happened.
+      --
+      -- The fix uses the same yield/resume idiom the "Launch" config above
+      -- already relies on: nvim-dap resolves config functions inside
+      -- `coroutine.wrap()`, so this function can yield once and be resumed
+      -- later. The build is spawned, we yield, and the prompt is only opened
+      -- from the build's completion callback -- whose `on_submit` then
+      -- performs the single resume. Spawning before the yield is safe: the
+      -- callback cannot fire until control returns to the event loop, which
+      -- is exactly what the yield does.
       program = function()
-        vim.system({ "zig", "build" }):wait()
         local co = coroutine.running()
-        require("lib.nvim.ui.kit").input({
-          title = "Path to executable: ",
-          default = paths.join(vim.fn.getcwd(), "zig-out", "bin", ""),
-          completion = "file",
-          on_submit = function(input)
-            coroutine.resume(co, input)
-          end,
-          on_cancel = function()
-            coroutine.resume(co, "")
-          end,
-        })
+
+        local function prompt()
+          require("lib.nvim.ui.kit").input({
+            title = "Path to executable: ",
+            default = paths.join(vim.fn.getcwd(), "zig-out", "bin", ""),
+            completion = "file",
+            on_submit = function(input)
+              coroutine.resume(co, input)
+            end,
+            on_cancel = function()
+              coroutine.resume(co, "")
+            end,
+          })
+        end
+
+        vim.system({ "zig", "build" }, { text = true }, function(res)
+          vim.schedule(function()
+            -- The old code discarded the exit status entirely and prompted
+            -- regardless. That stays -- a failed build may still have left a
+            -- previous binary worth debugging -- but it is no longer silent.
+            if res.code ~= 0 then
+              vim.notify(
+                "zig build exited " .. tostring(res.code) .. ": " .. vim.trim(res.stderr or ""),
+                vim.log.levels.WARN
+              )
+            end
+            prompt()
+          end)
+        end)
+
         return paths.normalize(coroutine.yield())
       end,
       cwd = "${workspaceFolder}",
