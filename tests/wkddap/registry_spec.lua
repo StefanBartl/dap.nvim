@@ -16,8 +16,11 @@ describe("wkddap.registry", function()
     table.sort(langs)
     assert.are.same({
       "assembly",
+      "bash",
+      "browser",
       "c",
       "cpp",
+      "csharp",
       "go",
       "javascript",
       "lua",

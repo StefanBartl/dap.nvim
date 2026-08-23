@@ -25,6 +25,12 @@ local SUPPORTED_LANGUAGES = {
   "rust",
   "zig",
   "assembly",
+  "bash",
+  "csharp",
+  -- Not a language: browser debugging over js-debug's `pwa-chrome`. It is in
+  -- this list because it is an independently selectable adapter with its own
+  -- binary requirement, not because "browser" is a filetype.
+  "browser",
 }
 
 --- Register a language adapter

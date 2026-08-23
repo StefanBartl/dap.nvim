@@ -51,6 +51,26 @@ M.adapter_binaries = {
   rust = { type = "binary", binary = "codelldb", mason_pkg = "codelldb", required = true },
   zig = { type = "binary", binary = "codelldb", mason_pkg = "codelldb", required = true },
   assembly = { type = "binary", binary = "gdb", required = true },
+  bash = {
+    type = "binary",
+    binary = "bash-debug-adapter",
+    mason_pkg = "bash-debug-adapter",
+    required = true,
+  },
+  csharp = {
+    type = "binary",
+    binary = "netcoredbg",
+    mason_pkg = "netcoredbg",
+    required = true,
+  },
+  -- Same package as `javascript`; separate entry so browser debugging can be
+  -- enabled (and validated) on its own.
+  browser = {
+    type = "binary",
+    binary = "js-debug-adapter",
+    mason_pkg = "js-debug-adapter",
+    required = true,
+  },
 }
 
 --- Language aliases for adapter reuse
@@ -64,6 +84,12 @@ M.language_aliases = {
   asm = "assembly",
   nasm = "assembly",
   gas = "assembly",
+  sh = "bash",
+  zsh = "bash",
+  ksh = "bash",
+  cs = "csharp",
+  fsharp = "csharp",
+  dotnet = "csharp",
 }
 
 --- Default UI signs

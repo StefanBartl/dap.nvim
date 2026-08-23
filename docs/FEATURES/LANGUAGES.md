@@ -9,9 +9,9 @@ not a hard error (see [HEALTH.md](HEALTH.md) for how to see why).
 
 ## Multi-language debug adapters & launch configs
 
-Registers nvim-dap adapters and ready-to-use launch configurations for eight
-languages, each isolated in its own module and only wired when its
-binary/plugin is actually available.
+Registers nvim-dap adapters and ready-to-use launch configurations for eleven
+targets, each isolated in its own module and only wired when its binary/plugin
+is actually available.
 
 - **Module:** `lua/wkddap/languages/*.lua` (`setup`, `load`)
 - **Config:** `opts.languages` (default: empty, meaning all)
@@ -26,6 +26,14 @@ binary/plugin is actually available.
 | Rust | CodeLLDB | Cargo-friendly; bootstraps `rustc`'s own LLDB pretty-printers via `initCommands` |
 | Zig | CodeLLDB/`lldb` | Two configs: plain launch, and "build first" which runs `zig build` before launching |
 | Assembly | GDB | NASM/GAS/AT&T filetypes, `stopAtBeginningOfMainSubprogram = false` |
+| Bash | `bash-debug-adapter` | One config shared by `sh`/`bash`/`zsh`/`ksh`; `pathBashdb*` left empty so the adapter's bundled bashdb is used |
+| C#/.NET | `netcoredbg` | Prompts for the DLL path, defaulting into `bin/Debug/`; forces `noshellslash` on Windows when the adapter is registered |
+| Browser | `js-debug-adapter` (`pwa-chrome`) | Attach (port 9222) + Launch configs, appended to JS/TS/JSX/TSX/Astro so the node configs are not replaced |
+
+The last three were carried over from the nvim config's `lsp/debug_adapters/`,
+which registered them at module load and was never required by anything. Its
+`go` and `node` modules were dropped rather than ported: the `go` and
+`javascript` modules here already cover them, with more configurations.
 
 Several launch configs prompt interactively for a value (executable path,
 host/port, breakpoint condition) via `lib.nvim.ui.kit`, using nvim-dap's own
@@ -104,3 +112,10 @@ Filetype/language spellings are folded onto one canonical adapter module so
 | `typescript`, `typescriptreact`, `javascriptreact` | `javascript` |
 | `cpp`, `c++` | `c` |
 | `asm`, `nasm`, `gas` | `assembly` |
+| `sh`, `zsh`, `ksh` | `bash` |
+| `cs`, `fsharp`, `dotnet` | `csharp` |
+
+`browser` has no alias on purpose. It is not a filetype but an independently
+selectable adapter: someone debugging a Node service does not necessarily want
+Chrome attach configurations in the same list, so it has to be asked for by
+name.

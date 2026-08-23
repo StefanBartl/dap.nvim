@@ -48,9 +48,8 @@ local function rustc_sysroot()
     return ""
   end
   -- Fallback only: the prefetch above has not landed yet.
-  sysroot_cache = vim.trim(
-    vim.system({ "rustc", "--print", "sysroot" }, { text = true }):wait().stdout or ""
-  )
+  sysroot_cache =
+    vim.trim(vim.system({ "rustc", "--print", "sysroot" }, { text = true }):wait().stdout or "")
   return sysroot_cache
 end
 

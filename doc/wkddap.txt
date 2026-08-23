@@ -22,8 +22,9 @@ CONTENTS                                                          *wkddap-conten
 1. INTRODUCTION                                                      *wkddap-intro*
 
 dap.nvim is a config layer on top of nvim-dap (mfussenegger/nvim-dap). It
-registers adapters and launch configurations for eight languages (Lua,
-JavaScript/TypeScript, C/C++, Go, Python, Rust, Zig, Assembly), auto-detects
+registers adapters and launch configurations for eleven targets (Lua,
+JavaScript/TypeScript, C/C++, Go, Python, Rust, Zig, Assembly, Bash, C#/.NET,
+and Chrome-based browser debugging), auto-detects
 and validates adapter binaries with Mason fallback (auto-installable, see
 |wkddap-config|), wires up a panel UI
 (nvim-dap-view by default, nvim-dap-ui opt-in — see |wkddap-panel-ui|) and

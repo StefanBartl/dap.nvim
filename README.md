@@ -22,8 +22,9 @@
 ---
 
 A config layer on top of [nvim-dap](https://github.com/mfussenegger/nvim-dap)
-that registers adapters and launch configurations for eight languages (Lua,
-JavaScript/TypeScript, C/C++, Go, Python, Rust, Zig, Assembly), auto-detects
+that registers adapters and launch configurations for eleven targets (Lua,
+JavaScript/TypeScript, C/C++, Go, Python, Rust, Zig, Assembly, Bash, C#/.NET,
+and Chrome-based browser debugging), auto-detects
 and validates adapter binaries (with Mason fallback), wires up
 nvim-dap-ui/nvim-dap-virtual-text, and ships user-configurable keymaps,
 commands, and a which-key group label. Built on
