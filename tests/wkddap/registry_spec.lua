@@ -62,7 +62,7 @@ describe("wkddap.registry", function()
     local registry = reload()
     local stats = registry.stats()
 
-    assert.are.equal(10, stats.available)
+    assert.are.equal(13, stats.available)
     assert.are.equal(0, stats.registered)
     assert.are.equal(0, stats.enabled)
   end)
