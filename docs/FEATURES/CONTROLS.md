@@ -91,3 +91,18 @@ Listens for the `DapUIWindowOpen`/`DapUIWindowClose` `User` events, which
 only **nvim-dap-ui** emits — see [UI.md](UI.md)'s panel UI provider entry.
 With the default `dap-view` provider active, this autocmd pair is wired but
 never fires.
+
+## Right-click context menu (nvzone/menu)
+
+`wkddap.integrations.menu` contributes entries for session control
+(Continue/Step Over/Step Into/Step Out/Terminate/Restart), breakpoints
+(Toggle/Conditional/Log Point/List), and the panel UI (Toggle DAP UI,
+Evaluate Expression/Selection) — the same actions the default keymaps
+expose, in the shape [nvzone/menu](https://github.com/nvzone/menu) expects.
+dap.nvim has no dependency on `menu` and never opens a context menu itself
+— a host (typically your own `<RightMouse>` dispatcher) composes the
+entries into its own menu. `items()` degrades to an empty list when
+nvim-dap isn't installed, same as every other entry point here.
+
+- **Module:** `lua/wkddap/integrations/menu.lua` (`M.items`, `M.submenu`)
+- **Config:** `opts.menu.enable` (default `true`)
