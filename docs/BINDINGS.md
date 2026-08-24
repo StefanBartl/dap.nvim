@@ -26,12 +26,20 @@ Normal/visual-mode keymaps installed by `bindings.setup()`, gated by
 | `<leader>dt` | n | Terminate |
 | `<leader>dr` | n | Restart |
 | `<leader>db` | n | Toggle Breakpoint |
-| `<leader>dB` | n | Conditional Breakpoint (prompts for condition) |
-| `<leader>dL` | n | Log Point (prompts for log message) |
+| `<leader>dB` | n | Conditional Breakpoint (prompts, pre-filled — see below) |
+| `<leader>dL` | n | Log Point (prompts, pre-filled — see below) |
 | `<leader>dl` | n | List Breakpoints |
 | `<leader>du` | n | Toggle UI (active panel UI provider) |
 | `<leader>de` | n, v | Evaluate Expression / Selection (dap-ui: float, dap-view: watch) |
 | `<leader>dR` | n | Open REPL |
+
+`<leader>dB` and `<leader>dL` (and the no-argument `:Dap
+conditional-breakpoint` / `:Dap log-point`) open pre-filled: with this line's
+existing condition/log message if it has one, otherwise with the last one you
+submitted this session. Submitting an empty line clears the value — that is
+how you turn a conditional breakpoint back into a plain one — while `<Esc>`
+cancels and changes nothing. See
+[FEATURES/CONTROLS.md](FEATURES/CONTROLS.md#pre-filled-breakpoint-prompts).
 
 which-key gets a single group label for the prefix
 (`config.which_key.enable`); individual keys already carry their own `desc`.

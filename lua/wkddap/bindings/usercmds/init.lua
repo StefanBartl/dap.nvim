@@ -81,12 +81,7 @@ function M.setup()
             dap().set_breakpoint(table.concat(ctx.rest, " "))
             return
           end
-          require("lib.nvim.ui.kit").input({
-            title = "Breakpoint condition: ",
-            on_submit = function(condition)
-              dap().set_breakpoint(condition)
-            end,
-          })
+          require("wkddap.core.breakpoints").prompt_condition()
         end,
       },
       {
@@ -97,12 +92,7 @@ function M.setup()
             dap().set_breakpoint(nil, nil, table.concat(ctx.rest, " "))
             return
           end
-          require("lib.nvim.ui.kit").input({
-            title = "Log message: ",
-            on_submit = function(message)
-              dap().set_breakpoint(nil, nil, message)
-            end,
-          })
+          require("wkddap.core.breakpoints").prompt_log_point()
         end,
       },
       {

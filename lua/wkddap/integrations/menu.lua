@@ -40,12 +40,6 @@ function M.items(opts)
     return require("wkddap.ui.provider")
   end
 
-  local function input(title, on_submit)
-    return function()
-      require("lib.nvim.ui.kit").input({ title = title, on_submit = on_submit })
-    end
-  end
-
   local out = {}
 
   -- Session control
@@ -63,22 +57,12 @@ function M.items(opts)
   contextmenu.group(
     out,
     contextmenu.entry(true, "  Toggle Breakpoint", dap.toggle_breakpoint, "<leader>db"),
-    contextmenu.entry(
-      true,
-      "  Conditional Breakpoint…",
-      input("Breakpoint condition: ", function(cond)
-        dap.set_breakpoint(cond)
-      end),
-      "<leader>dB"
-    ),
-    contextmenu.entry(
-      true,
-      "  Log Point…",
-      input("Log message: ", function(msg)
-        dap.set_breakpoint(nil, nil, msg)
-      end),
-      "<leader>dL"
-    ),
+    contextmenu.entry(true, "  Conditional Breakpoint…", function()
+      require("wkddap.core.breakpoints").prompt_condition()
+    end, "<leader>dB"),
+    contextmenu.entry(true, "  Log Point…", function()
+      require("wkddap.core.breakpoints").prompt_log_point()
+    end, "<leader>dL"),
     contextmenu.entry(true, "  List Breakpoints", dap.list_breakpoints, "<leader>dl")
   )
 

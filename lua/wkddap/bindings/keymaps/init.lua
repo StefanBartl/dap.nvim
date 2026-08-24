@@ -20,73 +20,46 @@ function M.setup(opts)
   local dap = require("dap")
   local prefix = opts.prefix
 
-  -- lib.nvim.map doesn't ship yet (see LUA_NVIM.md); fall back to
-  -- vim.keymap.set directly so this still works today and picks up the
-  -- shared helper automatically once it lands.
-  local map_ok, lib_map = pcall(require, "lib.nvim.map")
-  local map = map_ok and lib_map or vim.keymap.set
+  local map = require("lib.nvim.map")
+  local count = require("lib.nvim.count")
   local desc = function(d)
     return { desc = "[DAP] " .. d, silent = true }
   end
 
-  -- Upper bound on how many chained steps a single count-prefixed keypress
-  -- may queue up, so a fat-fingered count (or a session that keeps stopping
-  -- forever) can't build an unbounded chain.
-  local MAX_CHAINED_STEPS = 1000
-
-  --- Wraps a nvim-dap step function (step_over/step_into/step_out) so that
-  --- `vim.v.count1` chained step requests are issued one at a time, each
-  --- only after the adapter confirms (via the `event_stopped` DAP event)
-  --- that the thread has actually stopped from the previous step. Firing
-  --- another step request while the thread is still running from a prior
-  --- one is invalid per the DAP spec, so a naive `for i=1,count do fn() end`
-  --- is not safe here -- this chains via `dap.listeners.after.event_stopped`
-  --- instead (the same extension point used elsewhere in this repo, see
-  --- ui/dapui.lua and ui/dapview.lua).
+  --- Wrap an nvim-dap step function so a count prefix (`3<leader>ds`) issues
+  --- its steps one at a time, each only after the adapter confirms via the
+  --- `event_stopped` DAP event that the thread actually stopped from the
+  --- previous one. A naive `for i = 1, count do fn() end` is invalid per the
+  --- DAP spec: a step request while the thread is still running is not
+  --- allowed.
   ---
-  --- With no count (the overwhelmingly common case), this calls `step_fn()`
-  --- directly and registers no listener at all -- zero behavior change from
-  --- before.
+  --- The chaining itself now lives in `lib.nvim.count.chain`, generalized out
+  --- of the version that used to sit here -- the cap, the cleanup on session
+  --- end, and the "no listener at all without a count" fast path are its
+  --- behavior now, not this file's. What stays here is the only part that is
+  --- actually about DAP: which events mean "done" and "gone".
   ---@internal
   ---@param step_fn fun(opts?: table) dap.step_over, dap.step_into, or dap.step_out
   ---@param name string unique suffix for the listener key (one chain per step kind)
-  ---@return fun() rhs for vim.keymap.set
+  ---@return fun() rhs for the keymap
   local function counted_step(step_fn, name)
     return function()
-      local count = vim.v.count1
-      if count <= 1 then
-        step_fn()
-        return
-      end
-
-      local key = "wkddap.counted_step." .. name
-      -- Steps still owed *beyond* the one fired immediately below.
-      local remaining = math.min(count, MAX_CHAINED_STEPS) - 1
-
-      local function cleanup()
-        dap.listeners.after.event_stopped[key] = nil
-        dap.listeners.after.event_terminated[key] = nil
-        dap.listeners.after.event_exited[key] = nil
-      end
-
-      dap.listeners.after.event_stopped[key] = function()
-        if remaining <= 0 then
-          -- The step that satisfies `count` already fired; this stop event
-          -- just confirms it landed. Nothing left to do.
-          cleanup()
-          return
-        end
-        remaining = remaining - 1
-        step_fn()
-      end
-
-      -- Safety net: if the session ends before the chain finishes, don't
-      -- leave a dangling listener waiting for a stop event that will never
-      -- come.
-      dap.listeners.after.event_terminated[key] = cleanup
-      dap.listeners.after.event_exited[key] = cleanup
-
-      step_fn()
+      count.chain({
+        action = step_fn,
+        subscribe = function(advance, abort)
+          local key = "wkddap.counted_step." .. name
+          dap.listeners.after.event_stopped[key] = advance
+          -- If the session ends before the chain finishes, don't leave a
+          -- listener waiting for a stop event that will never come.
+          dap.listeners.after.event_terminated[key] = abort
+          dap.listeners.after.event_exited[key] = abort
+          return function()
+            dap.listeners.after.event_stopped[key] = nil
+            dap.listeners.after.event_terminated[key] = nil
+            dap.listeners.after.event_exited[key] = nil
+          end
+        end,
+      })
     end
   end
 
@@ -101,20 +74,10 @@ function M.setup(opts)
   -- Breakpoints
   map("n", prefix .. "b", dap.toggle_breakpoint, desc("Toggle Breakpoint"))
   map("n", prefix .. "B", function()
-    require("lib.nvim.ui.kit").input({
-      title = "Breakpoint condition: ",
-      on_submit = function(cond)
-        dap.set_breakpoint(cond)
-      end,
-    })
+    require("wkddap.core.breakpoints").prompt_condition()
   end, desc("Conditional Breakpoint"))
   map("n", prefix .. "L", function()
-    require("lib.nvim.ui.kit").input({
-      title = "Log message: ",
-      on_submit = function(msg)
-        dap.set_breakpoint(nil, nil, msg)
-      end,
-    })
+    require("wkddap.core.breakpoints").prompt_log_point()
   end, desc("Log Point"))
   map("n", prefix .. "l", dap.list_breakpoints, desc("List Breakpoints"))
 
