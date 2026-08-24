@@ -8,6 +8,7 @@
 ---@field keymaps Dap.KeymapOptions Keymap configuration
 ---@field which_key Dap.WhichKeyOptions which-key integration
 ---@field autocmds Dap.AutocmdOptions Autocommand configuration
+---@field menu Dap.MenuOptions nvzone/menu context-menu contribution
 ---@field adapters? table<string, table> Custom adapter overrides
 ---@field configurations? table<string, table[]> Custom launch configurations, keyed
 ---  by language (appended by default; set `replace = true` on the list to
@@ -33,5 +34,8 @@
 
 ---@class Dap.AutocmdOptions
 ---@field enable boolean Enable default autocommands (DAP UI cursorline toggle)
+
+---@class Dap.MenuOptions
+---@field enable boolean Provide nvzone/menu entries via integrations/menu.lua. Default true.
 
 return {}

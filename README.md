@@ -60,6 +60,27 @@ Then verify everything is wired up correctly:
 :checkhealth wkddap
 ```
 
+## Menu integration (nvzone/menu)
+
+dap.nvim does not depend on [nvzone/menu](https://github.com/nvzone/menu) — it
+only *contributes* entries in the shape it expects. A host (typically your
+own `<RightMouse>` dispatcher) composes them into its own menu:
+
+```lua
+local dap_menu = require("wkddap.integrations.menu")
+
+local items = dap_menu.items()      -- { { name, cmd, rtxt }, … } (possibly empty)
+local sub = dap_menu.submenu()      -- { name = "  DAP", items = {…} } | nil
+
+-- e.g. in a RightMouse handler:
+--   require("menu").open(dap_menu.items(), { mouse = true })
+```
+
+Covers session control (Continue/Step Over/Step Into/Step Out/Terminate/
+Restart), breakpoints (Toggle/Conditional/Log Point/List), and the panel UI
+(Toggle DAP UI, Evaluate Expression/Selection) — the same actions as the
+default keymaps. Opt out entirely with `menu = { enable = false }`.
+
 ## Documentation
 
 - [Features](docs/FEATURES/README.md) — languages, adapters, panel UI, keymaps/commands, health checks.
