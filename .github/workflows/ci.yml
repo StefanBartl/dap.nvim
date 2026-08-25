@@ -24,7 +24,7 @@ jobs:
         run: luarocks install luacheck
 
       - name: Run luacheck
-        run: luacheck lua plugin tests
+        run: luacheck lua plugin TESTS
 
   stylua:
     runs-on: ubuntu-latest
@@ -34,7 +34,7 @@ jobs:
         with:
           version: latest
           token: ${{ secrets.GITHUB_TOKEN }}
-          args: --check lua/ plugin/ tests/
+          args: --check lua/ plugin/ TESTS/
 
   test:
     name: plenary tests
@@ -64,5 +64,5 @@ jobs:
           PLENARY_PATH: ${{ github.workspace }}/plenary.nvim
           LIB_NVIM_PATH: ${{ github.workspace }}/lib.nvim
         run: |
-          nvim --headless --noplugin -u tests/minimal_init.lua \
-            -c "PlenaryBustedDirectory tests/wkddap { minimal_init = 'tests/minimal_init.lua', sequential = true }"
+          nvim --headless --noplugin -u TESTS/minimal_init.lua \
+            -c "PlenaryBustedDirectory TESTS/wkddap { minimal_init = 'TESTS/minimal_init.lua', sequential = true }"

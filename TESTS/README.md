@@ -13,22 +13,22 @@ in your own setup (e.g. your plugin manager's install dir), then:
 ```bash
 PLENARY_PATH=/path/to/plenary.nvim \
 LIB_NVIM_PATH=/path/to/lib.nvim \
-nvim --headless --noplugin -u tests/minimal_init.lua \
-  -c "PlenaryBustedDirectory tests/wkddap { minimal_init = 'tests/minimal_init.lua' }"
+nvim --headless --noplugin -u TESTS/minimal_init.lua \
+  -c "PlenaryBustedDirectory TESTS/wkddap { minimal_init = 'TESTS/minimal_init.lua' }"
 ```
 
 A single file:
 
 ```bash
 PLENARY_PATH=... LIB_NVIM_PATH=... \
-nvim --headless --noplugin -u tests/minimal_init.lua \
-  -c "PlenaryBustedFile tests/wkddap/registry_spec.lua"
+nvim --headless --noplugin -u TESTS/minimal_init.lua \
+  -c "PlenaryBustedFile TESTS/wkddap/registry_spec.lua"
 ```
 
 ## Writing a new spec
 
 - One spec file per module, mirroring `lua/wkddap/...`'s path under
-  `tests/wkddap/...`.
+  `TESTS/wkddap/...`.
 - Prefer asserting on failure/validation paths that don't need a real
   adapter binary on `$PATH` (e.g. `registry.register("nonexistent")`)
   over paths that only succeed when codelldb/gdb/etc. are installed.
