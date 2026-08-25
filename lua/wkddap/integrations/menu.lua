@@ -23,9 +23,9 @@ local M = {}
 --- Build the dap.nvim context-menu entries.
 --- Returns an empty list when the integration is disabled or nvim-dap isn't
 --- installed, so a host can safely `vim.list_extend` it unconditionally.
----@param opts? table Reserved for future context-scoping; unused today.
+---@param _opts? table Reserved for future context-scoping; unused today.
 ---@return Lib.ContextMenu.Item[]
-function M.items(opts)
+function M.items(_opts)
   local cfg = require("wkddap.config").get()
   if cfg.menu and cfg.menu.enable == false then
     return {}
