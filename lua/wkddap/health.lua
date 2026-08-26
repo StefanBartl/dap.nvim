@@ -90,7 +90,7 @@ function M.check()
     vim.health.info("nvim-dap-virtual-text not found (optional)")
   end
 
-  if require("wkddap.bindings.which_key").available() then
+  if pcall(require, "which-key") then
     vim.health.ok("which-key present (keymap group label)")
   else
     vim.health.info("which-key not installed (optional)")

@@ -15,13 +15,12 @@ function M.setup(cfg)
     -- keymaps.setup() requires("dap") eagerly (to bind functions directly);
     -- pcall so a missing nvim-dap degrades gracefully instead of aborting
     -- the rest of setup() (which-key/autocmds still get wired).
-    local ok, err = pcall(require("wkddap.bindings.keymaps").setup, cfg.keymaps)
+    -- The which-key group label is one field in the keymap spec now, so the
+    -- toggle is handed over rather than acted on here.
+    local ok, err =
+      pcall(require("wkddap.bindings.keymaps").setup, cfg.keymaps, cfg.which_key.enable)
     if not ok then
       notify.warn("Skipped keymaps: " .. tostring(err))
-    end
-
-    if cfg.which_key.enable then
-      pcall(require("wkddap.bindings.which_key").setup, cfg.keymaps.prefix)
     end
   end
 
