@@ -20,7 +20,7 @@ function M.setup(opts)
   local dap = require("dap")
   local prefix = opts.prefix
 
-  local map = require("lib.nvim.map")
+  local map = require("lib.nvim.bindings.keymap")
   local count = require("lib.nvim.count")
   local desc = function(d)
     return { desc = "[DAP] " .. d, silent = true }

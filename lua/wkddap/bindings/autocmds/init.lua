@@ -4,7 +4,7 @@
 --- Only nvim-dap-ui emits the `DapUIWindowOpen`/`DapUIWindowClose` User events,
 --- so these autocmds are inert when the default nvim-dap-view provider is active.
 
-local autocmd = require("lib.nvim.autocmd")
+local autocmd = require("lib.nvim.bindings.autocmd")
 
 local M = {}
 
@@ -17,7 +17,7 @@ function M.setup(opts)
   end
 
   -- Created directly via nvim_create_augroup(..., { clear = true }) rather
-  -- than lib.nvim.autocmd.group(): that helper caches groups by name and
+  -- than lib.nvim.bindings.autocmd.group(): that helper caches groups by name and
   -- skips the clear on subsequent calls, which would stack duplicate
   -- autocmds if setup() ever re-runs.
   local group = vim.api.nvim_create_augroup("DapNvimAuto", { clear = true })

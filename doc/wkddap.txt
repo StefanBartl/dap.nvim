@@ -168,7 +168,7 @@ Installed under the configurable prefix (default "<leader>d") when
 ==============================================================================
 6. USER COMMANDS                                                    *wkddap-commands*
 
-One command, :Dap <subcommand> (built via lib.nvim.usercmd.composer, with
+One command, :Dap <subcommand> (built via lib.nvim.bindings.usercmd.composer, with
 <Tab> completion). Always registered, independent of `keymaps.enable`.
                                                                        *:Dap*
   :Dap continue                                             *:Dap-continue*

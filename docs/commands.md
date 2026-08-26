@@ -20,7 +20,7 @@ Disable everything with `keymaps = { enable = false }`, or just change
 ## User Commands
 
 One command, `:Dap <subcommand>` (built via
-[`lib.nvim.usercmd.composer`](https://github.com/StefanBartl/lib.nvim), with
+[`lib.nvim.bindings.usercmd.composer`](https://github.com/StefanBartl/lib.nvim), with
 `<Tab>` completion): `continue`, `step-over`, `step-into`, `step-out`,
 `terminate`, `restart`, `toggle-breakpoint`, `conditional-breakpoint`,
 `log-point`, `list-breakpoints`, `toggle-ui`, `eval`, `repl` — always

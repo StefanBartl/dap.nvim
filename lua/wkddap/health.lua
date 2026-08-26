@@ -43,10 +43,10 @@ function M.check()
   check_require("lib.nvim.notify", "notify", "warn")
   check_require("lib.nvim.cross", "cross (platform detection)", "warn")
   check_require("lib.nvim.normalize", "normalize (path helpers)", "warn")
-  if pcall(require, "lib.nvim.map") then
-    vim.health.ok("lib.nvim.map available (enhanced keymaps)")
+  if pcall(require, "lib.nvim.bindings.keymap") then
+    vim.health.ok("lib.nvim.bindings.keymap available (enhanced keymaps)")
   else
-    vim.health.info("lib.nvim.map not found — using vim.keymap.set fallback")
+    vim.health.info("lib.nvim.bindings.keymap not found — using vim.keymap.set fallback")
   end
 
   -- ── UI companions ─────────────────────────────────────────────────────────
@@ -144,7 +144,7 @@ function M.check()
   end
 
   -- ── composer route pre-flight ─────────────────────────────────────────────
-  require("lib.nvim.usercmd.composer").checkhealth("Dap")
+  require("lib.nvim.bindings.usercmd.composer").checkhealth("Dap")
 end
 
 return M

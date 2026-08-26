@@ -15,8 +15,8 @@ installed when `keymaps.enable` is true. Every mapping carries its own
   (default `<leader>d`)
 - **Keymaps:** [../BINDINGS.md#default-keymaps](../BINDINGS.md#default-keymaps)
 
-Registers through `lib.nvim.map`. (This used to be a `pcall` fallback to
-`vim.keymap.set` with a note that `lib.nvim.map` "doesn't ship yet" — it
+Registers through `lib.nvim.bindings.keymap`. (This used to be a `pcall` fallback to
+`vim.keymap.set` with a note that `lib.nvim.bindings.keymap` "doesn't ship yet" — it
 does, so the fallback and the note are gone.)
 `keymaps.setup()` requires `nvim-dap` eagerly to bind its functions directly;
 that call is wrapped in `pcall` so a missing nvim-dap only skips keymaps
@@ -96,7 +96,7 @@ prompt now share this module.
 ## `:Dap` user command
 
 One command with `<Tab>`-completed subcommands, built via
-`lib.nvim.usercmd.composer`. Every default keymap has a 1:1 `:Dap`
+`lib.nvim.bindings.usercmd.composer`. Every default keymap has a 1:1 `:Dap`
 equivalent, and the command is always registered — independent of
 `keymaps.enable`, so it works even with keymaps disabled.
 

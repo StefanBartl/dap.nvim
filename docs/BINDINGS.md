@@ -47,7 +47,7 @@ which-key gets a single group label for the prefix
 ## User Commands
 
 One command, `:Dap <subcommand>` (built via
-[`lib.nvim.usercmd.composer`](https://github.com/StefanBartl/lib.nvim), with
+[`lib.nvim.bindings.usercmd.composer`](https://github.com/StefanBartl/lib.nvim), with
 `<Tab>` completion). Always registered, independent of `keymaps.enable`.
 Every default keymap has a 1:1 `:Dap` equivalent.
 

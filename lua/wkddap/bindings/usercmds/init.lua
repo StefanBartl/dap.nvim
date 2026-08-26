@@ -6,7 +6,7 @@
 --- but is an independent entry point — the keymaps call dap()/ui() Lua
 --- functions directly, not these commands.
 
-local composer = require("lib.nvim.usercmd.composer")
+local composer = require("lib.nvim.bindings.usercmd.composer")
 
 local M = {}
 
