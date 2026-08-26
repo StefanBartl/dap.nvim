@@ -36,6 +36,18 @@ regardless of `keymaps.enable` — useful for scripting a debug session from a
 command, or when you've turned keymaps off but still want `:Dap continue`
 from the command line.
 
+## The breakpoint prompt remembers — editing one is no longer retyping it
+
+`<leader>dB` on a line that already carries a conditional breakpoint used to
+open an empty prompt, so fixing a typo in a condition meant typing the whole
+thing again. It now pre-fills, in that order: this line's existing
+condition/log message, else the last value submitted this session, else empty.
+
+Conditions and log-point messages are remembered separately, so the two prompts
+do not offer each other's text. The session-level fallback is the part worth
+using deliberately: setting the same condition on several lines is now one
+prompt each, confirmed rather than retyped.
+
 ## `ui.provider`: pick one, and know what changes when you switch
 
 dap.nvim wires **exactly one** panel UI. The comparison that actually matters
@@ -82,6 +94,25 @@ Add `replace = true` alongside the entries in that language's table to
 discard the built-ins entirely instead of appending — useful for Python,
 where the single built-in "Launch file" config rarely matches a real
 project's entry point.
+
+## Node and browser are two targets, not one
+
+`javascript` and `browser` install from the same Mason package and answer
+different questions: one debugs a Node process, the other attaches to or
+launches Chrome (`pwa-chrome`, attach on port 9222). So `browser` is its own
+selectable target rather than a mode of the JS module — pick the one that
+matches what is actually running.
+
+Its configurations are **appended** to JS/TS/JSX/TSX/Astro rather than
+assigned, which is what keeps whichever of the two modules loads second from
+dropping the other's entries. In practice that means both sets show up in the
+configuration picker for a `.ts` file, and reading the name is how you choose.
+
+`bash` covers `sh`/`bash`/`zsh`/`ksh` through one configuration and leaves
+`pathBashdb*` empty so the adapter's bundled bashdb is used — which is what
+works on a machine with no separate bashdb installed, Windows in particular.
+`csharp` prompts for the DLL path and resolves its adapter through Mason or
+`$PATH` rather than a fixed location.
 
 ## Gotchas worth knowing before you hit them
 
