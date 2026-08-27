@@ -1,21 +1,9 @@
 ---@module 'wkddap.health'
 --- :checkhealth wkddap — environment, lib.nvim deps, adapters, externals.
 
-local M = {}
+local check_require = require("lib.nvim.health").check_require
 
----@internal
----@param mod string
----@param label string
----@param level "ok"|"warn"|"info"
-local function check_require(mod, label, level)
-  if pcall(require, mod) then
-    vim.health.ok(label .. " (" .. mod .. ")")
-  elseif level == "warn" then
-    vim.health.warn(label .. " missing (" .. mod .. ")")
-  else
-    vim.health.info(label .. " not found (" .. mod .. ")")
-  end
-end
+local M = {}
 
 function M.check()
   -- ── Core ────────────────────────────────────────────────────────────────
