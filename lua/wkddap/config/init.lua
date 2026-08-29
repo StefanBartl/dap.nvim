@@ -15,14 +15,13 @@ local M = {}
 local _active = nil
 
 --- Merge user options over the defaults and store the result.
----@param user_opts? Dap.Config|table
+---@param user_opts? Dap.Config
 ---@return Dap.Config
 function M.setup(user_opts)
   if type(user_opts) ~= "table" then
     user_opts = {}
   end
 
-  ---@diagnostic disable-next-line: missing-fields
   _active = vim.tbl_deep_extend("force", vim.deepcopy(DEFAULTS), user_opts)
   return _active
 end

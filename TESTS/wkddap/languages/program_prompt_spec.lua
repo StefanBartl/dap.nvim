@@ -93,6 +93,10 @@ describe('wkddap.languages program() prompts (kit.input completion="file")', fun
         -- "Launch (build first)" uses now, so the build does not block the
         -- editor). The callback has to actually fire, or the prompt it guards
         -- is never reached.
+        -- Stands in for both call shapes, so it takes the callback the real
+        -- two-argument overload does not, and returns only the fields the
+        -- code under test reads.
+        ---@diagnostic disable-next-line: redundant-parameter, missing-fields
         vim.system = function(_cmd, _opts, on_exit)
           if type(on_exit) == "function" then
             on_exit({ code = 0, stdout = "", stderr = "" })
