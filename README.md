@@ -1,7 +1,8 @@
 > **Active development.** This repository is in its development phase — breaking changes are to be expected at any time. Pin a commit or tag if you depend on it.
 
-<!-- ASCII art banner -->
-<pre>
+# dap.nvim
+
+```
        __
   ____/ /___ _____
  / __  / __ `/ __ \
@@ -9,7 +10,7 @@
 \__,_/\__,_/ .___/
           /_/
     adapters & launch configs for nvim-dap, batteries included
-</pre>
+```
 
 > 💡 Pairs well with [debugging.nvim](https://github.com/StefanBartl/debugging.nvim):
 > dap.nvim wires up Debug Adapter Protocol sessions (breakpoints, stepping,
