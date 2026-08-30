@@ -95,3 +95,7 @@ default keymaps. Opt out entirely with `menu = { enable = false }`.
 - [Workflow](docs/WORKFLOW.md) — how the pieces combine in daily debugging use, with gotchas.
 - [Health Check](docs/health.md) — what `:checkhealth wkddap` verifies.
 - [Architecture](docs/architecture.md) — module layout and file responsibilities.
+
+## License
+
+MIT — see [LICENSE](LICENSE).
