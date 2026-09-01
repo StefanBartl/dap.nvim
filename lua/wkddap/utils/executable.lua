@@ -9,19 +9,17 @@ local cross_executable = require("lib.nvim.cross.executable")
 
 local M = {}
 
---- Check if executable exists in PATH
----@param name string Executable name
----@return boolean exists
+--- Whether an executable exists in PATH. Re-export of
+--- `lib.nvim.cross.executable.exists`, which carries the signature -- an
+--- `@param` here would describe a parameter list this assignment does not have.
 M.exists = cross_executable.exists
 
---- Get executable path
----@param name string Executable name
----@return string|nil path
+--- Absolute path of an executable, or nil. Re-export of
+--- `lib.nvim.cross.executable.path`.
 M.path = cross_executable.path
 
---- Check Mason installation
----@param package_name string Mason binary name
----@return string|nil path
+--- Path of a Mason-installed binary, or nil. Re-export of
+--- `lib.nvim.cross.executable.mason_bin`.
 M.mason_path = cross_executable.mason_bin
 
 return M

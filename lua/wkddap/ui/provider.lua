@@ -13,7 +13,10 @@ local M = {}
 
 ---@alias Dap.UiProvider 'dap-view'|'dap-ui'|'auto'|'none'
 
----@type Dap.UiProvider|nil
+---What is wired right now: the two concrete providers, or nothing. Narrower
+---than `Dap.UiProvider`, which also has the two *requests* `'auto'` and
+---`'none'` -- those are answered in `resolve`, not stored.
+---@type 'dap-view'|'dap-ui'|nil
 local _active = nil
 
 ---@internal
@@ -45,6 +48,9 @@ local function resolve(preference)
     end
     return nil
   end
+
+  -- Both requests are answered above, so what is left is a concrete provider.
+  ---@cast preference 'dap-view'|'dap-ui'
 
   local other = preference == "dap-view" and "dap-ui" or "dap-view"
 

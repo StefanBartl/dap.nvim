@@ -99,7 +99,7 @@ describe('wkddap.languages program() prompts (kit.input completion="file")', fun
         ---@diagnostic disable-next-line: redundant-parameter, missing-fields
         vim.system = function(_cmd, _opts, on_exit)
           if type(on_exit) == "function" then
-            on_exit({ code = 0, stdout = "", stderr = "" })
+            on_exit({ code = 0, signal = 0, stdout = "", stderr = "" })
           end
           return {
             wait = function()
@@ -137,7 +137,7 @@ describe('wkddap.languages program() prompts (kit.input completion="file")', fun
         -- is never reached.
         vim.system = function(_cmd, _opts, on_exit)
           if type(on_exit) == "function" then
-            on_exit({ code = 0, stdout = "", stderr = "" })
+            on_exit({ code = 0, signal = 0, stdout = "", stderr = "" })
           end
           return {
             wait = function()
