@@ -87,6 +87,9 @@ default keymaps. Opt out entirely with `menu = { enable = false }`.
 
 ## Documentation
 
+Start at [docs/README.md](docs/README.md), which says what is where and which
+question each page answers.
+
 - [Features](docs/FEATURES/README.md) — languages, adapters, panel UI, keymaps/commands, health checks.
 - [Installation](docs/installation.md) — requirements, lazy.nvim/packer.nvim setup, and adapter binary installation.
 - [Configuration](docs/configuration.md) — full `setup()` options and their defaults.
