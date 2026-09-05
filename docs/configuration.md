@@ -29,6 +29,13 @@ require("wkddap").setup({
     enable = true,   -- cursorline toggle while DAP UI is open
   },
 
+  -- nvzone/menu context-menu contribution (integrations/menu.lua). dap.nvim
+  -- ships no trigger code and no nvzone/menu dependency itself; this only
+  -- gates whether items()/submenu() return entries for a host to compose.
+  menu = {
+    enable = true,
+  },
+
   -- Custom adapter overrides, keyed by language (merged by each adapter module)
   adapters = {},
 
