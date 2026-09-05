@@ -31,9 +31,15 @@ function M.check()
 
   -- ── lib.nvim dependency ───────────────────────────────────────────────────
   vim.health.start("dap.nvim: lib.nvim")
-  check_require("lib.nvim.notify", "notify", "warn")
-  check_require("lib.nvim.cross", "cross (platform detection)", "warn")
-  check_require("lib.nvim.normalize", "normalize (path helpers)", "warn")
+  -- All three are required unconditionally, with no pcall anywhere they are
+  -- actually used (wkddap.core and friends) -- including inside the error
+  -- path itself (wkddap.utils.notify wraps lib.nvim.notify), so lib.nvim
+  -- absent means setup() fails outright, not a graceful per-feature
+  -- degradation. "warn" was under-reporting a hard dependency.
+  local advice = { 'Install "StefanBartl/lib.nvim"' }
+  check_require("lib.nvim.notify", "notify", "error", advice)
+  check_require("lib.nvim.cross", "cross (platform detection)", "error", advice)
+  check_require("lib.nvim.normalize", "normalize (path helpers)", "error", advice)
   if pcall(require, "lib.nvim.bindings.keymap") then
     vim.health.ok("lib.nvim.bindings.keymap available (enhanced keymaps)")
   else
