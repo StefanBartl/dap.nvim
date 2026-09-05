@@ -11,13 +11,16 @@ function M.check()
   if vim.fn.has("nvim-0.9") == 1 then
     vim.health.ok("Neovim >= 0.9")
   else
-    vim.health.warn("Neovim 0.9+ recommended")
+    vim.health.warn("Neovim 0.9+ recommended", { "Upgrade Neovim to 0.9+" })
   end
 
   if pcall(require, "dap") then
     vim.health.ok("nvim-dap installed")
   else
-    vim.health.error("nvim-dap (mfussenegger/nvim-dap) not found — required dependency")
+    vim.health.error(
+      "nvim-dap (mfussenegger/nvim-dap) not found — required dependency",
+      { 'Install "mfussenegger/nvim-dap"' }
+    )
   end
 
   if vim.g.loaded_wkddap then
@@ -63,13 +66,14 @@ function M.check()
     vim.health.ok("active panel UI: " .. active)
     if preference ~= "auto" and preference ~= active then
       vim.health.warn(
-        string.format("'%s' is not installed — fell back to '%s'", preference, active)
+        string.format("'%s' is not installed — fell back to '%s'", preference, active),
+        { string.format("Install '%s', or set ui.provider = '%s'", preference, active) }
       )
     end
   elseif preference == "none" or not ui_opts.enable then
     vim.health.info("panel UI disabled by configuration")
   else
-    vim.health.warn("no panel UI active — install nvim-dap-view or nvim-dap-ui")
+    vim.health.warn("no panel UI active", { "Install nvim-dap-view or nvim-dap-ui" })
   end
 
   if pcall(require, "nvim-dap-virtual-text") then
