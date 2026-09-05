@@ -95,7 +95,10 @@ function M.load()
           })
         end
 
-        vim.system({ "zig", "build" }, { text = true }, function(res)
+        -- Explicit cwd (not the implicit inherited editor cwd): "zig build"
+        -- must run against the project being debugged, not whatever ambient
+        -- directory Neovim happens to be sitting in when the spawn fires.
+        vim.system({ "zig", "build" }, { text = true, cwd = paths.workspace_root() }, function(res)
           vim.schedule(function()
             -- The old code discarded the exit status entirely and prompted
             -- regardless. That stays -- a failed build may still have left a
