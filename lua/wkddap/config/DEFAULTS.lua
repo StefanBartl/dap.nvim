@@ -6,8 +6,9 @@
 
 ---@type Dap.Config
 local DEFAULTS = {
-  -- Languages to enable. Empty = all available (lua, javascript, typescript,
-  -- c, cpp, go, python, rust, zig, assembly).
+  -- Languages to enable. Empty = all available (lua, javascript, c, go,
+  -- python, rust, zig, assembly, bash, csharp, browser; see wkddap.registry).
+  -- Aliases such as typescript/cpp/nasm resolve automatically.
   languages = {},
 
   ui = {

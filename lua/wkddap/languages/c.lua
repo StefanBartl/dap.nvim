@@ -49,10 +49,8 @@ function M.load()
         name = "Launch",
         type = "codelldb",
         request = "launch",
-        -- nvim-dap resolves config functions inside coroutine.wrap(), so an
-        -- async prompt works via the same yield/resume idiom nvim-dap's own
-        -- async pickers use: yield, let kit.input's on_submit resume the
-        -- suspended coroutine with the typed value.
+        -- Async prompt via nvim-dap's coroutine.wrap() config resolution; see
+        -- docs/FEATURES/LANGUAGES.md.
         program = function()
           local co = coroutine.running()
           require("lib.nvim.ui.kit").input({

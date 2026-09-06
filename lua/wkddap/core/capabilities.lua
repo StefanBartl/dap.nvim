@@ -1,5 +1,9 @@
 ---@module 'wkddap.core.capabilities'
 --- Feature detection for optional companion plugins.
+---
+--- CDX: `detect()` runs (from core/setup.lua) and populates `_features`, but
+--- nothing reads it -- `has()` has no callers and health.lua does its own
+--- `pcall(require, ...)` probes. The detection result is computed and discarded.
 
 local M = {}
 
