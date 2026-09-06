@@ -2,7 +2,7 @@
 
 `dap.nvim` is a configuration layer on top of
 [nvim-dap](https://github.com/mfussenegger/nvim-dap): it registers adapters
-and launch configurations for eight languages, detects and validates adapter
+and launch configurations for eleven languages, detects and validates adapter
 binaries (with Mason fallback), wires exactly one panel UI, and ships
 user-configurable keymaps, commands, and health checks. It does not replace
 nvim-dap or talk DAP itself — everything here is setup and glue around it.

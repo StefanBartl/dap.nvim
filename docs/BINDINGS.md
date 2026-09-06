@@ -7,7 +7,7 @@ source of truth:
 - keymaps   — `lua/wkddap/bindings/keymaps/init.lua`
 - commands  — `lua/wkddap/bindings/usercmds/init.lua`
 - autocmds  — `lua/wkddap/bindings/autocmds/init.lua`
-- which-key — `lua/wkddap/bindings/which_key/init.lua`
+- which-key — group label handed to which-key from `lua/wkddap/bindings/keymaps/init.lua`
 
 Any change there must be reflected here.
 

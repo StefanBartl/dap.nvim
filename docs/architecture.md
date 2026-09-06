@@ -17,8 +17,9 @@ lua/wkddap/
     capabilities.lua            Soft-dependency detection (dap-view, dapui, virtual-text)
   languages/                     One module per language: dap.adapters.* setup() +
                                  dap.configurations.* load(), kept together since the
-                                 two are always in lockstep (assembly, c, go,
-                                 javascript, lua, python, rust, zig)
+                                 two are always in lockstep (assembly, bash,
+                                 browser, c, csharp, go, javascript, lua,
+                                 python, rust, zig)
   adapters/init.lua              Orchestrates adapter registration via registry.register()
   configurations/init.lua        Orchestrates configuration loading from languages/*
   ui/                           signs, highlights, panel UI provider, nvim-dap-virtual-text
@@ -26,10 +27,10 @@ lua/wkddap/
     dapview.lua                 nvim-dap-view wiring (default)
     dapui.lua                   nvim-dap-ui wiring (opt-in)
   bindings/                     Every user-facing trigger — registration only
-    init.lua                    orchestrates usercmds/keymaps/which_key/autocmds
+    init.lua                    orchestrates usercmds/keymaps/autocmds
     usercmds/init.lua            registers all :Dap* user commands
-    keymaps/init.lua             default keymaps under the configurable prefix
-    which_key/init.lua           optional which-key group label
+    keymaps/init.lua             default keymaps under the configurable prefix;
+                                 also hands which-key the prefix group label
     autocmds/init.lua            DAP UI cursorline toggle
   utils/                        notify, executable/Mason path + auto-install, path
                                  helpers, validation

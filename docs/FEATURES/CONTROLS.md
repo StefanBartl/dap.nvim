@@ -119,12 +119,15 @@ coroutine-based prompt pattern, listing `ps -eo pid,comm` output.
 
 ## which-key group label
 
-Registers a single group label (`"DAP"`) for the keymap prefix if
-which-key is installed; a no-op otherwise. Supports both the which-key v3
-(`add`) and v2 (`register`) APIs.
+Registers a single group label (`"DAP"`) for the keymap prefix. It is passed
+through the keymap spec (`lib.nvim.bindings.keymap`) as the `which_key` field
+rather than a separate which-key call, and is a no-op when which-key is not
+installed. Individual keys already carry their own `desc`.
 
-- **Module:** `lua/wkddap/bindings/which_key/init.lua` (`setup`, `available`)
-- **Config:** `opts.which_key.enable` (default `true`)
+- **Module:** `lua/wkddap/bindings/keymaps/init.lua` (the `which_key` field of
+  the keymap spec)
+- **Config:** `opts.which_key.enable` (default `true`) — `false` skips the
+  group label only
 
 ## Cursorline toggle autocmd
 
