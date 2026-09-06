@@ -40,10 +40,8 @@ function M.load()
       name = "Launch",
       type = "lldb",
       request = "launch",
-      -- nvim-dap resolves config functions inside coroutine.wrap(), so an
-      -- async prompt works via the same yield/resume idiom nvim-dap's own
-      -- async pickers use: yield, let kit.input's on_submit resume the
-      -- suspended coroutine with the typed value.
+      -- Async prompt via nvim-dap's coroutine.wrap() config resolution; see
+      -- docs/FEATURES/LANGUAGES.md.
       program = function()
         local co = coroutine.running()
         require("lib.nvim.ui.kit").input({
@@ -66,18 +64,12 @@ function M.load()
       name = "Launch (build first)",
       type = "lldb",
       request = "launch",
-      -- `zig build` used to run through `vim.system(...):wait()`, which froze
-      -- Neovim for the entire build -- on a real project that is seconds to
-      -- minutes, and the editor showed nothing at all while it happened.
-      --
-      -- The fix uses the same yield/resume idiom the "Launch" config above
-      -- already relies on: nvim-dap resolves config functions inside
-      -- `coroutine.wrap()`, so this function can yield once and be resumed
-      -- later. The build is spawned, we yield, and the prompt is only opened
-      -- from the build's completion callback -- whose `on_submit` then
-      -- performs the single resume. Spawning before the yield is safe: the
-      -- callback cannot fire until control returns to the event loop, which
-      -- is exactly what the yield does.
+      -- Non-blocking `zig build` before the prompt (it used to run through
+      -- `vim.system(...):wait()`, freezing the editor for the whole build).
+      -- Same coroutine.wrap() idiom as "Launch" above: spawn the build, yield,
+      -- and open the prompt only from the build's completion callback, which
+      -- performs the single resume. Spawning before the yield is safe -- the
+      -- callback cannot fire until the yield returns control to the event loop.
       program = function()
         local co = coroutine.running()
 

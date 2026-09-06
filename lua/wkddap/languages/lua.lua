@@ -42,10 +42,8 @@ function M.load()
       type = "nlua",
       request = "attach",
       name = "Attach to running Neovim instance",
-      -- nvim-dap resolves config functions inside coroutine.wrap(), so an
-      -- async prompt works via the same yield/resume idiom nvim-dap's own
-      -- async pickers use: yield, let kit.input's on_submit resume the
-      -- suspended coroutine with the typed value.
+      -- Async prompts via nvim-dap's coroutine.wrap() config resolution; see
+      -- docs/FEATURES/LANGUAGES.md.
       host = function()
         local co = coroutine.running()
         require("lib.nvim.ui.kit").input({

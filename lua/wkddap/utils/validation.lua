@@ -1,5 +1,5 @@
 ---@module 'wkddap.utils.validation'
---- Small validators used by adapter/configuration modules.
+--- Process picker for attach-mode debugging, used by the JS/TS "Attach" config.
 
 local M = {}
 
@@ -57,26 +57,6 @@ function M.pick_process()
       end)
     end)
   end)
-end
-
---- Validate that a path exists and is a file
----@param path string File path
----@return boolean valid, string? error
-function M.validate_file(path)
-  if not path or path == "" then
-    return false, "Empty path"
-  end
-
-  local ok, stat = pcall(vim.uv.fs_stat, path)
-  if not ok or not stat then
-    return false, "File not found: " .. path
-  end
-
-  if stat.type ~= "file" then
-    return false, "Not a file: " .. path
-  end
-
-  return true, nil
 end
 
 return M

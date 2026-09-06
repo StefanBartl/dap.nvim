@@ -104,6 +104,9 @@ function M.available_languages()
   return vim.deepcopy(SUPPORTED_LANGUAGES)
 end
 
+--- CDX: no callers (repo or TESTS) and not in the documented registry API
+--- (docs/FEATURES/LANGUAGES.md lists register/register_all/is_enabled/validate/
+--- stats). Symmetry accessor alongside the used enabled_languages().
 ---@return string[]
 function M.registered_languages()
   local langs = {}

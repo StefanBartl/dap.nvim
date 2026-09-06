@@ -81,6 +81,10 @@ function M.load()
   -- Appended, not assigned: `javascript.lua` owns the node configurations for
   -- the same filetypes, and whichever of the two loads second must not drop
   -- the other's entries.
+  --- CDX: javascript.lua's load() *assigns* dap.configurations[ft], it does not
+  --- append. So this contract only holds in the default load order (javascript
+  --- before browser in registry.SUPPORTED_LANGUAGES); `languages = { "browser",
+  --- "javascript" }` wipes these browser configs.
   for _, ft in ipairs(FILETYPES) do
     dap.configurations[ft] = dap.configurations[ft] or {}
     vim.list_extend(dap.configurations[ft], vim.deepcopy(browser_configs))

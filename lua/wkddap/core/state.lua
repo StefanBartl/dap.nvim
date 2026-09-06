@@ -1,5 +1,10 @@
 ---@module 'wkddap.core.state'
 --- Minimal runtime session state.
+---
+--- CDX: only `init()` is wired (from core/setup.lua). `set_session_active`
+--- has no callers anywhere in the repo, so `session_active` is always false;
+--- `is_session_active()` / `is_initialized()` are unread. Vestigial API or
+--- unfinished session tracking.
 
 local M = {}
 
