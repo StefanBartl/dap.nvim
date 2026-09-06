@@ -20,7 +20,7 @@
 
 > 💡 Pairs well with [debugging.nvim](https://github.com/StefanBartl/debugging.nvim):
 > dap.nvim wires up Debug Adapter Protocol sessions (breakpoints, stepping,
-> launch configs) for eight languages, while debugging.nvim inspects live
+> launch configs) for eleven languages, while debugging.nvim inspects live
 > editor state (buffers, autocmds, messages) at runtime.
 
 ---
