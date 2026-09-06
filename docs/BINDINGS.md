@@ -1,15 +1,11 @@
 # dap.nvim — Binding Cheatsheet
 
-Machine-readable overview of every keymap, user command, and autocommand
-defined by `dap.nvim`. This file is documentation only and mirrors the
-source of truth:
+Every keymap, user command, and autocommand `dap.nvim` defines. Kept in sync
+with:
 
-- keymaps   — `lua/wkddap/bindings/keymaps/init.lua`
-- commands  — `lua/wkddap/bindings/usercmds/init.lua`
-- autocmds  — `lua/wkddap/bindings/autocmds/init.lua`
-- which-key — group label handed to which-key from `lua/wkddap/bindings/keymaps/init.lua`
-
-Any change there must be reflected here.
+- keymaps  — `lua/wkddap/bindings/keymaps/init.lua`
+- commands — `lua/wkddap/bindings/usercmds/init.lua`
+- autocmds — `lua/wkddap/bindings/autocmds/init.lua`
 
 ## Default Keymaps
 
