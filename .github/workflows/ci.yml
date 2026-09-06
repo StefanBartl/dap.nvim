@@ -9,7 +9,7 @@ jobs:
   luacheck:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: leafo/gh-actions-lua@v13
         with:
@@ -21,7 +21,7 @@ jobs:
       - uses: leafo/gh-actions-luarocks@v6
 
       - name: Install luacheck
-        run: luarocks install luacheck
+        run: luarocks install luacheck 1.2.0
 
       - name: Run luacheck
         run: luacheck lua plugin TESTS
@@ -29,10 +29,10 @@ jobs:
   stylua:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: JohnnyMorganz/stylua-action@v4
         with:
-          version: latest
+          version: v2.5.2
           token: ${{ secrets.GITHUB_TOKEN }}
           args: --check lua/ plugin/ TESTS/
 
@@ -40,16 +40,16 @@ jobs:
     name: plenary tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           path: dap.nvim
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           repository: nvim-lua/plenary.nvim
           path: plenary.nvim
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           repository: StefanBartl/lib.nvim
           path: lib.nvim
