@@ -26,3 +26,9 @@ is the short version of all of it.
 | --- | --- |
 | [FEATURES/](FEATURES/README.md) | One page per area — the controls, the UI, the language adapters, and the health checks |
 | [architecture.md](architecture.md) | Which module does what |
+
+## Working on it
+
+| Page | Answers |
+| --- | --- |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Ground rules, project layout, and how to add a language |
