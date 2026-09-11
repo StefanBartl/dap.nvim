@@ -23,6 +23,7 @@ function M.load_all(languages, custom_configs)
     languages = registry.available_languages()
   end
 
+  local failed = {}
   for _, lang in ipairs(languages) do
     local actual_lang = config.language_aliases[lang] or lang
 
@@ -32,9 +33,17 @@ function M.load_all(languages, custom_configs)
     if ok and type(mod.load) == "function" then
       local load_ok, load_err = pcall(mod.load)
       if not load_ok then
-        notify.warn(string.format("Failed to load %s: %s", lang, load_err or "unknown"))
+        failed[#failed + 1] = string.format("%s (%s)", lang, load_err or "unknown")
       end
     end
+  end
+
+  -- One summary notification instead of one per language -- see
+  -- wkddap.adapters.register_all for why. Not a :checkhealth pointer here:
+  -- unlike missing adapters, a load() failure is a bug in the language
+  -- module, not something health re-validates.
+  if #failed > 0 then
+    notify.warn(string.format("Failed to load configurations: %s", table.concat(failed, "; ")))
   end
 
   if custom_configs and next(custom_configs) then
