@@ -18,11 +18,28 @@ function M.register_all(languages, _custom_adapters)
     languages = registry.available_languages()
   end
 
+  local failed = {}
   for _, lang in ipairs(languages) do
-    local ok, err = registry.register(lang)
+    local ok = registry.register(lang)
     if not ok then
-      notify.warn(string.format("Failed to register %s: %s", lang, err or "unknown"))
+      failed[#failed + 1] = lang
     end
+  end
+
+  -- One summary notification instead of one per language: with every
+  -- adapter missing (a fresh machine, nothing installed via Mason yet) this
+  -- used to fire a warning per language on every startup. The per-language
+  -- reason is still available -- :checkhealth wkddap re-validates each one.
+  if #failed > 0 then
+    table.sort(failed)
+    notify.warn(
+      string.format(
+        "%d/%d adapter(s) unavailable: %s -- see :checkhealth wkddap for details",
+        #failed,
+        #languages,
+        table.concat(failed, ", ")
+      )
+    )
   end
 
   return true
