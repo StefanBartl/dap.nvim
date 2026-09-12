@@ -1,17 +1,7 @@
 # Installation
 
-## Requirements
-
-- Neovim 0.9+
-- [nvim-dap](https://github.com/mfussenegger/nvim-dap) (required — dap.nvim
-  configures it, it does not replace it)
-- [lib.nvim](https://github.com/StefanBartl/lib.nvim)
-- Panel UI (optional, pick one): [nvim-dap-view](https://github.com/igorlfs/nvim-dap-view)
-  (default) **or** [nvim-dap-ui](https://github.com/rcarriga/nvim-dap-ui) (opt-in
-  via `ui.provider`) — see [Panel UI](panel-ui.md)
-- Optional: [nvim-dap-virtual-text](https://github.com/theHamsta/nvim-dap-virtual-text),
-  [which-key.nvim](https://github.com/folke/which-key.nvim), and
-  [mason.nvim](https://github.com/williamboman/mason.nvim) for adapter binaries
+See [requirements.md](requirements.md) for the full required/optional list —
+panel UI choice is covered separately in [panel-ui.md](panel-ui.md).
 
 ## lazy.nvim
 

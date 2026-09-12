@@ -39,6 +39,10 @@ lua/wkddap/
 lib.nvim provides notify, `cross` (platform detection, Mason `.cmd` fallback
 on Windows), and `normalize` (Windows-safe path normalization).
 
+The module namespace is `wkddap`, not `dap` — `dap` belongs to
+[nvim-dap](https://github.com/mfussenegger/nvim-dap), and shadowing it would
+break every other plugin's `require("dap")`.
+
 ## Security notes
 
 No command is ever shell-interpolated: adapter definitions and `vim.system`
