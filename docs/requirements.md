@@ -5,7 +5,8 @@
 | | |
 | --- | --- |
 | Neovim | **0.9+** |
-| [lib.nvim](https://github.com/StefanBartl/lib.nvim) | the `:Dap` command tree and the shared UI kit |
+| [lib.nvim](https://github.com/StefanBartl/lib.nvim) | the `:Dap` command tree |
+| [ui.nvim](https://github.com/StefanBartl/ui.nvim) | `ui.kit` backs the breakpoint condition/log-point prompts, per-language input (e.g. assembly's target prompt) and validation selects |
 | [nvim-dap](https://github.com/mfussenegger/nvim-dap) | this plugin configures it, it does not replace it |
 | A debug adapter per language | required for that language only; see [installation.md](installation.md) for where each comes from |
 

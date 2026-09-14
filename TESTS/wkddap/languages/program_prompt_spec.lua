@@ -1,6 +1,6 @@
 --- Covers the "Path to executable" program() prompts in zig.lua, rust.lua,
 --- c.lua and assembly.lua: all four were migrated off the blocking
---- vim.fn.input(..., "file") onto lib.nvim.ui.kit.input({completion="file"}),
+--- vim.fn.input(..., "file") onto ui.kit.input({completion="file"}),
 --- which is callback-based -- nvim-dap resolves these config functions
 --- inside coroutine.wrap(), so the migration yields and lets kit.input's
 --- on_submit/on_cancel resume the suspended coroutine with the typed value
@@ -43,7 +43,7 @@ end
 describe('wkddap.languages program() prompts (kit.input completion="file")', function()
   before_each(function()
     package.loaded["dap"] = { configurations = {} }
-    package.loaded["lib.nvim.ui.kit"] = {
+    package.loaded["ui.kit"] = {
       input = function(opts)
         _G.__captured_kit_input_opts = opts
       end,
@@ -52,7 +52,7 @@ describe('wkddap.languages program() prompts (kit.input completion="file")', fun
 
   after_each(function()
     package.loaded["dap"] = nil
-    package.loaded["lib.nvim.ui.kit"] = nil
+    package.loaded["ui.kit"] = nil
     _G.__captured_kit_input_opts = nil
   end)
 

@@ -96,7 +96,7 @@ function M.load()
       -- docs/FEATURES/LANGUAGES.md.
       program = function()
         local co = coroutine.running()
-        require("lib.nvim.ui.kit").input({
+        require("ui.kit").input({
           title = "Path to executable: ",
           default = paths.join(vim.fn.getcwd(), "target", "debug", ""),
           completion = "file",

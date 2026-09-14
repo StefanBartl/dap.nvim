@@ -10,6 +10,7 @@ panel UI choice is covered separately in [panel-ui.md](panel-ui.md).
   "StefanBartl/dap.nvim",
   dependencies = {
     "StefanBartl/lib.nvim",
+    "StefanBartl/ui.nvim",        -- ui.kit backs breakpoint/validation prompts
     "mfussenegger/nvim-dap",
     "igorlfs/nvim-dap-view",      -- default panel UI
     -- "rcarriga/nvim-dap-ui",    -- opt-in alternative (ui.provider = "dap-ui")
@@ -29,6 +30,7 @@ use({
   "StefanBartl/dap.nvim",
   requires = {
     "StefanBartl/lib.nvim",
+    "StefanBartl/ui.nvim",
     "mfussenegger/nvim-dap",
     "igorlfs/nvim-dap-view",
     "theHamsta/nvim-dap-virtual-text",

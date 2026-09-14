@@ -76,7 +76,7 @@ end
 ---@param title string
 ---@param apply fun(value: string)
 local function ask(field, title, apply)
-  require("lib.nvim.ui.kit").input({
+  require("ui.kit").input({
     title = title,
     default = prefill(field),
     on_submit = function(value)

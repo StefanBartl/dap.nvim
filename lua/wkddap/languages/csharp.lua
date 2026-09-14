@@ -63,7 +63,7 @@ function M.load()
         -- docs/FEATURES/LANGUAGES.md.
         program = function()
           local co = coroutine.running()
-          require("lib.nvim.ui.kit").input({
+          require("ui.kit").input({
             -- Defaulting into `bin/Debug/` rather than the project root: that
             -- is where the DLL actually lands, and typing the framework
             -- directory by hand every run is the whole friction here.

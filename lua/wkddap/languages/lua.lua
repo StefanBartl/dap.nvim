@@ -46,7 +46,7 @@ function M.load()
       -- docs/FEATURES/LANGUAGES.md.
       host = function()
         local co = coroutine.running()
-        require("lib.nvim.ui.kit").input({
+        require("ui.kit").input({
           title = "Host [127.0.0.1]: ",
           default = "127.0.0.1",
           on_submit = function(input)
@@ -60,7 +60,7 @@ function M.load()
       end,
       port = function()
         local co = coroutine.running()
-        require("lib.nvim.ui.kit").input({
+        require("ui.kit").input({
           title = "Port [8086]: ",
           default = "8086",
           on_submit = function(input)

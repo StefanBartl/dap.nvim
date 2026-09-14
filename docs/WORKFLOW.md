@@ -156,7 +156,7 @@ changes short of restarting Neovim. Worth remembering while iterating on
 
 **Cancelling a prompt must always resume, or the launch hangs.** Conditional
 breakpoints, log points, and the JS/TS process picker all suspend the
-launch-config coroutine with `coroutine.yield()` while `lib.nvim.ui.kit`
+launch-config coroutine with `coroutine.yield()` while `ui.kit`
 shows a prompt. This is transparent in normal use (`<Esc>` cancels cleanly),
 but it's why every prompt in this codebase wires `on_cancel` as carefully as
 `on_submit` — a picker that could dismiss without resuming the coroutine
