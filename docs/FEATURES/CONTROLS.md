@@ -107,7 +107,7 @@ equivalent, and the command is always registered — independent of
 
 `:Dap conditional-breakpoint [condition]` and `:Dap log-point [message]`
 (and their `<leader>dB` / `<leader>dL` keymap equivalents) take the value
-directly as an argument, or prompt for it interactively via `lib.nvim.ui.kit`
+directly as an argument, or prompt for it interactively via `ui.kit`
 when omitted.
 
 - **Module:** `lua/wkddap/bindings/usercmds/init.lua`,

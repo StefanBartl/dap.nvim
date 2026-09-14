@@ -2,7 +2,7 @@
 ---@brief Context-menu entries for nvzone/menu (soft, opt-in integration).
 ---@description
 --- dap.nvim does not depend on a menu plugin. Instead it *provides* a list of
---- entries in the shape `lib.nvim.contextmenu` (and, transitively, nvzone/menu)
+--- entries in the shape `ui.contextmenu` (and, transitively, nvzone/menu)
 --- expects, and a host — typically the user's own RightMouse dispatcher —
 --- composes them into its own menu, e.g.:
 --- >
@@ -16,7 +16,7 @@
 --- nvim-dap's own no-op-if-no-session behavior. Opt-out entirely via
 --- `config.menu.enable`.
 
-local contextmenu = require("lib.nvim.contextmenu")
+local contextmenu = require("ui.contextmenu")
 
 local M = {}
 
@@ -24,7 +24,7 @@ local M = {}
 --- Returns an empty list when the integration is disabled or nvim-dap isn't
 --- installed, so a host can safely `vim.list_extend` it unconditionally.
 ---@param _opts? table Reserved for future context-scoping; unused today.
----@return Lib.ContextMenu.Item[]
+---@return Ui.ContextMenu.Item[]
 function M.items(_opts)
   local cfg = require("wkddap.config").get()
   if cfg.menu and cfg.menu.enable == false then
@@ -84,7 +84,7 @@ end
 --- entry, for hosts that prefer a "DAP ▸" fly-out instead of inline entries.
 --- Returns nil when there is nothing to show.
 ---@param label? string submenu label (default "  DAP")
----@return Lib.ContextMenu.Item|nil
+---@return Ui.ContextMenu.Item|nil
 function M.submenu(label)
   return contextmenu.submenu(label or "  DAP", M.items())
 end

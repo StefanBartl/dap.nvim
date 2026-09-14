@@ -19,7 +19,7 @@ function M.pick_process()
     -- applies to the process listing failing: resume with nil, never fall
     -- through without resuming.
     local function open_picker(items)
-      require("lib.nvim.ui.kit").select({
+      require("ui.kit").select({
         items = items,
         title = "Select process:",
         on_select = function(choice)

@@ -36,7 +36,7 @@ which registered them at module load and was never required by anything. Its
 `javascript` modules here already cover them, with more configurations.
 
 Several launch configs prompt interactively for a value (executable path,
-host/port, breakpoint condition) via `lib.nvim.ui.kit`, using nvim-dap's own
+host/port, breakpoint condition) via `ui.kit`, using nvim-dap's own
 `coroutine.wrap()`-based config resolution: the config function suspends with
 `coroutine.yield()` and the prompt's `on_submit`/`on_cancel` resumes it.
 
