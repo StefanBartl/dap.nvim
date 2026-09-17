@@ -40,6 +40,13 @@ describe("wkddap.setup(): real end-to-end smoke test (no plugins installed)", fu
     assert.are.same(registry.available_languages(), wkddap.available_languages())
   end)
 
+  it("enabled_languages() delegates to the registry's (empty, nothing registered) list", function()
+    local wkddap = reload()
+    local registry = require("wkddap.registry")
+
+    assert.are.same(registry.enabled_languages(), wkddap.enabled_languages())
+  end)
+
   it("get_config() is nil before the first setup() call", function()
     local wkddap = reload()
     assert.is_nil(wkddap.get_config())

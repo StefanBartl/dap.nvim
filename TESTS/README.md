@@ -43,12 +43,71 @@ your plugin manager happens to have installed, in an editor with all your
 plugins and autocmds loaded. The `-u TESTS/minimal_init.lua` on the outer
 command only configures the parent, which does nothing but spawn.
 
-Nothing in this suite depends on that difference today — all 30 spec files
+Nothing in this suite depends on that difference today — all 31 spec files
 pass either way. It is still the wrong command to reach for: the failure mode
 is a spec going red locally and green in CI (or the reverse) with nothing
 wrong with the spec, and nothing in the output points at the environment as
 the cause. The sibling sandbox.nvim suite had exactly that happen to a
 timing-sensitive spec. Both forms above run against the environment CI uses.
+
+Round 3 re-audit (2026-09-18): every `lua/wkddap/*` file and the 11-language
+table-driven contract still matched (no new language/adapter module since the
+original pass). Closed four real gaps the static-reference sweep below found
+untested despite passing specs elsewhere in the same modules:
+- `utils/notify.lua` had no spec of its own at all (only `utils/executable.lua`,
+  the other thin lib.nvim wrapper, was pinned) — new `utils/notify_spec.lua`
+  pins the `[dap.nvim]` prefix passed to `lib.nvim.notify.create()` and that
+  `info`/`warn`/`error` forward to the created notifier.
+- `registry.lua`'s `enabled_languages()`/`registered_languages()` were only
+  ever exercised transitively (via `health.check()`, always with nothing
+  registered) — `registry_spec.lua` now asserts both directly, including the
+  case where a language's requested name and its alias-resolved adapter name
+  differ (`registered_languages()` tracks the former, `enabled_languages()`
+  the latter).
+- `wkddap.enabled_languages()` (the top-level delegate) had the same gap as
+  its sibling `available_languages()`, which already had a test —
+  `init_spec.lua` now covers both.
+- `languages/lua.lua`'s `M.launch_server()` — documented in
+  `docs/FEATURES/LANGUAGES.md` as the entry point a user calls from the
+  Neovim instance being attached to — had zero coverage; nothing in this repo
+  calls it, so unlike `setup()`/`load()` it is never exercised transitively
+  through `wkddap.setup()`. Added to `languages/adapter_setup_spec.lua`
+  (osv missing/present, explicit port, default port).
+
+Method: for every file under `lua/wkddap`, diffed its `function M.<name>`
+exports against every `.<name>(` occurrence anywhere under `TESTS/`, then
+manually checked each hit for whether it was truly untested or only reached
+transitively (most were the latter — e.g. `core/capabilities.lua`'s `detect()`
+runs inside `core/setup_spec.lua`'s real `wkddap.core.setup()` calls without
+being named directly). Also specifically checked for the bug families found
+elsewhere in this campaign: Windows path/drive-letter splitting (none —
+`utils/paths.lua` delegates to `lib.nvim.normalize`; the few raw `"/"`
+concatenations in `languages/{javascript,browser,rust}.lua` build paths handed
+to `node`/LLDB, which both accept forward slashes on Windows), unguarded
+filesystem calls (the only one, `languages/rust.lua`'s `io.open()`, is already
+guarded with `if file then`), caches that memoize a failure (`config.lua`'s
+`get_adapter_path()` uses `lib.nvim.cross.executable`'s memoized `path()`, but
+only the *hit* is cached — a miss falls through to the deliberately
+un-memoized `mason_path()` on every call, since Mason installs mid-session),
+health.lua calling into a missing dependency inside its own "missing" branch
+(none — every `check_require`/`pcall(require, ...)` in `health.lua` only
+reports, never calls further into the probed module), and an autocmd teardown
+handler wiping the buffer it's called for, or a second `setup()` stacking
+duplicate autocmds (`bindings/autocmds/init.lua` is the only augroup in this
+repo, and it already creates it directly via `nvim_create_augroup(...,
+{ clear = true })` specifically to avoid the latter — see the comment there;
+no `BufWipeout`/`BufDelete` autocmd exists anywhere in this repo).
+
+No new bugs found; nothing pinned.
+
+One thing looked at and deliberately left alone: `wkddap.available_languages()`
+and `.enabled_languages()` both `pcall(require, "wkddap.registry")` and fall
+back to `{}` if that fails. That fallback branch is untested — forcing it
+would mean injecting a broken `wkddap.registry` via `package.preload` to make
+one of this plugin's own sibling modules fail to load, a scenario that would
+just as likely break every other spec file's `require` calls first. Treated
+as defensive-but-unreachable, same category as the `@types`/single-guard
+files below, rather than a gap worth a contrived test.
 
 ## Writing a new spec
 
