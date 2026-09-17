@@ -22,8 +22,33 @@ A single file:
 ```bash
 PLENARY_PATH=... LIB_NVIM_PATH=... \
 nvim --headless --noplugin -u TESTS/minimal_init.lua \
-  -c "PlenaryBustedFile TESTS/wkddap/registry_spec.lua"
+  -c "lua require('plenary.busted').run('TESTS/wkddap/registry_spec.lua')"
 ```
+
+Or a subdirectory:
+
+```bash
+PLENARY_PATH=... LIB_NVIM_PATH=... \
+nvim --headless --noplugin -u TESTS/minimal_init.lua \
+  -c "PlenaryBustedDirectory TESTS/wkddap/languages { minimal_init = 'TESTS/minimal_init.lua' }"
+```
+
+**Not `PlenaryBustedFile`**, even though it looks like the obvious counterpart
+to `PlenaryBustedDirectory`. It spawns a child Neovim to run the file — like
+the directory command does — but it takes no options, so it has no
+`minimal_init` to pass on. The child therefore starts *without* `-u` and loads
+your full personal config instead of `TESTS/minimal_init.lua`: `PLENARY_PATH`
+and `LIB_NVIM_PATH` are never prepended, and the spec runs against whatever
+your plugin manager happens to have installed, in an editor with all your
+plugins and autocmds loaded. The `-u TESTS/minimal_init.lua` on the outer
+command only configures the parent, which does nothing but spawn.
+
+Nothing in this suite depends on that difference today — all 30 spec files
+pass either way. It is still the wrong command to reach for: the failure mode
+is a spec going red locally and green in CI (or the reverse) with nothing
+wrong with the spec, and nothing in the output points at the environment as
+the cause. The sibling sandbox.nvim suite had exactly that happen to a
+timing-sensitive spec. Both forms above run against the environment CI uses.
 
 ## Writing a new spec
 
