@@ -138,3 +138,48 @@ describe("wkddap.languages.lua setup(): gates on the osv plugin, not an adapter 
     assert.are.equal("function", type(package.loaded["dap"].adapters.nlua))
   end)
 end)
+
+--- M.launch_server(): documented in docs/FEATURES/LANGUAGES.md as the entry
+--- point a user calls (from the *target* Neovim being attached to, not the
+--- one running dap.nvim) to start OSV's in-process debug server. No other
+--- module in this repo calls it -- it has no caller to exercise it
+--- transitively, unlike setup()/load(), which run through wkddap.setup().
+describe("wkddap.languages.lua launch_server()", function()
+  after_each(function()
+    package.loaded["osv"] = nil
+    package.loaded["wkddap.languages.lua"] = nil
+  end)
+
+  it("returns false without calling osv.launch() when osv isn't installed", function()
+    package.loaded["osv"] = nil
+    local lua_lang = require("wkddap.languages.lua")
+
+    assert.is_false((lua_lang.launch_server()))
+  end)
+
+  it("launches on the given port and reports success", function()
+    local received_opts
+    package.loaded["osv"] = {
+      launch = function(opts)
+        received_opts = opts
+      end,
+    }
+    local lua_lang = require("wkddap.languages.lua")
+
+    assert.is_true((lua_lang.launch_server(9999)))
+    assert.are.same({ port = 9999 }, received_opts)
+  end)
+
+  it("defaults to port 8086 when called without one", function()
+    local received_opts
+    package.loaded["osv"] = {
+      launch = function(opts)
+        received_opts = opts
+      end,
+    }
+    local lua_lang = require("wkddap.languages.lua")
+
+    assert.is_true((lua_lang.launch_server()))
+    assert.are.same({ port = 8086 }, received_opts)
+  end)
+end)
