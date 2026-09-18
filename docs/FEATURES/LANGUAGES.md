@@ -27,7 +27,7 @@ is actually available.
 | Zig | CodeLLDB/`lldb` | Two configs: plain launch, and "build first" which runs `zig build` before launching |
 | Assembly | GDB | NASM/GAS/AT&T filetypes, `stopAtBeginningOfMainSubprogram = false` |
 | Bash | `bash-debug-adapter` | One config shared by `sh`/`bash`/`zsh`/`ksh`; `pathBashdb*` left empty so the adapter's bundled bashdb is used |
-| C#/.NET | `netcoredbg` | Prompts for the DLL path, defaulting into `bin/Debug/`; forces `noshellslash` on Windows when the adapter is registered |
+| C#/.NET | `netcoredbg` | Prompts for the DLL path, defaulting into `bin/Debug/`; hands netcoredbg native (backslash) paths on Windows without touching `'shellslash'` |
 | Browser | `js-debug-adapter` (`pwa-chrome`) | Attach (port 9222) + Launch configs, appended to JS/TS/JSX/TSX/Astro so the node configs are not replaced |
 
 The last three were carried over from the nvim config's `lsp/debug_adapters/`,
