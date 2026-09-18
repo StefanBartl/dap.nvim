@@ -149,7 +149,15 @@ M.adapter_binaries = {
     required = true,
   },
   go = { type = "binary", binary = "dlv", mason_pkg = "delve", required = true },
-  python = { type = "binary", binary = "debugpy", mason_pkg = "debugpy", required = true },
+  -- `debugpy-adapter`, not `debugpy`: the Mason package ships both, and only
+  -- the former starts the DAP adapter (`python -m debugpy.adapter`); the
+  -- latter is the debugpy CLI, which insists on --listen/--connect.
+  python = {
+    type = "binary",
+    binary = "debugpy-adapter",
+    mason_pkg = "debugpy",
+    required = true,
+  },
   c = { type = "binary", binary = "codelldb", mason_pkg = "codelldb", required = true },
   rust = { type = "binary", binary = "codelldb", mason_pkg = "codelldb", required = true },
   zig = { type = "binary", binary = "codelldb", mason_pkg = "codelldb", required = true },
