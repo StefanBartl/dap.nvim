@@ -127,6 +127,14 @@ function M.check()
 
   -- ── Enabled languages ──────────────────────────────────────────────────────
   vim.health.start("dap.nvim: configuration")
+  local issues = config.issues()
+  if #issues == 0 then
+    vim.health.ok("every setup() option was recognised")
+  end
+  for _, issue in ipairs(issues) do
+    vim.health.warn(issue, { "Fix the key in require('wkddap').setup({ ... })" })
+  end
+
   local enabled = registry.enabled_languages()
   if #enabled > 0 then
     vim.health.ok(string.format("Enabled languages: %s", table.concat(enabled, ", ")))

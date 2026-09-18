@@ -120,7 +120,10 @@ packer.nvim: >lua
   })
 <
 
-Every key is independently overridable.
+Every key is independently overridable. Unknown keys (top level, or inside
+`ui`, `which_key`, `autocmds`, `menu`) are ignored with a warning naming the
+nearest known key; an option table given as a non-table falls back to its
+defaults. Both are listed again by `:checkhealth wkddap`.
 
 PANEL UI                                                        *wkddap-panel-ui*
 
