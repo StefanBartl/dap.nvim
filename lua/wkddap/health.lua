@@ -40,11 +40,21 @@ function M.check()
   check_require("lib.nvim.notify", "notify", "error", advice)
   check_require("lib.nvim.cross", "cross (platform detection)", "error", advice)
   check_require("lib.nvim.normalize", "normalize (path helpers)", "error", advice)
-  if pcall(require, "lib.nvim.bindings.keymap") then
-    vim.health.ok("lib.nvim.bindings.keymap available (enhanced keymaps)")
-  else
-    vim.health.info("lib.nvim.bindings.keymap not found — using vim.keymap.set fallback")
-  end
+  -- Also hard: bindings/keymaps requires these bare. There is no
+  -- vim.keymap.set fallback -- without them setup() installs no keymap at all
+  -- and says so once, in a warning that has long scrolled by when the user
+  -- gets here.
+  check_require("lib.nvim.bindings.keymap", "bindings.keymap (default keymaps)", "error", advice)
+  check_require("lib.nvim.count", "count (counted step keymaps)", "error", advice)
+
+  -- ── ui.nvim dependency ────────────────────────────────────────────────────
+  vim.health.start("dap.nvim: ui.nvim")
+  -- Required bare wherever a prompt or picker opens: the breakpoint
+  -- condition/log-point prompts, the per-language executable prompts, the JS
+  -- attach process picker, and the context-menu entries at module load.
+  local ui_advice = { 'Install "StefanBartl/ui.nvim"' }
+  check_require("ui.kit", "kit (prompts and pickers)", "error", ui_advice)
+  check_require("ui.contextmenu", "contextmenu (menu entries)", "error", ui_advice)
 
   -- ── UI companions ─────────────────────────────────────────────────────────
   vim.health.start("dap.nvim: UI companions")

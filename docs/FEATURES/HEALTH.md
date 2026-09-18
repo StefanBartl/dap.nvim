@@ -3,7 +3,8 @@
 ## `:checkhealth wkddap`
 
 A single health check covering the whole plugin: Neovim version, nvim-dap
-presence, `lib.nvim` module availability, the configured vs. actually-active
+presence, `lib.nvim` and `ui.nvim` module availability (both hard
+dependencies, reported as errors), the configured vs. actually-active
 panel UI provider (flagging a fallback), nvim-dap-virtual-text and
 which-key presence, per-language adapter availability (resolved through the
 same alias table used at registration), enabled languages, registry stats
