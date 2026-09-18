@@ -107,6 +107,8 @@ packer.nvim: >lua
       enable = true,
     },
 
+    -- Keyed by nvim-dap adapter name (codelldb, pwa-node, ...); a table is
+    -- deep-merged over the built-in definition, a function replaces it.
     adapters = {},
 
     -- Appended to a language's built-in configurations by default; add

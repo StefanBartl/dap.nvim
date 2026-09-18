@@ -36,8 +36,13 @@ require("wkddap").setup({
     enable = true,
   },
 
-  -- Custom adapter overrides, keyed by language (merged by each adapter module)
-  adapters = {},
+  -- Adapter overrides, keyed by nvim-dap adapter name (`codelldb`,
+  -- `pwa-node`, `coreclr`, ...), applied after the language modules
+  -- registered theirs. A table is deep-merged over the built-in definition;
+  -- a function replaces it. A name nothing registered adds a new adapter.
+  adapters = {
+    codelldb = { executable = { command = "/usr/local/bin/codelldb" } },
+  },
 
   -- Custom launch configurations, keyed by language (appended to defaults
   -- unless the list also has `replace = true`, which replaces instead)
