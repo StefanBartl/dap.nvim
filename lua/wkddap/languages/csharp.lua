@@ -9,8 +9,11 @@
 ---   machine. It now resolves through `config.get_adapter_path`, which finds
 ---   the Mason package (`netcoredbg`) or a `$PATH` install.
 --- - `set noshellslash` ran at module load, as a global side effect of merely
----   requiring the file. It now runs in `setup()`, only on Windows, and only
----   when this adapter is actually being registered.
+---   requiring the file -- and later from `setup()`, still session-wide,
+---   overriding whatever the user had chosen for every other plugin. The
+---   option is no longer touched at all: the two paths netcoredbg receives
+---   (`program`, `cwd`) are converted to native separators right where they
+---   are produced.
 
 local config = require("wkddap.config")
 local paths = require("wkddap.utils.paths")
@@ -27,14 +30,6 @@ function M.setup()
   local adapter_path = config.get_adapter_path("csharp")
   if not adapter_path then
     return false
-  end
-
-  -- netcoredbg receives the DLL path as a plain argument. With 'shellslash'
-  -- set, Vim hands it forward slashes, which the adapter rejects on Windows.
-  -- Scoped to the moment the adapter is registered rather than to "this file
-  -- was required at all".
-  if vim.fn.has("win32") == 1 then
-    vim.opt.shellslash = false
   end
 
   dap.adapters.coreclr = {
@@ -77,9 +72,15 @@ function M.load()
               coroutine.resume(co, "")
             end,
           })
-          return paths.normalize(coroutine.yield())
+          -- netcoredbg rejects forward-slash paths on Windows; converting
+          -- here (and for cwd below) is what `set noshellslash` used to do
+          -- for the whole session.
+          return paths.native(paths.normalize(coroutine.yield()))
         end,
-        cwd = "${workspaceFolder}",
+        -- What "${workspaceFolder}" expands to, with native separators.
+        cwd = function()
+          return paths.native(vim.fn.getcwd())
+        end,
       },
     }
   end

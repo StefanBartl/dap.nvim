@@ -2,6 +2,7 @@
 --- Path helpers, delegating normalization to lib.nvim for Windows safety.
 
 local normalize = require("lib.nvim.normalize")
+local cross = require("lib.nvim.cross")
 
 local M = {}
 
@@ -10,6 +11,19 @@ local M = {}
 ---@return string normalized_path
 function M.normalize(path)
   return normalize.normalize_path(path)
+end
+
+--- The platform's native separators: backslashes on Windows, unchanged
+--- elsewhere. For arguments handed to a tool that insists on them (netcoredbg
+--- rejects forward-slash DLL paths) -- `normalize()` deliberately produces
+--- forward slashes everywhere, which is what Neovim itself prefers.
+---@param path string
+---@return string native_path
+function M.native(path)
+  if cross.is_windows() then
+    return (path:gsub("/", "\\"))
+  end
+  return path
 end
 
 --- Join path segments with the platform separator

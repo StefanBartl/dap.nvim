@@ -29,8 +29,9 @@ claim that name.
   and validation happen up front so `:checkhealth wkddap` can say what is wrong,
   rather than the user discovering it when a session silently fails to start.
 - Nothing platform-specific in a module — paths and process handling go through
-  `lib.nvim`'s `cross.*` layer. The C#/.NET adapter's `noshellslash` handling on
-  Windows is the documented exception, and it is scoped to that registration.
+  `lib.nvim`'s `cross.*` layer. Where a tool insists on native separators
+  (netcoredbg), the path is converted at the point it is produced
+  (`paths.native`) -- never by flipping an editor option such as `'shellslash'`.
 - Commands are registered through `lib.nvim.bindings.usercmd.composer`, never
   with a bare `nvim_create_user_command`.
 - Descriptive commit messages.

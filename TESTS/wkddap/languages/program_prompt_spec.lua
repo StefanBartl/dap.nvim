@@ -68,10 +68,15 @@ describe('wkddap.languages program() prompts (kit.input completion="file")', fun
     { mod = "assembly", key = "asm", idx = 1 },
     { mod = "zig", key = "zig", idx = 1 },
     { mod = "zig", key = "zig", idx = 2 }, -- "Launch (build first)"
-    { mod = "csharp", key = "cs", idx = 1 }, -- "Path to DLL"
+    -- "Path to DLL": netcoredbg wants native separators, so the submitted
+    -- path is additionally passed through paths.native().
+    { mod = "csharp", key = "cs", idx = 1, native = true },
   }
 
   for _, case in ipairs(cases) do
+    local expect = case.native and paths.native or function(p)
+      return p
+    end
     it(
       ('%s configurations.%s[%d].program: completion="file" + submit -> normalized path'):format(
         case.mod,
@@ -114,7 +119,11 @@ describe('wkddap.languages program() prompts (kit.input completion="file")', fun
         assert.are.equal("file", opts.completion, 'prompted with completion = "file"')
 
         opts.on_submit("/tmp/foo/bar")
-        assert.are.equal(paths.normalize("/tmp/foo/bar"), result(), "submitted path is normalized")
+        assert.are.equal(
+          expect(paths.normalize("/tmp/foo/bar")),
+          result(),
+          "submitted path is normalized"
+        )
       end
     )
 
@@ -150,7 +159,7 @@ describe('wkddap.languages program() prompts (kit.input completion="file")', fun
 
         opts.on_cancel()
         assert.are.equal(
-          paths.normalize(""),
+          expect(paths.normalize("")),
           result(),
           'cancel resolves the same as vim.fn.input\'s old Esc -> ""'
         )

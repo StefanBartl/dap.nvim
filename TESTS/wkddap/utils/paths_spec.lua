@@ -37,3 +37,15 @@ describe("wkddap.utils.paths.normalize()", function()
     assert.are.equal(normalize.normalize_path("a/b"), paths.normalize("a/b"))
   end)
 end)
+
+describe("wkddap.utils.paths.native()", function()
+  it("uses backslashes on Windows and leaves the path alone elsewhere", function()
+    local expected = require("lib.nvim.cross").is_windows() and "C:\\proj\\bin\\app.dll"
+      or "C:/proj/bin/app.dll"
+    assert.are.equal(expected, paths.native("C:/proj/bin/app.dll"))
+  end)
+
+  it("returns exactly one value (gsub's count is dropped)", function()
+    assert.are.equal(1, select("#", paths.native("a/b")))
+  end)
+end)
