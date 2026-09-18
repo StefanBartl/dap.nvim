@@ -39,8 +39,9 @@ describe("wkddap.ui.setup()", function()
       end,
     }
     package.loaded["wkddap.ui.virtual_text"] = {
-      setup = function()
+      setup = function(opts)
         called.virtual_text = true
+        called.virtual_text_opts = opts
       end,
     }
   end
@@ -56,6 +57,17 @@ describe("wkddap.ui.setup()", function()
     assert.is_true(called.highlights)
     assert.is_true(called.provider)
     assert.is_true(called.virtual_text)
+  end)
+
+  it("hands an opts.virtual_text table through to the virtual_text module", function()
+    local called = {}
+    stub_all(called)
+    local ui = reload()
+
+    local mine = { virt_text_pos = "inline" }
+    ui.setup({ enable = false, signs = false, highlights = false, virtual_text = mine })
+
+    assert.are.equal(mine, called.virtual_text_opts)
   end)
 
   it("skips each sub-module whose own flag is off", function()

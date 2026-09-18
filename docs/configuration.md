@@ -11,7 +11,9 @@ require("wkddap").setup({
     provider = "dap-view",     -- "dap-view" | "dap-ui" | "auto" | "none"
     -- dap_view = {},          -- optional, passed to dap-view's setup()
     -- dap_ui = {},            -- optional, passed to dapui's setup()
-    virtual_text = true,  -- nvim-dap-virtual-text
+    virtual_text = true,  -- nvim-dap-virtual-text: true (dap.nvim's defaults),
+                          -- an options table (passed to its setup() as given),
+                          -- or false (your own plugin spec owns its setup())
     signs = true,          -- gutter signs
     highlights = true,     -- default highlight groups
   },

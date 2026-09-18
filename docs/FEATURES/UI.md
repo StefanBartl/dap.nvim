@@ -62,10 +62,14 @@ Applies default colors for the sign set above (`DapBreakpoint`,
 
 ## nvim-dap-virtual-text integration
 
-Soft dependency: wires `nvim-dap-virtual-text` with a fixed default config
+Soft dependency: wires `nvim-dap-virtual-text` with dap.nvim's default config
 (commented variables shown, changed-variable highlighting, stop-reason text)
-if the plugin is installed; a no-op otherwise.
+if the plugin is installed; a no-op otherwise. The plugin has a single global
+`setup()`, so `ui.virtual_text` decides who configures it: `true` applies
+dap.nvim's defaults, a table is passed to its `setup()` as given (like
+`ui.dap_view` / `ui.dap_ui`), and `false` means dap.nvim never calls it — your
+own plugin spec's `opts` stay in force.
 
 - **Module:** `lua/wkddap/ui/virtual_text.lua` (`setup`), `lua/wkddap/config/init.lua`
   (`M.virtual_text`)
-- **Config:** `opts.ui.virtual_text` (default `true`)
+- **Config:** `opts.ui.virtual_text` (default `true`; `false` or an options table)
