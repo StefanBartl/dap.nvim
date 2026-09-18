@@ -27,10 +27,12 @@ function M.setup(opts)
     end
   end
 
+  -- `false` leaves nvim-dap-virtual-text to the user's own plugin spec; a
+  -- table is that spec's options, handed through as given.
   if opts.virtual_text then
     local ok_vt, virtual_text = pcall(require, "wkddap.ui.virtual_text")
     if ok_vt then
-      pcall(virtual_text.setup)
+      pcall(virtual_text.setup, opts.virtual_text)
     end
   end
 end

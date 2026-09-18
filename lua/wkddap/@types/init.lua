@@ -23,7 +23,9 @@
 ---@field provider Dap.UiProvider Panel UI to wire: 'dap-view' (default), 'dap-ui', 'auto' or 'none'
 ---@field dap_view? table Options passed to `require("dap-view").setup()`
 ---@field dap_ui? table Options passed to `require("dapui").setup()`
----@field virtual_text boolean Enable nvim-dap-virtual-text
+---@field virtual_text boolean|table nvim-dap-virtual-text: `true` wires it with dap.nvim's
+---  defaults, a table is passed to its `setup()` as given, `false` leaves it to
+---  your own plugin spec
 ---@field signs boolean Configure gutter signs
 ---@field highlights boolean Configure default highlight groups
 

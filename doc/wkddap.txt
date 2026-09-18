@@ -89,7 +89,7 @@ packer.nvim: >lua
       provider = "dap-view",  -- "dap-view"|"dap-ui"|"auto"|"none"
       -- dap_view = {},       -- optional, passed to dap-view's setup()
       -- dap_ui = {},         -- optional, passed to dapui's setup()
-      virtual_text = true,
+      virtual_text = true,    -- true | false | options table for its setup()
       signs = true,
       highlights = true,
     },

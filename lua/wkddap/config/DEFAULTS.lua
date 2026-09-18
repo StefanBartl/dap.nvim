@@ -20,6 +20,8 @@ local DEFAULTS = {
     -- Deliberately unset: `ui.dap_view` / `ui.dap_ui` are optional option
     -- tables passed straight to the respective plugin's setup(). Absent means
     -- "use the plugin's own defaults" (dap-view) resp. `config.dapui_layout`.
+    -- nvim-dap-virtual-text: true = dap.nvim's defaults (config.virtual_text),
+    -- a table = passed to its setup() as given, false = your own spec owns it.
     virtual_text = true,
     signs = true,
     highlights = true,
