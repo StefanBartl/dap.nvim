@@ -13,6 +13,22 @@ local M = {}
 
 ---@alias Dap.UiProvider 'dap-view'|'dap-ui'|'auto'|'none'
 
+---@type Dap.UiProvider
+local DEFAULT = "dap-view"
+
+---Every value `ui.provider` accepts. Anything else is a typo, not a plugin
+---name to probe: `"dapui"` would otherwise wire the nvim-dap-ui panel and
+---then be stored as a provider that toggle()/eval() have no actions for.
+---@type table<string, true>
+local PREFERENCES = { ["dap-view"] = true, ["dap-ui"] = true, auto = true, none = true }
+
+---Whether `value` is one of the accepted `ui.provider` values.
+---@param value any
+---@return boolean
+function M.is_preference(value)
+  return PREFERENCES[value] == true
+end
+
 ---What is wired right now: the two concrete providers, or nothing. Narrower
 ---than `Dap.UiProvider`, which also has the two *requests* `'auto'` and
 ---`'none'` -- those are answered in `resolve`, not stored.
@@ -35,6 +51,17 @@ end
 ---@param preference Dap.UiProvider
 ---@return 'dap-view'|'dap-ui'|nil provider
 local function resolve(preference)
+  if not M.is_preference(preference) then
+    notify.warn(
+      string.format(
+        "ui.provider %s is not one of 'dap-view', 'dap-ui', 'auto', 'none' -- using '%s'",
+        vim.inspect(preference),
+        DEFAULT
+      )
+    )
+    preference = DEFAULT
+  end
+
   if preference == "none" then
     return nil
   end
@@ -75,7 +102,7 @@ end
 function M.setup(opts)
   _active = nil
 
-  local provider = resolve(opts.provider or "dap-view")
+  local provider = resolve(opts.provider == nil and DEFAULT or opts.provider)
   if not provider then
     return nil
   end

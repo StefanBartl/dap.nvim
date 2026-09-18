@@ -12,8 +12,9 @@ listeners on the same nvim-dap events, so `ui.provider` picks one:
 | `"none"` | No panel UI; signs, highlights and virtual text still apply |
 
 If the preferred provider is not installed but the other one is, dap.nvim falls
-back to it and warns once. `ui.enable = false` disables the panel UI entirely,
-regardless of `provider`.
+back to it and warns once. Any other value (a typo such as `"dapui"`) is
+treated as `"dap-view"` with a warning. `ui.enable = false` disables the panel
+UI entirely, regardless of `provider`.
 
 Both providers open on `event_initialized` and close when the session
 terminates or exits. `<leader>du` / `:Dap toggle-ui` and `<leader>de` / `:Dap eval`
@@ -31,4 +32,4 @@ opts = {
 ```
 
 `:checkhealth wkddap` reports both the configured preference and the provider
-that actually got wired.
+that actually got wired, and flags a preference it does not recognise.
