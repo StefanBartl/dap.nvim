@@ -52,5 +52,7 @@ Via Mason:
 
 Manual:
 - **Delve (Go):** `go install github.com/go-delve/delve/cmd/dlv@latest`
-- **debugpy (Python):** `pip install debugpy`
+- **debugpy (Python):** `pip install debugpy`, plus a `debugpy-adapter` launcher on
+  `$PATH` that runs `python -m debugpy.adapter` (Mason's package ships one;
+  pip alone does not)
 - **CodeLLDB:** download from [GitHub Releases](https://github.com/vadimcn/codelldb/releases)

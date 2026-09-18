@@ -19,10 +19,14 @@ function M.setup()
     return false
   end
 
+  -- `debugpy-adapter` already is `python -m debugpy.adapter` (Mason's wrapper,
+  -- and what a manual install has to provide under that name). Handing it
+  -- `-m debugpy.adapter` again made the process exit with a debugpy CLI
+  -- usage error on the first Python session.
   dap.adapters.python = {
     type = "executable",
     command = adapter_path,
-    args = { "-m", "debugpy.adapter" },
+    args = {},
   }
 
   return true
