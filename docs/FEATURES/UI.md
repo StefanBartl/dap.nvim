@@ -26,6 +26,8 @@ of auto-open/close listeners on the same nvim-dap events.
   other is, fall back to the other and warn once.
 - `"auto"` — first installed of the two, nvim-dap-view winning ties.
 - `"none"` — no panel UI; signs, highlights, and virtual text still apply.
+- anything else — treated as `"dap-view"`, with a warning at setup and in
+  `:checkhealth wkddap`.
 
 ### What routes through it
 

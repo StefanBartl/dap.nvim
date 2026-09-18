@@ -49,11 +49,23 @@ function M.check()
   -- ── UI companions ─────────────────────────────────────────────────────────
   vim.health.start("dap.nvim: UI companions")
   local ui_opts = require("wkddap.config").get().ui or {}
-  local preference = ui_opts.provider or "dap-view"
+  local provider_mod = require("wkddap.ui.provider")
+  local preference = ui_opts.provider == nil and "dap-view" or ui_opts.provider
+  local preference_ok = provider_mod.is_preference(preference)
   local has_view = pcall(require, "dap-view")
   local has_dapui = pcall(require, "dapui")
 
-  vim.health.info("ui.provider = " .. tostring(preference))
+  if preference_ok then
+    vim.health.info("ui.provider = " .. tostring(preference))
+  else
+    vim.health.warn(
+      string.format(
+        "ui.provider = %s is not a known value — 'dap-view' was used instead",
+        vim.inspect(preference)
+      ),
+      { "Set ui.provider to 'dap-view', 'dap-ui', 'auto' or 'none'" }
+    )
+  end
 
   if has_view then
     vim.health.ok("nvim-dap-view installed (default panel UI)")
@@ -67,10 +79,12 @@ function M.check()
     vim.health.info("nvim-dap-ui not found (optional)")
   end
 
-  local active = require("wkddap.ui.provider").active()
+  local active = provider_mod.active()
   if active then
     vim.health.ok("active panel UI: " .. active)
-    if preference ~= "auto" and preference ~= active then
+    -- An unknown preference already degraded to the default above; only a
+    -- valid one can have "fallen back" in the sense this warning describes.
+    if preference_ok and preference ~= "auto" and preference ~= active then
       vim.health.warn(
         string.format("'%s' is not installed — fell back to '%s'", preference, active),
         { string.format("Install '%s', or set ui.provider = '%s'", preference, active) }

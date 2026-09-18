@@ -66,6 +66,38 @@ describe("wkddap.ui.provider.setup(): preference resolution", function()
     assert.is_nil(provider.setup({ provider = "dap-view" }))
     assert.is_nil(provider.active())
   end)
+
+  it("is_preference() accepts exactly the four documented values", function()
+    local provider = reload()
+    for _, value in ipairs({ "dap-view", "dap-ui", "auto", "none" }) do
+      assert.is_true(provider.is_preference(value), value)
+    end
+    assert.is_false(provider.is_preference("dapui"))
+    assert.is_false(provider.is_preference(nil))
+    assert.is_false(provider.is_preference(true))
+  end)
+
+  it("an unknown preference degrades to the default instead of being probed as a plugin", function()
+    -- With dap-view absent and only nvim-dap-ui installed, the typo "dapui"
+    -- used to resolve to itself (installed() probes require("dapui") for
+    -- anything that is not "dap-view") and become an active provider that
+    -- toggle()/eval() cannot dispatch to. It now takes the default's
+    -- fallback path and ends up as the real 'dap-ui'.
+    local toggled = false
+    package.loaded["dapui"] = {
+      setup = function(_opts) end,
+      toggle = function()
+        toggled = true
+      end,
+    }
+    package.loaded["dap"] = {}
+    local provider = reload()
+
+    assert.are.equal("dap-ui", provider.setup({ provider = "dapui" }))
+    assert.are.equal("dap-ui", provider.active())
+    provider.toggle()
+    assert.is_true(toggled)
+  end)
 end)
 
 describe("wkddap.ui.provider: toggle()/eval() dispatch", function()
