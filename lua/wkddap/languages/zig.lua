@@ -90,20 +90,37 @@ function M.load()
         -- Explicit cwd (not the implicit inherited editor cwd): "zig build"
         -- must run against the project being debugged, not whatever ambient
         -- directory Neovim happens to be sitting in when the spawn fires.
-        vim.system({ "zig", "build" }, { text = true, cwd = paths.workspace_root() }, function(res)
-          vim.schedule(function()
-            -- The old code discarded the exit status entirely and prompted
-            -- regardless. That stays -- a failed build may still have left a
-            -- previous binary worth debugging -- but it is no longer silent.
-            if res.code ~= 0 then
-              vim.notify(
-                "zig build exited " .. tostring(res.code) .. ": " .. vim.trim(res.stderr or ""),
-                vim.log.levels.WARN
-              )
-            end
-            prompt()
-          end)
-        end)
+        --
+        -- pcall'd: vim.system throws (ENOENT) when `zig` is not on Neovim's
+        -- PATH, it does not report that through res.code. The throw would
+        -- surface as a traceback out of nvim-dap's config resolution instead
+        -- of the prompt; a build that could not start is treated like one
+        -- that failed -- say so, then prompt anyway.
+        local spawned, err = pcall(
+          vim.system,
+          { "zig", "build" },
+          { text = true, cwd = paths.workspace_root() },
+          function(res)
+            vim.schedule(function()
+              -- The old code discarded the exit status entirely and prompted
+              -- regardless. That stays -- a failed build may still have left a
+              -- previous binary worth debugging -- but it is no longer silent.
+              if res.code ~= 0 then
+                vim.notify(
+                  "zig build exited " .. tostring(res.code) .. ": " .. vim.trim(res.stderr or ""),
+                  vim.log.levels.WARN
+                )
+              end
+              prompt()
+            end)
+          end
+        )
+        if not spawned then
+          vim.notify("zig build could not start: " .. tostring(err), vim.log.levels.WARN)
+          -- Scheduled so the prompt's callbacks only ever resume a coroutine
+          -- that has reached the yield below.
+          vim.schedule(prompt)
+        end
 
         return paths.normalize(coroutine.yield())
       end,

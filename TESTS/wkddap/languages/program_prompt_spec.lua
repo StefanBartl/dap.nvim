@@ -157,4 +157,35 @@ describe('wkddap.languages program() prompts (kit.input completion="file")', fun
       end
     )
   end
+
+  it(
+    'zig configurations.zig[2].program: still prompts when "zig build" cannot be spawned',
+    function()
+      -- vim.system throws ENOENT when `zig` is not on PATH; the prompt must
+      -- still open (after a warning) instead of the throw escaping into
+      -- nvim-dap's config resolution.
+      local lang = reload("zig")
+      lang.load()
+      local program = package.loaded["dap"].configurations.zig[2].program
+
+      local orig_system, orig_notify = vim.system, vim.notify
+      local warned
+      ---@diagnostic disable-next-line: duplicate-set-field
+      vim.notify = function(msg)
+        warned = msg
+      end
+      ---@diagnostic disable-next-line: duplicate-set-field
+      vim.system = function()
+        error("ENOENT: no such file or directory (cmd)")
+      end
+      local opts, result = start(program)
+      vim.system, vim.notify = orig_system, orig_notify
+
+      assert.is_not_nil(opts, "kit.input was called")
+      assert.matches("zig build could not start", warned)
+
+      opts.on_submit("/tmp/zig-out/bin/app")
+      assert.are.equal(paths.normalize("/tmp/zig-out/bin/app"), result())
+    end
+  )
 end)
