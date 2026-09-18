@@ -1,7 +1,41 @@
 ---@module 'wkddap.utils.validation'
 --- Process picker for attach-mode debugging, used by the JS/TS "Attach" config.
 
+local cross = require("lib.nvim.cross")
+local notify = require("wkddap.utils.notify")
+
 local M = {}
+
+---@internal
+---The process-listing command for this platform. `ps` does not exist on
+---Windows -- spawning it there throws ENOENT -- and `tasklist` is always
+---present; its CSV form is the one with a stable shape to parse.
+---@return string[] argv
+local function listing_argv()
+  if cross.is_windows() then
+    return { "tasklist", "/FO", "CSV", "/NH" }
+  end
+  return { "ps", "-eo", "pid,comm" }
+end
+
+--- Turn process-listing output into picker items that start with the pid.
+--- `ps -eo pid,comm` lines already do; tasklist's CSV rows
+--- (`"name","pid",...`) are rewritten to `pid name` so the same pid match in
+--- on_select works for both. Blank lines are dropped.
+---@param stdout string|nil
+---@return string[] items
+function M.parse_process_list(stdout)
+  local items = {}
+  for line in (stdout or ""):gmatch("[^\r\n]+") do
+    local name, pid = line:match('^"([^"]*)","(%d+)"')
+    if name then
+      items[#items + 1] = pid .. " " .. name
+    elseif line:match("%S") then
+      items[#items + 1] = line
+    end
+  end
+  return items
+end
 
 --- Pick a process ID for attach-mode debugging (used by JS/TS "Attach").
 ---@return thread|nil pid
@@ -34,21 +68,21 @@ function M.pick_process()
     -- Process listing used to run through vim.fn.systemlist(), which blocked
     -- the UI thread for the duration of the spawn. vim.system() delivers the
     -- output via callback instead; the picker opens once it arrives.
-    --
-    -- NOTE: `ps` is Unix-only. On Windows this listing has never worked; the
-    -- Windows equivalent would be `tasklist` / a WMI query. Left as-is here
-    -- because that is a separate feature gap, not an async question.
-    local argv = { "ps", "-eo", "pid,comm" }
+    local argv = listing_argv()
 
     if not vim.system then
-      open_picker(vim.fn.systemlist(argv))
+      open_picker(M.parse_process_list(table.concat(vim.fn.systemlist(argv), "\n")))
       return
     end
 
-    vim.system(argv, { text = true }, function(res)
+    -- vim.system throws (ENOENT) when the command does not exist at all, it
+    -- does not report that through res.code -- and a throw here would leave
+    -- nvim-dap waiting on `co` forever. Same outcome as a failed listing:
+    -- an empty picker, which cancels and resumes with nil.
+    local ok, err = pcall(vim.system, argv, { text = true }, function(res)
       local items = {}
-      if res.code == 0 and res.stdout and res.stdout ~= "" then
-        items = vim.split(res.stdout:gsub("\r?\n$", ""), "\r?\n")
+      if res.code == 0 then
+        items = M.parse_process_list(res.stdout)
       end
       -- vim.system callbacks run off the main loop; the picker touches
       -- Neovim state and must be scheduled.
@@ -56,6 +90,14 @@ function M.pick_process()
         open_picker(items)
       end)
     end)
+    if not ok then
+      notify.warn(string.format("process listing (%s) failed: %s", argv[1], tostring(err)))
+      -- Scheduled, not inline: `co` is still running at this point (it just
+      -- resumed this thread), so it cannot be resumed synchronously.
+      vim.schedule(function()
+        open_picker({})
+      end)
+    end
   end)
 end
 

@@ -114,5 +114,51 @@ describe("wkddap.utils.validation.pick_process()", function()
 
       assert.are.same({}, _G.__captured_select_opts.items)
     end)
+
+    it("opens the picker with an empty list when the listing tool cannot be spawned", function()
+      -- vim.system throws ENOENT for a command that does not exist (`ps` on
+      -- a Windows box without one); the picker must still open (and cancel)
+      -- so nvim-dap's waiting coroutine is resumed instead of hanging.
+      local orig_system, orig_notify = vim.system, vim.notify
+      ---@diagnostic disable-next-line: duplicate-set-field
+      vim.notify = function() end
+      ---@diagnostic disable-next-line: duplicate-set-field
+      vim.system = function(_argv, _opts, _on_exit)
+        error("ENOENT: no such file or directory (cmd)")
+      end
+
+      local outer, get_result = start()
+      vim.system, vim.notify = orig_system, orig_notify
+
+      assert.is_not_nil(_G.__captured_select_opts, "ui.kit.select was called")
+      assert.are.same({}, _G.__captured_select_opts.items)
+
+      _G.__captured_select_opts.on_cancel()
+      assert.are.equal("dead", coroutine.status(outer))
+      assert.is_nil(get_result())
+    end)
+  end)
+end)
+
+describe("wkddap.utils.validation.parse_process_list()", function()
+  it("passes `ps -eo pid,comm` lines through as they are, dropping blank ones", function()
+    assert.are.same(
+      { "  PID COMMAND", "  123 nvim", "  456 zsh" },
+      validation.parse_process_list("  PID COMMAND\n  123 nvim\n\n  456 zsh\n")
+    )
+  end)
+
+  it("rewrites tasklist CSV rows to `pid name` so the pid match works on Windows", function()
+    local out =
+      '"System Idle Process","0","Services","0","8 K"\r\n"nvim.exe","4321","Console","1","120,000 K"\r\n'
+    assert.are.same(
+      { "0 System Idle Process", "4321 nvim.exe" },
+      validation.parse_process_list(out)
+    )
+  end)
+
+  it("returns an empty list for nil or empty output", function()
+    assert.are.same({}, validation.parse_process_list(nil))
+    assert.are.same({}, validation.parse_process_list(""))
   end)
 end)
