@@ -97,8 +97,11 @@ without touching a language module.
 - **Module:** `lua/wkddap/configurations/init.lua` (`load_all`)
 - **Config:** `opts.configurations` (keyed by language; append by default,
   or set `replace = true` alongside the entries to discard the built-ins)
-- **Config:** `opts.adapters` (reserved — accepted by `setup()` and passed
-  through to `adapters.register_all`, currently not consumed further)
+- **Module:** `lua/wkddap/adapters/init.lua` (`register_all`)
+- **Config:** `opts.adapters` (keyed by nvim-dap adapter name — `codelldb`,
+  `pwa-node`, `coreclr`, ... — not by language; a table is deep-merged over
+  the definition the language module registered, a function replaces it, and
+  a name nothing registered is added as given)
 
 ## Language aliases
 

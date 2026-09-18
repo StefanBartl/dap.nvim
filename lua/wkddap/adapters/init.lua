@@ -9,9 +9,13 @@ local M = {}
 
 --- Register all adapters for specified languages
 ---@param languages string[] List of languages
----@param _custom_adapters table? Custom adapter overrides (reserved for future use)
+---@param custom_adapters table<string, table|function>? Overrides keyed by
+---  nvim-dap adapter name (`codelldb`, `pwa-node`, ...), applied after the
+---  language modules registered theirs: a table is deep-merged over the
+---  built-in definition, a function (or a name nothing registered) replaces
+---  resp. adds the adapter as given.
 ---@return boolean success
-function M.register_all(languages, _custom_adapters)
+function M.register_all(languages, custom_adapters)
   local registry = require("wkddap.registry")
 
   if not languages or #languages == 0 then
@@ -23,6 +27,18 @@ function M.register_all(languages, _custom_adapters)
     local ok = registry.register(lang)
     if not ok then
       failed[#failed + 1] = lang
+    end
+  end
+
+  if custom_adapters and next(custom_adapters) then
+    local dap = require("dap")
+    for name, override in pairs(custom_adapters) do
+      local existing = dap.adapters[name]
+      if type(existing) == "table" and type(override) == "table" then
+        dap.adapters[name] = vim.tbl_deep_extend("force", existing, override)
+      else
+        dap.adapters[name] = override
+      end
     end
   end
 
