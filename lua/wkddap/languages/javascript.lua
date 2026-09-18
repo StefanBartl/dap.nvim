@@ -17,16 +17,18 @@ function M.setup()
     return false
   end
 
-  local mason_pkg_path = vim.fn.stdpath("data") .. "/mason/packages/js-debug-adapter"
-  local adapter_script = mason_pkg_path .. "/js-debug/src/dapDebugServer.js"
-
+  -- The resolved binary is the server: Mason's `js-debug-adapter` wrapper is
+  -- `node .../dapDebugServer.js "$@"`, and a PATH install provides the same
+  -- entry point. Launching a hardcoded Mason script path instead meant the
+  -- presence check could pass (PATH install) while the session then failed
+  -- with node's "Cannot find module".
   dap.adapters["pwa-node"] = {
     type = "server",
     host = "localhost",
     port = "${port}",
     executable = {
-      command = "node",
-      args = { adapter_script, "${port}" },
+      command = adapter_path,
+      args = { "${port}" },
     },
   }
 

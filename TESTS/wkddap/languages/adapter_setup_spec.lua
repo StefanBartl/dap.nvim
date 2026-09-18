@@ -82,6 +82,42 @@ describe("wkddap.languages setup(): common config.get_adapter_path gate", functi
   end
 end)
 
+describe(
+  "wkddap.languages javascript/browser setup(): the resolved binary is the server",
+  function()
+    before_each(function()
+      package.loaded["dap"] = { adapters = {} }
+    end)
+
+    after_each(function()
+      package.loaded["dap"] = nil
+      package.loaded["wkddap.config"] = nil
+    end)
+
+    -- Both used to launch `node <hardcoded Mason script path>` after gating on
+    -- get_adapter_path(), so a PATH install passed the gate and then failed to
+    -- start. What resolved must be what runs.
+    for _, case in ipairs({
+      { mod = "javascript", adapter_name = "javascript", key = "pwa-node" },
+      { mod = "browser", adapter_name = "browser", key = "pwa-chrome" },
+    }) do
+      it(("%s.setup() launches the path get_adapter_path() resolved"):format(case.mod), function()
+        package.loaded["wkddap.config"] = {
+          get_adapter_path = function(name)
+            return name == case.adapter_name and "/opt/js-debug/js-debug-adapter" or nil
+          end,
+        }
+        local m = reload(case.mod)
+        assert.is_true((m.setup()))
+
+        local executable = package.loaded["dap"].adapters[case.key].executable
+        assert.are.equal("/opt/js-debug/js-debug-adapter", executable.command)
+        assert.are.same({ "${port}" }, executable.args)
+      end)
+    end
+  end
+)
+
 describe("wkddap.languages.assembly setup(): deviates from the common gate", function()
   before_each(function()
     package.loaded["dap"] = { adapters = {} }

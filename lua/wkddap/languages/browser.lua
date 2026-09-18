@@ -34,19 +34,19 @@ function M.setup()
   -- Same Mason package as the node adapter -- js-debug ships one server that
   -- speaks both -- but its own `adapter_binaries` entry, so enabling browser
   -- debugging does not silently depend on `javascript` being in the list.
-  if not config.get_adapter_path("browser") then
+  local adapter_path = config.get_adapter_path("browser")
+  if not adapter_path then
     return false
   end
 
-  local adapter_script = vim.fn.stdpath("data")
-    .. "/mason/packages/js-debug-adapter/js-debug/src/dapDebugServer.js"
-
+  -- The resolved binary is the server (see javascript.lua for why it is not
+  -- a hardcoded Mason script path).
   dap.adapters["pwa-chrome"] = {
     type = "server",
     port = "${port}",
     executable = {
-      command = "node",
-      args = { adapter_script, "${port}" },
+      command = adapter_path,
+      args = { "${port}" },
     },
   }
 

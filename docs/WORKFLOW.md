@@ -132,16 +132,13 @@ path — `:wait()` blocks the whole config resolution, and by extension the
 editor, until the build finishes. A slow build is a genuinely frozen Neovim
 until it's done, not a background task with a spinner.
 
-**The JS/TS adapter path is hardcoded to Mason's install location, not to
-whatever `js-debug-adapter` resolved to.** `config.get_adapter_path` is only
-used to *gate* whether the JS adapter registers at all (PATH, then Mason
-bin); the actual server it launches
-(`dap.adapters["pwa-node"]`) always points at
-`stdpath("data")/mason/packages/js-debug-adapter/js-debug/src/dapDebugServer.js`
-regardless. A manually-installed `js-debug-adapter` that isn't under Mason's
-package directory will pass the presence check and then fail to actually
-launch — install this one via Mason (`:MasonInstall js-debug-adapter`), not
-manually.
+**The JS/TS and browser adapters launch whatever `js-debug-adapter`
+resolved to.** `config.get_adapter_path` (PATH, then Mason bin) decides both
+whether `pwa-node`/`pwa-chrome` register at all and which binary runs as the
+DAP server, with `${port}` as its only argument — Mason's wrapper is
+`node .../dapDebugServer.js "$@"`, and a PATH install has to provide the same
+entry point. There is no longer a hardcoded Mason script path behind the
+presence check.
 
 **`auto_install` needs `mason.nvim` present already.** `opts.auto_install =
 true` does not install Mason itself — if `mason.nvim` isn't installed, it
