@@ -135,3 +135,117 @@ describe("wkddap.languages.bash load(): bash/bashdb paths", function()
     assert.are.equal("", entry.pathBashdb)
   end)
 end)
+
+describe("wkddap.languages.rust load(): initCommands and the sysroot cache", function()
+  local orig_system, orig_notify
+
+  --- Stub rustc as present and `rustc --print sysroot` as answering
+  --- `sysroot`, counting the spawns; the sysroot cache is keyed by
+  --- paths.workspace_root(), which is stubbed to `cwd` (mutable via the
+  --- returned setter).
+  ---@param sysroot string
+  ---@return fun(): integer spawns, fun(dir: string) set_cwd
+  local function stub_toolchain(sysroot)
+    local spawns, cwd = 0, "/proj/a"
+    package.loaded["wkddap.utils.executable"] = {
+      exists = function(_)
+        return true
+      end,
+    }
+    package.loaded["wkddap.utils.paths"] = {
+      workspace_root = function()
+        return cwd
+      end,
+      normalize = function(p)
+        return p
+      end,
+      join = function(...)
+        return table.concat({ ... }, "/")
+      end,
+    }
+    ---@diagnostic disable-next-line: duplicate-set-field
+    vim.system = function(_argv, _opts, on_exit)
+      spawns = spawns + 1
+      local res = { code = 0, stdout = sysroot .. "\n", stderr = "" }
+      if on_exit then
+        on_exit(res)
+      end
+      return {
+        wait = function()
+          return res
+        end,
+      }
+    end
+    return function()
+      return spawns
+    end, function(dir)
+      cwd = dir
+    end
+  end
+
+  before_each(function()
+    orig_system, orig_notify = vim.system, vim.notify
+    ---@diagnostic disable-next-line: duplicate-set-field
+    vim.notify = function() end
+    package.loaded["dap"] = { configurations = {} }
+  end)
+
+  after_each(function()
+    vim.system, vim.notify = orig_system, orig_notify
+    package.loaded["dap"] = nil
+    package.loaded["wkddap.utils.executable"] = nil
+    package.loaded["wkddap.utils.paths"] = nil
+  end)
+
+  local function init_commands()
+    local rust = reload("rust")
+    rust.load()
+    return package.loaded["dap"].configurations.rust[1].initCommands
+  end
+
+  it("returns no commands at all when rustc is unavailable", function()
+    package.loaded["wkddap.utils.executable"] = {
+      exists = function(_)
+        return false
+      end,
+    }
+    ---@diagnostic disable-next-line: duplicate-set-field
+    vim.system = function()
+      error("must not be spawned without rustc")
+    end
+
+    assert.are.same({}, init_commands()())
+  end)
+
+  it("imports lldb_lookup.py from the sysroot rustc reports", function()
+    stub_toolchain("/toolchains/stable")
+
+    local commands = init_commands()()
+    assert.are.equal(
+      'command script import "/toolchains/stable/lib/rustlib/etc/lldb_lookup.py"',
+      commands[1]
+    )
+  end)
+
+  it("caches the sysroot per working directory, not once per session", function()
+    local spawns, set_cwd = stub_toolchain("/toolchains/stable")
+    local commands = init_commands()
+
+    commands()
+    commands()
+    assert.are.equal(1, spawns(), "second session in the same directory reuses the answer")
+
+    set_cwd("/proj/b")
+    commands()
+    assert.are.equal(2, spawns(), "another directory may have another toolchain")
+  end)
+
+  it("does not remember a failed lookup", function()
+    local spawns = stub_toolchain("")
+    local commands = init_commands()
+
+    assert.are.same({}, commands())
+    commands()
+    assert.are.equal(2, spawns(), "an empty answer is retried, not cached")
+  end)
+end)

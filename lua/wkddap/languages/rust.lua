@@ -9,48 +9,66 @@ local executable = require("wkddap.utils.executable")
 local M = {}
 
 ---@internal
----Cached `rustc --print sysroot`. The value is a property of the toolchain,
----not of the session, so once is enough.
----@type string|nil
-local sysroot_cache = nil
+---`rustc --print sysroot`, keyed by the directory it ran in. Not one value
+---per session: a `rust-toolchain.toml` or `rustup override` makes the answer
+---depend on the working directory, so a `:cd` into another project must not
+---keep serving the first project's toolchain. Only successful lookups are
+---stored -- a missing or failing rustc is re-checked at the next session
+---start instead of being remembered as an empty sysroot.
+---@type table<string, string>
+local sysroot_cache = {}
 
 ---@internal
----Warm `sysroot_cache` in the background.
+---Store a successful lookup for `cwd`; a failure or empty answer stores nothing.
+---@param cwd string
+---@param res { code: integer, stdout: string|nil }
+---@return nil
+local function remember_sysroot(cwd, res)
+  -- vim.trim, not vim.fn.trim: this also runs from a vim.system callback,
+  -- a fast-event context where Vimscript functions raise E5560.
+  local sysroot = res.code == 0 and res.stdout and vim.trim(res.stdout) or ""
+  if sysroot ~= "" then
+    sysroot_cache[cwd] = sysroot
+  end
+end
+
+---@internal
+---Warm the cache for the current directory in the background.
 ---
 ---`initCommands` below needs the sysroot to point LLDB at Rust's
 ---pretty-printers, and used to obtain it with `vim.system(...):wait()` --
 ---blocking the editor on every debug session start. Prefetching it when the
 ---language module loads means the value is virtually always there by the time
 ---a session actually starts; the blocking call survives only as the fallback
----for the race where it is not.
+---for the race where it is not, or for a session started from another
+---directory than the prefetch ran in.
 ---@return nil
 local function prefetch_sysroot()
-  if sysroot_cache or not executable.exists("rustc") then
+  local cwd = paths.workspace_root()
+  if sysroot_cache[cwd] or not executable.exists("rustc") then
     return
   end
-  vim.system({ "rustc", "--print", "sysroot" }, { text = true }, function(res)
-    -- vim.system callbacks run in a fast-event context, where `vim.fn.trim`
-    -- raises E5560 -- it is a Vimscript function. `vim.trim` is pure Lua and
-    -- is allowed here.
-    if res.code == 0 and res.stdout and res.stdout ~= "" then
-      sysroot_cache = vim.trim(res.stdout)
-    end
+  pcall(vim.system, { "rustc", "--print", "sysroot" }, { text = true, cwd = cwd }, function(res)
+    remember_sysroot(cwd, res)
   end)
 end
 
 ---@internal
----@return string sysroot  empty string when rustc is unavailable
+---@return string|nil sysroot  nil when rustc is unavailable or gave no answer
 local function rustc_sysroot()
-  if sysroot_cache then
-    return sysroot_cache
+  local cwd = paths.workspace_root()
+  if sysroot_cache[cwd] then
+    return sysroot_cache[cwd]
   end
   if not executable.exists("rustc") then
-    return ""
+    return nil
   end
   -- Fallback only: the prefetch above has not landed yet.
-  sysroot_cache =
-    vim.trim(vim.system({ "rustc", "--print", "sysroot" }, { text = true }):wait().stdout or "")
-  return sysroot_cache
+  local ok, proc = pcall(vim.system, { "rustc", "--print", "sysroot" }, { text = true, cwd = cwd })
+  if ok then
+    remember_sysroot(cwd, proc:wait())
+  end
+  return sysroot_cache[cwd]
 end
 
 ---@return boolean success
@@ -113,6 +131,16 @@ function M.load()
       stopOnEntry = false,
       initCommands = function()
         local sysroot = rustc_sysroot()
+        if not sysroot then
+          -- No toolchain to borrow the pretty-printers from. Plain LLDB
+          -- output beats an import error for a path rooted at "/" whose
+          -- text never mentions the actual cause.
+          vim.notify(
+            "rustc not found -- starting without Rust's LLDB pretty-printers",
+            vim.log.levels.WARN
+          )
+          return {}
+        end
         local script_import = 'command script import "'
           .. sysroot
           .. '/lib/rustlib/etc/lldb_lookup.py"'
