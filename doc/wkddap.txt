@@ -116,6 +116,8 @@ packer.nvim: >lua
     -- Install missing required adapters via `:MasonInstall` (mason.nvim
     -- must be installed separately).
     auto_install = false,
+    -- Level of nvim-dap's own log file (handed to |dap.set_log_level()|):
+    -- a vim.log.levels value or a name such as "debug".
     log_level = vim.log.levels.WARN,
   })
 <

@@ -14,7 +14,7 @@
 ---  by language (appended by default; set `replace = true` on the list to
 ---  replace the language's configurations instead)
 ---@field auto_install? boolean Auto-install missing adapters via Mason
----@field log_level? integer Logging level (vim.log.levels)
+---@field log_level? integer|string nvim-dap log file level: a vim.log.levels value or a name ("trace" .. "error")
 
 ---@class Dap.UiOptions
 ---@field enable boolean Enable the panel UI integration
