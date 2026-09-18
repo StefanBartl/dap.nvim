@@ -14,7 +14,97 @@ local M = {}
 ---@type Dap.Config|nil
 local _active = nil
 
+---What the last `setup()` had to ignore, for `:checkhealth`.
+---@type string[]
+local _issues = {}
+
+---Keys `setup()` accepts and, for the option tables among them, their keys.
+---`true` means any key goes: `keymaps` carries per-action overrides
+---(`toggle_breakpoint = "<leader>xb"`, see bindings/keymaps), `adapters` and
+---`configurations` are keyed by adapter resp. language name.
+---@type table<string, true|table<string, true>>
+local KNOWN = {
+  languages = true,
+  ui = {
+    enable = true,
+    provider = true,
+    dap_view = true,
+    dap_ui = true,
+    virtual_text = true,
+    signs = true,
+    highlights = true,
+  },
+  keymaps = true,
+  which_key = { enable = true },
+  autocmds = { enable = true },
+  menu = { enable = true },
+  adapters = true,
+  configurations = true,
+  auto_install = true,
+  log_level = true,
+}
+
+---@internal
+---`key` with the nearest known one as a hint when there is a plausible one.
+---@param key any
+---@param known table<string, any>
+---@param prefix string
+---@return string
+local function describe_unknown(key, known, prefix)
+  local levenshtein = require("lib.lua.strings.distance").levenshtein
+  local name = tostring(key)
+  local best, best_distance = nil, nil
+  for candidate in pairs(known) do
+    local d = levenshtein(name, candidate)
+    if d <= 3 and (best_distance == nil or d < best_distance) then
+      best, best_distance = candidate, d
+    end
+  end
+  if best then
+    return string.format("unknown option '%s%s' (did you mean '%s%s'?)", prefix, name, prefix, best)
+  end
+  return string.format("unknown option '%s%s'", prefix, name)
+end
+
+---@internal
+---Drop what cannot be merged, and say so. A misspelled key would otherwise
+---land in the active config as a dead field with the default still in force;
+---a non-table value for an option table (`keymaps = false`) would replace the
+---whole table and make the first `cfg.keymaps.enable` read throw.
+---@param user_opts table
+---@return table clean  the accepted subset, nested option tables copied
+---@return string[] issues
+local function sanitize(user_opts)
+  local clean, issues = {}, {}
+  for key, value in pairs(user_opts) do
+    local known = KNOWN[key]
+    if known == nil then
+      issues[#issues + 1] = describe_unknown(key, KNOWN, "")
+    elseif type(DEFAULTS[key]) == "table" and type(value) ~= "table" then
+      issues[#issues + 1] =
+        string.format("option '%s' must be a table, got %s -- using the default", key, type(value))
+    elseif type(known) == "table" then
+      local nested = {}
+      for sub_key, sub_value in pairs(value) do
+        if known[sub_key] then
+          nested[sub_key] = sub_value
+        else
+          issues[#issues + 1] = describe_unknown(sub_key, known, key .. ".")
+        end
+      end
+      clean[key] = nested
+    else
+      clean[key] = value
+    end
+  end
+  table.sort(issues)
+  return clean, issues
+end
+
 --- Merge user options over the defaults and store the result.
+---
+--- Unknown keys and mistyped option tables are reported once here and again
+--- by `:checkhealth wkddap` (see `issues()`); they never reach the merge.
 ---@param user_opts? Dap.Config
 ---@return Dap.Config
 function M.setup(user_opts)
@@ -22,7 +112,13 @@ function M.setup(user_opts)
     user_opts = {}
   end
 
-  _active = vim.tbl_deep_extend("force", vim.deepcopy(DEFAULTS), user_opts)
+  local clean, issues = sanitize(user_opts)
+  _issues = issues
+  if #issues > 0 then
+    require("wkddap.utils.notify").warn("ignored config: " .. table.concat(issues, "; "))
+  end
+
+  _active = vim.tbl_deep_extend("force", vim.deepcopy(DEFAULTS), clean)
   return _active
 end
 
@@ -32,6 +128,14 @@ function M.get()
     _active = vim.deepcopy(DEFAULTS)
   end
   return _active
+end
+
+--- What the last `setup()` ignored: unknown keys and option tables of the
+--- wrong type, one human-readable line each. Empty when everything was
+--- accepted.
+---@return string[]
+function M.issues()
+  return vim.list_extend({}, _issues)
 end
 
 --- Default adapter binaries and their Mason package names

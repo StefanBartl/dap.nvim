@@ -58,3 +58,12 @@ require("wkddap").setup({
 ```
 
 Every key is independently overridable — set only what you want to change.
+
+Options are checked before they are merged. An unknown key — at the top level
+or inside `ui`, `which_key`, `autocmds`, `menu` — is ignored with a warning
+that names the nearest known key (`keymaps = { enabled = false }` →
+"did you mean 'keymaps.enable'?"), and an option table given as something
+other than a table (`keymaps = false`) falls back to that table's defaults.
+Both are listed again under `:checkhealth wkddap`. `keymaps` also accepts
+per-action overrides (`toggle_breakpoint = "<leader>xb"`, `eval = false`), so
+its keys are not checked.

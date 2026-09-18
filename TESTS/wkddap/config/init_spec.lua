@@ -58,6 +58,86 @@ describe("wkddap.config: setup()/get() singleton", function()
   end)
 end)
 
+describe("wkddap.config.setup(): option validation", function()
+  local orig_notify = vim.notify
+
+  before_each(function()
+    -- The issues are also announced through vim.notify; the test reads them
+    -- from issues() and does not need the stderr noise.
+    ---@diagnostic disable-next-line: duplicate-set-field
+    vim.notify = function() end
+  end)
+
+  after_each(function()
+    vim.notify = orig_notify
+  end)
+
+  it("accepts every documented key without reporting an issue", function()
+    local config = reload()
+    config.setup({
+      languages = { "python" },
+      ui = { enable = true, provider = "auto", dap_view = {}, dap_ui = {} },
+      keymaps = { enable = true, prefix = "<leader>x", toggle_breakpoint = "<leader>xb" },
+      which_key = { enable = false },
+      autocmds = { enable = false },
+      menu = { enable = false },
+      adapters = { codelldb = {} },
+      configurations = { go = {} },
+      auto_install = false,
+      log_level = vim.log.levels.DEBUG,
+    })
+
+    assert.are.same({}, config.issues())
+  end)
+
+  it("drops an unknown top-level key and names the nearest known one", function()
+    local config = reload()
+    local cfg = config.setup({ keymap = { enable = false } })
+
+    assert.is_nil(cfg.keymap)
+    assert.is_true(cfg.keymaps.enable)
+    assert.are.equal(1, #config.issues())
+    assert.matches("'keymap'", config.issues()[1])
+    assert.matches("did you mean 'keymaps'", config.issues()[1])
+  end)
+
+  it("drops an unknown nested key under an option table, keeping its siblings", function()
+    local config = reload()
+    local cfg = config.setup({ ui = { providers = "dap-ui", signs = false } })
+
+    assert.are.equal("dap-view", cfg.ui.provider)
+    assert.is_nil(cfg.ui.providers)
+    assert.is_false(cfg.ui.signs)
+    assert.matches("'ui.providers'", config.issues()[1])
+    assert.matches("did you mean 'ui.provider'", config.issues()[1])
+  end)
+
+  it("a non-table value for an option table falls back to that table's defaults", function()
+    local config = reload()
+    local cfg = config.setup({ keymaps = false, autocmds = "off" })
+
+    assert.is_true(cfg.keymaps.enable)
+    assert.are.equal("<leader>d", cfg.keymaps.prefix)
+    assert.is_true(cfg.autocmds.enable)
+    assert.are.equal(2, #config.issues())
+    assert.matches("'autocmds' must be a table, got string", config.issues()[1])
+    assert.matches("'keymaps' must be a table, got boolean", config.issues()[2])
+  end)
+
+  it("issues() reports only the most recent setup() and hands out a copy", function()
+    local config = reload()
+    config.setup({ nope = true })
+    local first = config.issues()
+    assert.are.equal(1, #first)
+
+    table.insert(first, "mutated by the caller")
+    assert.are.equal(1, #config.issues())
+
+    config.setup({})
+    assert.are.same({}, config.issues())
+  end)
+end)
+
 describe("wkddap.config.get_adapter_path()", function()
   local config = require("wkddap.config")
 
