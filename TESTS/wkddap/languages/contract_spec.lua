@@ -108,3 +108,30 @@ describe("wkddap.languages: load() populates well-formed configurations", functi
     end)
   end
 end)
+
+describe("wkddap.languages.bash load(): bash/bashdb paths", function()
+  before_each(function()
+    package.loaded["dap"] = { configurations = {} }
+  end)
+
+  after_each(function()
+    package.loaded["dap"] = nil
+    package.loaded["wkddap.utils.executable"] = nil
+  end)
+
+  it("resolves pathBash/pathBashdb through the memoized executable lookup", function()
+    package.loaded["wkddap.utils.executable"] = {
+      path = function(name)
+        return name == "bash" and "/usr/bin/bash" or nil
+      end,
+    }
+    local bash = reload("bash")
+    bash.load()
+
+    local entry = package.loaded["dap"].configurations.bash[1]
+    assert.are.equal("/usr/bin/bash", entry.pathBash)
+    -- A miss must stay the empty string the adapter treats as "use the
+    -- bundled bashdb", never nil.
+    assert.are.equal("", entry.pathBashdb)
+  end)
+end)

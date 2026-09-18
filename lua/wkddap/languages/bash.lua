@@ -9,6 +9,7 @@
 --- `vim.fn.exepath` at load time.
 
 local config = require("wkddap.config")
+local executable = require("wkddap.utils.executable")
 
 local M = {}
 
@@ -48,11 +49,16 @@ function M.load()
       program = "${file}",
       cwd = "${workspaceFolder}",
       -- `pathBash` must point at a real bash: the adapter shells out to it.
-      -- `pathBashdb`/`pathBashdbLib` stay empty so the adapter falls back to
-      -- the copy it bundles, which is the working default on machines that do
-      -- not have bashdb installed separately (Windows in particular).
-      pathBash = vim.fn.exepath("bash"),
-      pathBashdb = vim.fn.exepath("bashdb"),
+      -- `pathBashdb` is a separately installed bashdb when there is one on
+      -- PATH; empty otherwise (with `pathBashdbLib`), so the adapter falls
+      -- back to the copy it bundles -- the working default on machines that
+      -- do not have bashdb installed separately (Windows in particular).
+      --
+      -- Memoized lookups, not vim.fn.exepath: the bashdb probe is a
+      -- guaranteed miss on most machines, and a miss walks every PATH entry
+      -- against every PATHEXT suffix on Windows, uncached, on every setup().
+      pathBash = executable.path("bash") or "",
+      pathBashdb = executable.path("bashdb") or "",
       pathBashdbLib = "",
       trace = false,
       args = {},
