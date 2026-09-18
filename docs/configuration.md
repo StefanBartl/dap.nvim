@@ -53,6 +53,8 @@ require("wkddap").setup({
 
   auto_install = false,  -- install missing required adapters via `:MasonInstall`
                           -- (mason.nvim must be installed separately)
+  -- Level of nvim-dap's own log file (handed to `dap.set_log_level()`):
+  -- a vim.log.levels value or a name such as "debug".
   log_level = vim.log.levels.WARN,
 })
 ```
