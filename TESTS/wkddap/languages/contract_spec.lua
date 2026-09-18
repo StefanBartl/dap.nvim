@@ -109,6 +109,33 @@ describe("wkddap.languages: load() populates well-formed configurations", functi
   end
 end)
 
+describe("wkddap.languages: javascript and browser share dap.configurations keys", function()
+  before_each(function()
+    package.loaded["dap"] = { configurations = {} }
+  end)
+
+  after_each(function()
+    package.loaded["dap"] = nil
+  end)
+
+  it("keeps both modules' entries whichever loads second", function()
+    -- The default order is javascript before browser; the reverse used to
+    -- wipe the browser entries for javascript/typescript because
+    -- javascript.load() assigned the key instead of appending to it.
+    reload("browser").load()
+    reload("javascript").load()
+
+    local dap = package.loaded["dap"]
+    for _, ft in ipairs({ "javascript", "typescript" }) do
+      local types = {}
+      for _, entry in ipairs(dap.configurations[ft]) do
+        types[entry.type] = (types[entry.type] or 0) + 1
+      end
+      assert.are.same({ ["pwa-chrome"] = 2, ["pwa-node"] = 2 }, types, ft)
+    end
+  end)
+end)
+
 describe("wkddap.languages.bash load(): bash/bashdb paths", function()
   before_each(function()
     package.loaded["dap"] = { configurations = {} }
