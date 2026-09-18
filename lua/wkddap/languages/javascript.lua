@@ -40,23 +40,29 @@ function M.load()
     return false
   end
 
+  local node_configs = {
+    {
+      type = "pwa-node",
+      request = "launch",
+      name = "Launch file",
+      program = "${file}",
+      cwd = "${workspaceFolder}",
+    },
+    {
+      type = "pwa-node",
+      request = "attach",
+      name = "Attach",
+      processId = require("wkddap.utils.validation").pick_process,
+      cwd = "${workspaceFolder}",
+    },
+  }
+
+  -- Appended, not assigned: `browser.lua` adds its pwa-chrome entries to the
+  -- same filetype keys, and whichever of the two loads second must not drop
+  -- the other's entries.
   for _, lang in ipairs({ "javascript", "typescript" }) do
-    dap.configurations[lang] = {
-      {
-        type = "pwa-node",
-        request = "launch",
-        name = "Launch file",
-        program = "${file}",
-        cwd = "${workspaceFolder}",
-      },
-      {
-        type = "pwa-node",
-        request = "attach",
-        name = "Attach",
-        processId = require("wkddap.utils.validation").pick_process,
-        cwd = "${workspaceFolder}",
-      },
-    }
+    dap.configurations[lang] = dap.configurations[lang] or {}
+    vim.list_extend(dap.configurations[lang], vim.deepcopy(node_configs))
   end
 
   return true
