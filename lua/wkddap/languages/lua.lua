@@ -45,7 +45,7 @@ function M.load()
       -- Async prompts via nvim-dap's coroutine.wrap() config resolution; see
       -- docs/FEATURES/LANGUAGES.md.
       host = function()
-        local co = coroutine.running()
+        local co = assert(coroutine.running(), "must run inside a coroutine")
         require("ui.kit").input({
           title = "Host [127.0.0.1]: ",
           default = "127.0.0.1",
@@ -59,7 +59,7 @@ function M.load()
         return coroutine.yield()
       end,
       port = function()
-        local co = coroutine.running()
+        local co = assert(coroutine.running(), "must run inside a coroutine")
         require("ui.kit").input({
           title = "Port [8086]: ",
           default = "8086",
