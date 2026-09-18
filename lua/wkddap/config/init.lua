@@ -122,6 +122,9 @@ function M.setup(user_opts)
   return _active
 end
 
+--- The active config. A live reference to the stored table, not a copy: read
+--- from it, never mutate it -- every other consumer (menu entries, health,
+--- the UI wiring) sees the same table for the rest of the session.
 ---@return Dap.Config
 function M.get()
   if _active == nil then

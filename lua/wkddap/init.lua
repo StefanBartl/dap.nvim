@@ -88,7 +88,11 @@ function M.setup(opts)
   return true
 end
 
---- Get current configuration
+--- The active configuration, or nil before `setup()`.
+---
+--- A live reference to the stored table, not a copy: read from it, never
+--- mutate it -- every other consumer (menu entries, health, the UI wiring)
+--- sees the same table for the rest of the session.
 ---@return Dap.Config|nil
 function M.get_config()
   return M._config
