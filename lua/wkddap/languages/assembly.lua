@@ -37,7 +37,7 @@ function M.load()
         -- Async prompt via nvim-dap's coroutine.wrap() config resolution; see
         -- docs/FEATURES/LANGUAGES.md.
         program = function()
-          local co = coroutine.running()
+          local co = assert(coroutine.running(), "program() must run inside a coroutine")
           require("ui.kit").input({
             title = "Path to executable: ",
             default = paths.join(vim.fn.getcwd(), ""),
