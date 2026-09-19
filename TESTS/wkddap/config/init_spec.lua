@@ -125,6 +125,27 @@ describe("wkddap.config.setup(): option validation", function()
   end)
 
   it(
+    "a non-table `adapters`/`configurations` falls back to {} instead of reaching register_all/load_all (ERR-22)",
+    function()
+      local config = reload()
+      -- Before DEFAULTS carried explicit `adapters = {}` / `configurations = {}`
+      -- entries, the generic "must be a table" guard above had nothing to
+      -- compare against (`type(DEFAULTS.adapters) == "table"` was false
+      -- because the key was simply absent) and let a wrong-typed value
+      -- straight through to wkddap.adapters.register_all/
+      -- wkddap.configurations.load_all, which both call `next()` on it and
+      -- error -- a raw Lua error instead of a clean "using the default".
+      local cfg = config.setup({ adapters = "codelldb", configurations = true })
+
+      assert.are.same({}, cfg.adapters)
+      assert.are.same({}, cfg.configurations)
+      assert.are.equal(2, #config.issues())
+      assert.matches("'adapters' must be a table, got string", config.issues()[1])
+      assert.matches("'configurations' must be a table, got boolean", config.issues()[2])
+    end
+  )
+
+  it(
     'a type-mismatched `languages` does not fall back to the default (which means "all")',
     function()
       local config = reload()

@@ -47,6 +47,16 @@ local DEFAULTS = {
     enable = true,
   },
 
+  -- Per-adapter overrides (keyed by nvim-dap adapter name) resp. custom
+  -- launch configurations (keyed by language). Empty = none; present here
+  -- (not simply absent) so config/init.lua's generic "must be a table" guard
+  -- covers them too -- otherwise a wrong-typed value (a string, say) would
+  -- sail past validation and only blow up later, inside register_all()/
+  -- load_all()'s `next(...)` call, as a raw Lua error instead of a clean
+  -- "using the default" warning.
+  adapters = {},
+  configurations = {},
+
   -- Auto-install missing required adapter binaries via `:MasonInstall`
   -- (mason.nvim must be installed separately).
   auto_install = false,
