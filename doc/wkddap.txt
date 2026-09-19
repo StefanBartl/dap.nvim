@@ -31,14 +31,16 @@ and validates adapter binaries with Mason fallback (auto-installable, see
 nvim-dap-virtual-text, and ships user-configurable keymaps, commands, and a
 which-key group label.
 
-Depends on lib.nvim (a deliberate shared dependency).
+Depends on lib.nvim and ui.nvim (deliberate shared dependencies).
 
 ==============================================================================
 2. REQUIREMENTS                                                *wkddap-requirements*
 
   - Neovim 0.9 or later
   - nvim-dap (mfussenegger/nvim-dap) — required, dap.nvim configures it
-  - lib.nvim
+  - lib.nvim — the :Dap command tree
+  - ui.nvim — ui.kit backs the breakpoint condition/log-point prompts,
+    per-language input and validation selects
   - Panel UI, optional, pick one: nvim-dap-view (default) or nvim-dap-ui
     (opt-in via ui.provider) — see |wkddap-panel-ui|
   - Optional: nvim-dap-virtual-text, which-key.nvim, mason.nvim
@@ -52,6 +54,7 @@ lazy.nvim: >lua
     "StefanBartl/dap.nvim",
     dependencies = {
       "StefanBartl/lib.nvim",
+      "StefanBartl/ui.nvim",
       "mfussenegger/nvim-dap",
       "igorlfs/nvim-dap-view",
       "theHamsta/nvim-dap-virtual-text",
@@ -66,6 +69,7 @@ packer.nvim: >lua
     "StefanBartl/dap.nvim",
     requires = {
       "StefanBartl/lib.nvim",
+      "StefanBartl/ui.nvim",
       "mfussenegger/nvim-dap",
       "igorlfs/nvim-dap-view",
       "theHamsta/nvim-dap-virtual-text",
@@ -209,8 +213,8 @@ One command, :Dap <subcommand> (built via lib.nvim.bindings.usercmd.composer, wi
   :checkhealth wkddap
 <
 
-Verifies Neovim version, nvim-dap presence, lib.nvim modules, optional UI
-companions, per-language adapter availability, and registry state
+Verifies Neovim version, nvim-dap presence, lib.nvim and ui.nvim modules,
+optional UI companions, per-language adapter availability, and registry state
 (`registry.stats()` counts plus any `registry.validate()` errors for
 already-enabled languages).
 
@@ -223,6 +227,8 @@ Each language's adapter and launch configurations live together in a single
 `adapters/init.lua` (via `registry.register()`) and `configurations/init.lua`
 respectively.
 lib.nvim provides notify, `cross` (platform detection / Mason path
-resolution), and `normalize` (path helpers).
+resolution), and `normalize` (path helpers). ui.nvim's `ui.kit` backs every
+prompt and picker (breakpoint condition/log-point, per-language input,
+validation selects) and `ui.contextmenu` backs the context-menu integration.
 
  vim:tw=78:ts=8:ft=help:norl:
