@@ -24,16 +24,28 @@ function M.load_all(languages, custom_configs)
   end
 
   local failed = {}
+  -- Two `languages` entries can alias to the same module (typescript ->
+  -- javascript, cpp -> c), and the default `languages` list
+  -- (registry.available_languages()) lists both sides of every such pair.
+  -- Loading a module twice used to be harmless when a language module
+  -- assigned its dap.configurations[lang] outright, but a module that
+  -- appends instead (to coexist with a sibling module targeting the same
+  -- filetype key, e.g. javascript.lua/browser.lua both writing
+  -- "javascript") would otherwise register its launch configurations twice.
+  local loaded_actual = {}
   for _, lang in ipairs(languages) do
     local actual_lang = config.language_aliases[lang] or lang
+    if not loaded_actual[actual_lang] then
+      loaded_actual[actual_lang] = true
 
-    local config_module = string.format("wkddap.languages.%s", actual_lang)
-    local ok, mod = pcall(require, config_module)
+      local config_module = string.format("wkddap.languages.%s", actual_lang)
+      local ok, mod = pcall(require, config_module)
 
-    if ok and type(mod.load) == "function" then
-      local load_ok, load_err = pcall(mod.load)
-      if not load_ok then
-        failed[#failed + 1] = string.format("%s (%s)", lang, load_err or "unknown")
+      if ok and type(mod.load) == "function" then
+        local load_ok, load_err = pcall(mod.load)
+        if not load_ok then
+          failed[#failed + 1] = string.format("%s (%s)", lang, load_err or "unknown")
+        end
       end
     end
   end
