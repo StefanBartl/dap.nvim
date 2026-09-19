@@ -66,6 +66,19 @@ local function describe_unknown(key, known, prefix)
   return string.format("unknown option '%s%s'", prefix, name)
 end
 
+--- Stand-in for `languages` when the user's value has the wrong type. It
+--- deliberately does NOT fall back to `DEFAULTS.languages` (`{}`): every
+--- downstream consumer (`registry.register_all()`, `wkddap.adapters`,
+--- `wkddap.configurations`, `wkddap.utils.mason`) treats an empty/absent
+--- `languages` list as "every supported language", so reusing that default
+--- here would silently turn a typo like `languages = "python"` into
+--- "register every adapter and Mason-install every missing binary". This
+--- name resolves to no known adapter (`registry.register()` fails with
+--- "Unknown adapter"), so every consumer visibly registers/installs nothing
+--- instead, same as a bad `languages` value did before validation existed.
+---@type string[]
+local INVALID_LANGUAGES = { "__invalid_languages_option__" }
+
 ---@internal
 ---Drop what cannot be merged, and say so. A misspelled key would otherwise
 ---land in the active config as a dead field with the default still in force;
@@ -80,6 +93,16 @@ local function sanitize(user_opts)
     local known = KNOWN[key]
     if known == nil then
       issues[#issues + 1] = describe_unknown(key, KNOWN, "")
+    elseif key == "languages" and type(value) ~= "table" then
+      -- Not the generic fallback below: `languages`' default (`{}`) means
+      -- "enable everything" downstream, so falling back to it here would
+      -- turn this mistake into silent over-provisioning instead of a safe
+      -- no-op. See INVALID_LANGUAGES.
+      issues[#issues + 1] = string.format(
+        "option 'languages' must be a table, got %s -- registering no languages (the default, an empty table, means \"all\" here, so it is not used as a fallback)",
+        type(value)
+      )
+      clean.languages = INVALID_LANGUAGES
     elseif type(DEFAULTS[key]) == "table" and type(value) ~= "table" then
       issues[#issues + 1] =
         string.format("option '%s' must be a table, got %s -- using the default", key, type(value))

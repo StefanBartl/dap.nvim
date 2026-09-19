@@ -124,6 +124,46 @@ describe("wkddap.config.setup(): option validation", function()
     assert.matches("'keymaps' must be a table, got boolean", config.issues()[2])
   end)
 
+  it(
+    'a type-mismatched `languages` does not fall back to the default (which means "all")',
+    function()
+      local config = reload()
+      -- `languages = "python"` is a plausible typo for `languages = { "python" }`.
+      -- Falling back to DEFAULTS.languages (`{}`) here -- as the generic
+      -- option-table rule does for keymaps/autocmds/etc. -- would be
+      -- indistinguishable from the user asking for every language.
+      local cfg = config.setup({ languages = "python" })
+
+      assert.is_true(#cfg.languages > 0, "must not fall back to the empty ('all') default")
+      -- None of the resulting entries name a real language: nothing gets
+      -- registered or Mason-installed as a result.
+      local available = {}
+      for _, lang in ipairs(require("wkddap.registry").available_languages()) do
+        available[lang] = true
+      end
+      for _, lang in ipairs(cfg.languages) do
+        assert.is_nil(available[lang], "must not resolve to a real, registrable language")
+      end
+
+      assert.are.equal(1, #config.issues())
+      assert.matches("'languages' must be a table, got string", config.issues()[1])
+      assert.matches("registering no languages", config.issues()[1])
+    end
+  )
+
+  it("a type-mismatched `languages` registers nothing instead of every adapter", function()
+    local config = reload()
+    config.setup({ languages = "python" })
+
+    local registry = require("wkddap.registry")
+    local results = registry.register_all(config.get().languages)
+
+    for lang, ok in pairs(results) do
+      assert.is_false(ok, lang .. " must not have registered")
+    end
+    assert.are.same({}, registry.enabled_languages())
+  end)
+
   it("issues() reports only the most recent setup() and hands out a copy", function()
     local config = reload()
     config.setup({ nope = true })

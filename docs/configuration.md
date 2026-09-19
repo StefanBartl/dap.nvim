@@ -76,3 +76,11 @@ other than a table (`keymaps = false`) falls back to that table's defaults.
 Both are listed again under `:checkhealth wkddap`. `keymaps` also accepts
 per-action overrides (`toggle_breakpoint = "<leader>xb"`, `eval = false`), so
 its keys are not checked.
+
+`languages` given as something other than a table (`languages = "python"`) is
+the one exception to "falls back to that table's defaults": its default is
+`{}`, which means "every available language" (see above), so falling back to
+it would turn a typo into every adapter — and, with `auto_install = true`,
+every missing Mason package — getting installed. It is dropped without
+resolving to any real language instead, which registers nothing and is
+reported the same way.

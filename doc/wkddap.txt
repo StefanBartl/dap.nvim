@@ -129,6 +129,13 @@ Every key is independently overridable. Unknown keys (top level, or inside
 nearest known key; an option table given as a non-table falls back to its
 defaults. Both are listed again by `:checkhealth wkddap`.
 
+`languages` is the one exception: given as a non-table (`languages =
+"python"`), it does NOT fall back to its own default -- that default (`{}`)
+means "every available language", so falling back to it would silently
+register (and, with `auto_install = true`, Mason-install) everything instead
+of what was asked for. It resolves to no real language instead, registering
+nothing.
+
 PANEL UI                                                        *wkddap-panel-ui*
 
 dap.nvim wires exactly one panel UI — running nvim-dap-view and nvim-dap-ui
