@@ -144,4 +144,28 @@ describe("wkddap.configurations.load_all() main load loop", function()
 
     assert.are.equal(0, #_G.__configurations_warn_log)
   end)
+
+  it("loads a module once even when two requested languages alias to it", function()
+    -- registry.available_languages() (the default `languages` list) lists
+    -- both sides of an alias pair (e.g. "javascript" and "typescript"), and
+    -- a language module that appends its configs rather than assigning them
+    -- (so it can coexist with a sibling module targeting the same key)
+    -- would otherwise register its entries twice.
+    package.loaded["dap"] = { configurations = {} }
+    local load_calls = 0
+    package.loaded["wkddap.languages.csharp"] = {
+      load = function()
+        load_calls = load_calls + 1
+        return true
+      end,
+    }
+    local configurations = require("wkddap.configurations")
+
+    -- "cs" -> "csharp" via wkddap.config.language_aliases.
+    configurations.load_all({ "cs", "csharp" })
+
+    assert.are.equal(1, load_calls)
+
+    package.loaded["wkddap.languages.csharp"] = nil
+  end)
 end)
