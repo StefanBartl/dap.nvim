@@ -36,7 +36,8 @@ that registers adapters and launch configurations for eleven targets, so that
 > and how often".
 >
 > Both are soft: without them everything else works unchanged.
-> [lib.nvim](https://github.com/StefanBartl/lib.nvim) and
+> [lib.nvim](https://github.com/StefanBartl/lib.nvim),
+> [ui.nvim](https://github.com/StefanBartl/ui.nvim), and
 > [nvim-dap](https://github.com/mfussenegger/nvim-dap) are the real
 > dependencies — see [Requirements](docs/requirements.md).
 
