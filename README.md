@@ -48,19 +48,19 @@ that registers adapters and launch configurations for eleven targets, so that
 Start at [docs/README.md](docs/README.md), which says what is where and which
 question each page answers.
 
-**The Basics**
+### The Basics
 
 - [Requirements](docs/requirements.md) — Neovim version, required plugins and adapter binaries.
 - [Installation](docs/installation.md) — every plugin manager, and per-language adapter installation.
 - [Quickstart](docs/quickstart.md) — the first thing to run after installing.
 
-**Configuration**
+### Configuration
 
 - [Configuration](docs/configuration.md) — every `setup()` option and its default.
 - [Commands and keymaps](docs/commands.md) — the default keys and the `:Dap` subcommands.
 - [Bindings cheatsheet](docs/BINDINGS.md) — every keymap, user command and autocommand at a glance.
 
-**The Rest**
+### The Rest
 
 - [Features](docs/FEATURES/README.md) — languages, adapters, panel UI, controls, health checks.
 - [Panel UI](docs/panel-ui.md) — choosing between nvim-dap-view and nvim-dap-ui via `ui.provider`.
