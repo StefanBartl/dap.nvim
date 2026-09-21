@@ -8,6 +8,7 @@ on:
 jobs:
   luacheck:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v5
 
@@ -28,6 +29,7 @@ jobs:
 
   stylua:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v5
       - uses: JohnnyMorganz/stylua-action@v4
@@ -39,6 +41,7 @@ jobs:
   test:
     name: plenary tests (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
     strategy:
       # One platform failing must not cancel the others: which of the three
       # broke is the whole information content of this job.
@@ -59,6 +62,8 @@ jobs:
         with:
           repository: nvim-lua/plenary.nvim
           path: plenary.nvim
+          # Pinned to the 2026-09-20 HEAD; bump deliberately, not by drifting.
+          ref: 74b06c6c75e4eeb3108ec01852001636d85a932b
 
       - uses: actions/checkout@v5
         with:
@@ -76,5 +81,12 @@ jobs:
           PLENARY_PATH: ${{ github.workspace }}/plenary.nvim
           LIB_NVIM_PATH: ${{ github.workspace }}/lib.nvim
         run: |
-          nvim --headless --noplugin -u TESTS/minimal_init.lua \
+          exec > >(tee -a "$RUNNER_TEMP/test-output.log") 2>&1
+          nvim -n -i NONE --headless --noplugin -u TESTS/minimal_init.lua \
             -c "PlenaryBustedDirectory TESTS/wkddap { minimal_init = 'TESTS/minimal_init.lua', sequential = true }"
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: test-output-test-${{ matrix.os }}
+          path: ${{ runner.temp }}/test-output.log
+          if-no-files-found: ignore
