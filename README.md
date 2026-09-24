@@ -19,6 +19,9 @@
 [![Lua](https://img.shields.io/badge/Lua-5.1%2FLuaJIT-2C2D72?logo=lua&logoColor=white)](https://www.lua.org)
 ![Status](https://img.shields.io/badge/status-beta-orange)
 ![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20macOS%20%7C%20Windows-lightgrey)
+[![wkd](https://img.shields.io/badge/wkd-family-c6ff3d)](https://stefanbartl.github.io/wkd/p/dap/)
+
+> Part of the [wkd](https://stefanbartl.github.io/wkd/) family — see this plugin's [page](https://stefanbartl.github.io/wkd/p/dap/) on the site.
 
 A config layer on top of [nvim-dap](https://github.com/mfussenegger/nvim-dap)
 that registers adapters and launch configurations for eleven targets, so that
