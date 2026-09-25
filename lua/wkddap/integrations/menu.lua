@@ -20,6 +20,19 @@ local contextmenu = require("ui.contextmenu")
 
 local M = {}
 
+--- Whether a host that asks first (ui.nvim's `ui.menu`) may show this
+--- plugin's fly-out: `integrations.ui_menu` is not false and the `menu` group
+--- is not switched off. `items()`/`submenu()` themselves stay governed by
+--- `menu` alone, so other hosts are unaffected by `ui_menu`.
+---@return boolean
+function M.enabled()
+  local cfg = require("wkddap.config").get()
+  if (cfg.integrations or {}).ui_menu == false then
+    return false
+  end
+  return (cfg.menu or {}).enable ~= false
+end
+
 --- Build the dap.nvim context-menu entries.
 --- Returns an empty list when the integration is disabled or nvim-dap isn't
 --- installed, so a host can safely `vim.list_extend` it unconditionally.

@@ -38,6 +38,7 @@ local KNOWN = {
   which_key = { enable = true },
   autocmds = { enable = true },
   menu = { enable = true },
+  integrations = { ui_menu = true },
   adapters = true,
   configurations = true,
   auto_install = true,
