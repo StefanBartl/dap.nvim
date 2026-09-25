@@ -9,6 +9,7 @@
 ---@field which_key? Dap.WhichKeyOptions which-key integration
 ---@field autocmds? Dap.AutocmdOptions Autocommand configuration
 ---@field menu? Dap.MenuOptions nvzone/menu context-menu contribution
+---@field integrations? Dap.IntegrationsOptions Which hosts may drive this plugin (`ui_menu`)
 ---@field adapters? table<string, table|function> Adapter overrides keyed by nvim-dap
 ---  adapter name (`codelldb`, `pwa-node`, ...): a table is deep-merged over the
 ---  built-in definition, a function replaces it
