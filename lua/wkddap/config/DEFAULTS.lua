@@ -47,6 +47,13 @@ local DEFAULTS = {
     enable = true,
   },
 
+  -- Which hosts may drive this plugin. `ui_menu = false` keeps ui.nvim's
+  -- right-click menu (ui.menu) from composing the DAP fly-out; the entries
+  -- stay available to any other host through `menu`/`items()`.
+  integrations = {
+    ui_menu = true,
+  },
+
   -- Per-adapter overrides (keyed by nvim-dap adapter name) resp. custom
   -- launch configurations (keyed by language). Empty = none; present here
   -- (not simply absent) so config/init.lua's generic "must be a table" guard

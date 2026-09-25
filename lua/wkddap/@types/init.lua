@@ -42,4 +42,7 @@
 ---@class Dap.MenuOptions
 ---@field enable boolean Provide nvzone/menu entries via integrations/menu.lua. Default true.
 
+---@class Dap.IntegrationsOptions
+---@field ui_menu boolean Let ui.nvim's right-click menu (`ui.menu`) compose the DAP fly-out. Default true.
+
 return {}

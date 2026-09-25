@@ -38,6 +38,12 @@ require("wkddap").setup({
     enable = true,
   },
 
+  -- Which hosts may drive this plugin. `ui_menu = false` keeps ui.nvim's
+  -- right-click menu from composing the DAP fly-out.
+  integrations = {
+    ui_menu = true,
+  },
+
   -- Adapter overrides, keyed by nvim-dap adapter name (`codelldb`,
   -- `pwa-node`, `coreclr`, ...), applied after the language modules
   -- registered theirs. A table is deep-merged over the built-in definition;

@@ -47,6 +47,37 @@ describe("wkddap.integrations.menu", function()
     assert.are.same({}, menu.items())
   end)
 
+  it("enabled() is what ui.menu asks: true by default, off with either switch", function()
+    require("wkddap.config").setup({})
+    local menu = reload()
+    assert.is_true(menu.enabled())
+
+    require("wkddap.config").setup({ integrations = { ui_menu = false } })
+    assert.is_false(menu.enabled())
+
+    require("wkddap.config").setup({ menu = { enable = false } })
+    assert.is_false(menu.enabled())
+  end)
+
+  it("integrations.ui_menu = false leaves items() to other hosts", function()
+    require("wkddap.config").setup({ integrations = { ui_menu = false } })
+    package.loaded["dap"] = {
+      continue = function() end,
+      step_over = function() end,
+      step_into = function() end,
+      step_out = function() end,
+      terminate = function() end,
+      restart = function() end,
+      toggle_breakpoint = function() end,
+      set_breakpoint = function() end,
+      clear_breakpoints = function() end,
+      run_to_cursor = function() end,
+      repl = { toggle = function() end },
+    }
+    local menu = reload()
+    assert.is_true(#menu.items() > 0)
+  end)
+
   it("items() returns an empty list when nvim-dap isn't installed", function()
     require("wkddap.config").setup({ menu = { enable = true } })
     package.loaded["dap"] = nil

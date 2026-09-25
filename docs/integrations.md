@@ -7,6 +7,11 @@
 dependency on `menu` and never opens a context menu itself; a host — typically
 your own `<RightMouse>` dispatcher — composes these entries into its own menu:
 
+`integrations.ui_menu = false` keeps ui.nvim's right-click menu (`ui.menu`) from
+showing the fly-out while `items()`/`submenu()` keep working for any other host.
+The module also answers `enabled()`, which is what `ui.menu` asks first (`false`
+when that switch or `menu.enable` is off).
+
 ```lua
 local dap_menu = require("wkddap.integrations.menu")
 
