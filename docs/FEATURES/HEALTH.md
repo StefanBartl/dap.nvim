@@ -2,6 +2,12 @@
 
 ## `:checkhealth wkddap`
 
+Missing adapters are **not announced at startup**: a language whose binary is
+not found is simply not wired, and this check is where you see which ones and
+why. (Setup used to print `N/M adapter(s) unavailable` on every start; the same
+list is kept in `require("wkddap.adapters").unavailable` for anything that
+wants it programmatically.)
+
 A single health check covering the whole plugin: Neovim version, nvim-dap
 presence, `lib.nvim` and `ui.nvim` module availability (both hard
 dependencies, reported as errors), the configured vs. actually-active

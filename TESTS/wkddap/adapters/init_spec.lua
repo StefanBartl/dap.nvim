@@ -1,8 +1,8 @@
 --- Covers wkddap.adapters.register_all(): delegates each language to
 --- wkddap.registry.register(), defaults to every available language when
 --- none are given, and always returns true regardless of failures (the
---- per-language reason is only surfaced via the summary notify.warn / later
---- :checkhealth, not the return value).
+--- per-language reason is only surfaced in `unavailable` / later
+--- :checkhealth, not the return value, and never as a startup notification).
 
 local function reload()
   package.loaded["wkddap.adapters"] = nil
@@ -119,5 +119,68 @@ describe("wkddap.adapters.register_all(): custom adapter overrides", function()
       adapters.register_all({ "go" }, {})
       adapters.register_all({ "go" }, nil)
     end)
+  end)
+end)
+
+describe("wkddap.adapters.register_all(): unavailable adapters", function()
+  local real_notify
+
+  before_each(function()
+    real_notify = vim.notify
+  end)
+
+  after_each(function()
+    vim.notify = real_notify
+    package.loaded["wkddap.registry"] = nil
+  end)
+
+  it("does not notify about adapters that are not installed", function()
+    package.loaded["wkddap.registry"] = {
+      register = function()
+        return false
+      end,
+    }
+    local seen = {}
+    vim.notify = function(msg, level)
+      seen[#seen + 1] = { msg = msg, level = level }
+    end
+
+    package.loaded["wkddap.adapters"] = nil
+    local adapters = require("wkddap.adapters")
+    assert.is_true(adapters.register_all({ "python", "go", "c" }))
+
+    assert.are.same({}, seen)
+  end)
+
+  it("records which languages could not be registered, sorted", function()
+    package.loaded["wkddap.registry"] = {
+      register = function(lang)
+        return lang == "go"
+      end,
+    }
+    package.loaded["wkddap.adapters"] = nil
+    local adapters = require("wkddap.adapters")
+    adapters.register_all({ "python", "go", "c" })
+
+    assert.are.same({ "c", "python" }, adapters.unavailable)
+  end)
+
+  it("starts a run with a clean list", function()
+    package.loaded["wkddap.registry"] = {
+      register = function()
+        return false
+      end,
+    }
+    package.loaded["wkddap.adapters"] = nil
+    local adapters = require("wkddap.adapters")
+    adapters.register_all({ "python" })
+    package.loaded["wkddap.registry"] = {
+      register = function()
+        return true
+      end,
+    }
+    adapters.register_all({ "python" })
+
+    assert.are.same({}, adapters.unavailable)
   end)
 end)
