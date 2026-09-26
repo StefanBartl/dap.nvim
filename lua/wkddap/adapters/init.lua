@@ -3,9 +3,13 @@
 --- registry.register(), which requires each language's
 --- `wkddap.languages.<lang>` module and calls its `setup()`.
 
-local notify = require("lib.nvim.notify").create("[dap.nvim.adapters]")
-
 local M = {}
+
+--- Languages the last `register_all` could not register (their adapter binary
+--- was not found), sorted. Read by whoever wants the reason -- :checkhealth
+--- wkddap re-validates each one -- instead of a notification at every startup.
+---@type string[]
+M.unavailable = {}
 
 --- Register all adapters for specified languages
 ---@param languages string[] List of languages
@@ -42,21 +46,14 @@ function M.register_all(languages, custom_adapters)
     end
   end
 
-  -- One summary notification instead of one per language: with every
-  -- adapter missing (a fresh machine, nothing installed via Mason yet) this
-  -- used to fire a warning per language on every startup. The per-language
-  -- reason is still available -- :checkhealth wkddap re-validates each one.
-  if #failed > 0 then
-    table.sort(failed)
-    notify.warn(
-      string.format(
-        "%d/%d adapter(s) unavailable: %s -- see :checkhealth wkddap for details",
-        #failed,
-        #languages,
-        table.concat(failed, ", ")
-      )
-    )
-  end
+  -- No notification. A missing adapter is not an error -- that language is
+  -- simply not wired, as docs/FEATURES/LANGUAGES.md says -- and it used to be
+  -- announced on EVERY startup ("12/13 adapter(s) unavailable"): the summary
+  -- replaced one warning per language, but for someone who debugs one language
+  -- it was still noise each time. The list is kept in `M.unavailable` and
+  -- :checkhealth wkddap re-validates each language and says why.
+  table.sort(failed)
+  M.unavailable = failed
 
   return true
 end
