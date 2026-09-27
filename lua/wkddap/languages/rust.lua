@@ -5,6 +5,7 @@
 local config = require("wkddap.config")
 local paths = require("wkddap.utils.paths")
 local executable = require("wkddap.utils.executable")
+local notify = require("wkddap.utils.notify")
 
 local M = {}
 
@@ -135,10 +136,7 @@ function M.load()
           -- No toolchain to borrow the pretty-printers from. Plain LLDB
           -- output beats an import error for a path rooted at "/" whose
           -- text never mentions the actual cause.
-          vim.notify(
-            "rustc not found -- starting without Rust's LLDB pretty-printers",
-            vim.log.levels.WARN
-          )
+          notify.warn("rustc not found -- starting without Rust's LLDB pretty-printers")
           return {}
         end
         local script_import = 'command script import "'

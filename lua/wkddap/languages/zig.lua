@@ -3,6 +3,7 @@
 
 local config = require("wkddap.config")
 local paths = require("wkddap.utils.paths")
+local notify = require("wkddap.utils.notify")
 
 local M = {}
 
@@ -106,9 +107,8 @@ function M.load()
               -- regardless. That stays -- a failed build may still have left a
               -- previous binary worth debugging -- but it is no longer silent.
               if res.code ~= 0 then
-                vim.notify(
-                  "zig build exited " .. tostring(res.code) .. ": " .. vim.trim(res.stderr or ""),
-                  vim.log.levels.WARN
+                notify.warn(
+                  "zig build exited " .. tostring(res.code) .. ": " .. vim.trim(res.stderr or "")
                 )
               end
               prompt()
@@ -116,7 +116,7 @@ function M.load()
           end
         )
         if not spawned then
-          vim.notify("zig build could not start: " .. tostring(err), vim.log.levels.WARN)
+          notify.warn("zig build could not start: " .. tostring(err))
           -- Scheduled so the prompt's callbacks only ever resume a coroutine
           -- that has reached the yield below.
           vim.schedule(prompt)
