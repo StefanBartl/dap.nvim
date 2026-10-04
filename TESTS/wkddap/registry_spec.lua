@@ -67,10 +67,9 @@ describe("wkddap.registry", function()
     assert.are.equal(0, stats.enabled)
   end)
 
-  it("registered_languages()/enabled_languages() are both empty before any register()", function()
+  it("enabled_languages() is empty before any register()", function()
     local registry = reload()
 
-    assert.are.same({}, registry.registered_languages())
     assert.are.same({}, registry.enabled_languages())
   end)
 end)
@@ -180,31 +179,26 @@ describe("wkddap.registry.register() with a stubbed adapter", function()
     assert.is_false(registry.is_enabled("fakelang"))
   end)
 
-  it(
-    "registered_languages() lists the requested name, enabled_languages() the alias-resolved one",
-    function()
-      package.loaded["wkddap.languages.realname"] = {
-        setup = function()
-          return true
-        end,
-      }
-      local registry = reload_with_config({
-        -- "fakelang" is requested but resolves (like typescript -> javascript)
-        -- to a different adapter/module name; registered_languages() tracks
-        -- the caller's own key, enabled_languages() the resolved one -- they
-        -- are not the same list once an alias is involved.
-        language_aliases = { fakelang = "realname" },
-        validate_adapter = function(_)
-          return true, nil
-        end,
-      })
+  it("enabled_languages() lists the alias-resolved adapter name, not the requested one", function()
+    package.loaded["wkddap.languages.realname"] = {
+      setup = function()
+        return true
+      end,
+    }
+    local registry = reload_with_config({
+      -- "fakelang" is requested but resolves (like typescript -> javascript)
+      -- to a different adapter/module name; enabled_languages() reports the
+      -- resolved one, not the caller's own key.
+      language_aliases = { fakelang = "realname" },
+      validate_adapter = function(_)
+        return true, nil
+      end,
+    })
 
-      registry.register("fakelang")
+    registry.register("fakelang")
 
-      assert.are.same({ "fakelang" }, registry.registered_languages())
-      assert.are.same({ "realname" }, registry.enabled_languages())
-    end
-  )
+    assert.are.same({ "realname" }, registry.enabled_languages())
+  end)
 end)
 
 describe("wkddap.registry.register_all()", function()
