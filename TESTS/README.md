@@ -58,12 +58,12 @@ untested despite passing specs elsewhere in the same modules:
   the other thin lib.nvim wrapper, was pinned) — new `utils/notify_spec.lua`
   pins the `[dap.nvim]` prefix passed to `lib.nvim.notify.create()` and that
   `info`/`warn`/`error` forward to the created notifier.
-- `registry.lua`'s `enabled_languages()`/`registered_languages()` were only
-  ever exercised transitively (via `health.check()`, always with nothing
-  registered) — `registry_spec.lua` now asserts both directly, including the
-  case where a language's requested name and its alias-resolved adapter name
-  differ (`registered_languages()` tracks the former, `enabled_languages()`
-  the latter).
+- `registry.lua`'s `enabled_languages()` was only ever exercised
+  transitively (via `health.check()`, always with nothing registered) —
+  `registry_spec.lua` now asserts it directly, including the case where a
+  language's requested name and its alias-resolved adapter name differ
+  (`enabled_languages()` reports the latter). Its unused sibling
+  `registered_languages()` has since been removed.
 - `wkddap.enabled_languages()` (the top-level delegate) had the same gap as
   its sibling `available_languages()`, which already had a test —
   `init_spec.lua` now covers both.
@@ -77,9 +77,9 @@ untested despite passing specs elsewhere in the same modules:
 Method: for every file under `lua/wkddap`, diffed its `function M.<name>`
 exports against every `.<name>(` occurrence anywhere under `TESTS/`, then
 manually checked each hit for whether it was truly untested or only reached
-transitively (most were the latter — e.g. `core/capabilities.lua`'s `detect()`
-runs inside `core/setup_spec.lua`'s real `wkddap.core.setup()` calls without
-being named directly). Also specifically checked for the bug families found
+transitively (most were the latter — e.g. a function called from
+`core/setup.lua` runs inside `core/setup_spec.lua`'s real
+`wkddap.core.setup()` calls without being named directly). Also specifically checked for the bug families found
 elsewhere in this campaign: Windows path/drive-letter splitting (none —
 `utils/paths.lua` delegates to `lib.nvim.normalize`; the few raw `"/"`
 concatenations in `languages/{javascript,browser,rust}.lua` build paths handed

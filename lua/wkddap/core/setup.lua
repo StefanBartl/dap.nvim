@@ -1,5 +1,5 @@
 ---@module 'wkddap.core.setup'
---- Core initialization: verifies nvim-dap, detects capabilities, inits state.
+--- Core initialization: verifies nvim-dap, inits state.
 
 local notify = require("lib.nvim.notify").create("[dap.nvim]")
 local normalize = require("lib.nvim.normalize")
@@ -60,11 +60,6 @@ function M.setup(opts)
 
   if opts.log_level ~= nil then
     apply_log_level(dap, opts.log_level)
-  end
-
-  local ok_cap, capabilities = pcall(require, "wkddap.core.capabilities")
-  if ok_cap then
-    pcall(capabilities.detect)
   end
 
   local ok_state, state = pcall(require, "wkddap.core.state")

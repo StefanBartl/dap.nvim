@@ -1,6 +1,6 @@
 --- Covers wkddap.core.setup.setup(): the nvim-dap presence gate, the
---- opts.log_level -> dap.set_log_level() hand-over, and that capabilities/
---- state get initialized (via pcall, so a broken one doesn't abort the rest).
+--- opts.log_level -> dap.set_log_level() hand-over, and that state gets
+--- initialized (via pcall, so a broken one doesn't abort the rest).
 
 local function reload()
   package.loaded["wkddap.core.setup"] = nil
@@ -41,7 +41,7 @@ describe("wkddap.core.setup", function()
     local setup = reload()
 
     assert.is_true(setup.setup({}))
-    assert.is_true(require("wkddap.core.state").is_initialized())
+    assert.is_true(require("wkddap.core.state")._state.initialized)
   end)
 
   describe("opts.log_level", function()

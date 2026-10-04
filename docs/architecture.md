@@ -12,9 +12,8 @@ lua/wkddap/
     DEFAULTS.lua                Immutable defaults
     init.lua                    Merge + access to active config, adapter/binary metadata
   core/
-    init.lua / setup.lua         nvim-dap presence check, capability detection, state init
-    state.lua                   Minimal session state
-    capabilities.lua            Soft-dependency detection (dap-view, dapui, virtual-text)
+    init.lua / setup.lua         nvim-dap presence check, state init
+    state.lua                   Minimal runtime state (the "initialized" marker)
   languages/                     One module per language: dap.adapters.* setup() +
                                  dap.configurations.* load(), kept together since the
                                  two are always in lockstep (assembly, bash,
