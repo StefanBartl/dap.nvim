@@ -1,54 +1,30 @@
 # dap.nvim tests
 
-A [plenary.nvim](https://github.com/nvim-lua/plenary.nvim) busted-style
-suite. Specs stick to code paths that don't require a real debug adapter
-binary (codelldb, delve, debugpy, gdb, ...) or `nvim-dap`/`nvim-dap-ui`
-themselves to be installed — registry/usercmd logic only.
+A busted-style suite (`describe` / `it` with luassert-style assertions) run by
+[testing.nvim](https://github.com/StefanBartl/testing.nvim). Specs stick to
+code paths that don't require a real debug adapter binary (codelldb, delve,
+debugpy, gdb, ...) or `nvim-dap`/`nvim-dap-ui` themselves to be installed —
+registry/usercmd logic only.
 
 ## Running locally
 
-Point `PLENARY_PATH` and `LIB_NVIM_PATH` at wherever those two plugins live
-in your own setup (e.g. your plugin manager's install dir), then:
-
 ```bash
-PLENARY_PATH=/path/to/plenary.nvim \
-LIB_NVIM_PATH=/path/to/lib.nvim \
-nvim --headless --noplugin -u TESTS/minimal_init.lua \
-  -c "PlenaryBustedDirectory TESTS/wkddap { minimal_init = 'TESTS/minimal_init.lua' }"
+bash scripts/test.sh                      # every spec under TESTS/wkddap
+bash scripts/test.sh --file registry      # only spec files whose name contains "registry"
+bash scripts/test.sh --json ir.json       # also write the machine-readable result
 ```
 
-A single file:
+The script needs testing.nvim, lib.nvim and ui.nvim. Each one is looked up in
+this order, and the script exits with code 1 naming all four places when one
+is missing:
 
-```bash
-PLENARY_PATH=... LIB_NVIM_PATH=... \
-nvim --headless --noplugin -u TESTS/minimal_init.lua \
-  -c "lua require('plenary.busted').run('TESTS/wkddap/registry_spec.lua')"
-```
+1. `$TESTING_NVIM_DIR`, `$LIB_NVIM_DIR`, `$UI_NVIM_DIR`
+2. `.deps/<name>` (what CI checks out)
+3. `../<name>` (a sibling checkout next to this repo)
+4. `stdpath('data')/lazy/<name>` (what a plugin manager installed)
 
-Or a subdirectory:
-
-```bash
-PLENARY_PATH=... LIB_NVIM_PATH=... \
-nvim --headless --noplugin -u TESTS/minimal_init.lua \
-  -c "PlenaryBustedDirectory TESTS/wkddap/languages { minimal_init = 'TESTS/minimal_init.lua' }"
-```
-
-**Not `PlenaryBustedFile`**, even though it looks like the obvious counterpart
-to `PlenaryBustedDirectory`. It spawns a child Neovim to run the file — like
-the directory command does — but it takes no options, so it has no
-`minimal_init` to pass on. The child therefore starts *without* `-u` and loads
-your full personal config instead of `TESTS/minimal_init.lua`: `PLENARY_PATH`
-and `LIB_NVIM_PATH` are never prepended, and the spec runs against whatever
-your plugin manager happens to have installed, in an editor with all your
-plugins and autocmds loaded. The `-u TESTS/minimal_init.lua` on the outer
-command only configures the parent, which does nothing but spawn.
-
-Nothing in this suite depends on that difference today — all 31 spec files
-pass either way. It is still the wrong command to reach for: the failure mode
-is a spec going red locally and green in CI (or the reverse) with nothing
-wrong with the spec, and nothing in the output points at the environment as
-the cause. The sibling sandbox.nvim suite had exactly that happen to a
-timing-sensitive spec. Both forms above run against the environment CI uses.
+The project configuration lives in `.testing.lua`; `TESTS/minimal_init.lua`
+puts the plugin and its dependencies on the runtimepath of every child editor.
 
 Round 3 re-audit (2026-09-18): every `lua/wkddap/*` file and the 11-language
 table-driven contract still matched (no new language/adapter module since the
@@ -116,8 +92,8 @@ files below, rather than a gap worth a contrived test.
 - Prefer asserting on failure/validation paths that don't need a real
   adapter binary on `$PATH` (e.g. `registry.register("nonexistent")`)
   over paths that only succeed when codelldb/gdb/etc. are installed.
-- Each spec file runs in its own `nvim --headless` subprocess (plenary
-  spawns one per file), so `package.loaded` never leaks between files —
+- Each spec file runs in its own `nvim --headless` subprocess (`isolated =
+  "file"` in `.testing.lua`), so `package.loaded` never leaks between files —
   only between `it()` blocks *within* the same file, which matters for
   specs that reload a module to reset its internal state.
 

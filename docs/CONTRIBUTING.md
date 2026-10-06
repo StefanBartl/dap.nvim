@@ -68,8 +68,10 @@ claim that name.
 
 ## Tests
 
-`TESTS/` is a [plenary.nvim](https://github.com/nvim-lua/plenary.nvim)
-busted-style suite; no debug adapter has to be installed to run it.
+`TESTS/` is a busted-style suite run by
+[testing.nvim](https://github.com/StefanBartl/testing.nvim) (`bash scripts/test.sh`,
+see [`TESTS/README.md`](../TESTS/README.md)); no debug adapter has to be installed
+to run it.
 [GitHub Actions](../.github/workflows/ci.yml) runs it on every push and PR to
 `main`.
 
