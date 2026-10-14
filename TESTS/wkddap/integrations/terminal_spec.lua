@@ -50,6 +50,24 @@ describe("wkddap.integrations.terminal handler", function()
     assert.are.equal(4242, responses[1].response.body.processId)
   end)
 
+  it("a job that ended before the answer is still a successful start, without a pid", function()
+    local fake = {
+      run = function()
+        return true, nil, { job = 7 }
+      end,
+    }
+    local session, responses = fake_session("x")
+    local real_jobpid = vim.fn.jobpid
+    ---@diagnostic disable-next-line: duplicate-set-field
+    vim.fn.jobpid = function()
+      error("E900: Invalid channel id")
+    end
+    terminal_integration.handler(OPTS, fake)(session, { arguments = { args = { "a" } } })
+    vim.fn.jobpid = real_jobpid
+    assert.is_true(responses[1].response.success)
+    assert.is_nil(responses[1].response.body.processId)
+  end)
+
   it("answers without a pid for a pane that has no job", function()
     local fake = {
       run = function()
