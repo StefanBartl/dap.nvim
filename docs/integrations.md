@@ -31,3 +31,26 @@ Opt out entirely with `menu = { enable = false }`.
 - **Config:** `opts.menu.enable` (default `true`)
 
 Full entry-by-entry reference: [FEATURES/CONTROLS.md](FEATURES/CONTROLS.md#right-click-context-menu-nvzonemenu).
+
+## terminal.nvim (debuggee in a named terminal)
+
+By default nvim-dap runs the program a debug adapter asks for ("runInTerminal") in a buffer it opens
+itself. With
+
+```lua
+require("wkddap").setup({ terminal = { enable = true, layout = "split", name = "dap" } })
+```
+
+every adapter gets a `reverse_request_handlers.runInTerminal` that starts the program as a `direct`
+job of a [terminal.nvim](https://github.com/StefanBartl/terminal.nvim) terminal named
+`dap:<configuration name>`. It then follows terminal.nvim's window options, appears in
+`:Terminal list`, can be hidden and toggled back, and a new run of the same configuration replaces
+the earlier terminal. The terminal stays open after the program ends (exit code visible).
+
+- Off by default; needs terminal.nvim (without it nothing is installed and nvim-dap keeps its handler).
+- Applies to the adapters registered by `setup()` and their `adapters` overrides; an adapter you
+  register yourself afterwards, or one that already has its own `runInTerminal` handler, is left
+  alone. `require("wkddap.integrations.terminal").handler(opts)` is the handler, for wiring by hand.
+- If the terminal cannot start, the adapter gets an error answer instead of a silent fallback: the
+  handler of nvim-dap itself is not reachable from outside.
+

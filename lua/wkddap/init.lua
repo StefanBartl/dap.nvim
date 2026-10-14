@@ -64,6 +64,11 @@ function M.setup(opts)
     end
   end
 
+  -- After the adapters (and their overrides) exist: every one gets the terminal.nvim handler.
+  if cfg.terminal and cfg.terminal.enable then
+    pcall(require("wkddap.integrations.terminal").install, cfg.terminal)
+  end
+
   local ok_configs, configurations_mod = pcall(require, "wkddap.configurations")
   if ok_configs and type(configurations_mod.load_all) == "function" then
     local config_ok, config_err =
