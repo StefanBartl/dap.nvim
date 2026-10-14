@@ -39,6 +39,7 @@ local KNOWN = {
   autocmds = { enable = true },
   menu = { enable = true },
   integrations = { ui_menu = true },
+  terminal = { enable = true, layout = true, name = true },
   adapters = true,
   configurations = true,
   auto_install = true,

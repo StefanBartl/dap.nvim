@@ -54,6 +54,14 @@ local DEFAULTS = {
     ui_menu = true,
   },
 
+  -- Run the debuggee in a terminal.nvim terminal (named `<name>:<configuration>`) instead of the
+  -- buffer nvim-dap opens itself. Needs terminal.nvim; off by default.
+  terminal = {
+    enable = false,
+    layout = "split", -- split | vsplit | float | tab
+    name = "dap",
+  },
+
   -- Per-adapter overrides (keyed by nvim-dap adapter name) resp. custom
   -- launch configurations (keyed by language). Empty = none; present here
   -- (not simply absent) so config/init.lua's generic "must be a table" guard

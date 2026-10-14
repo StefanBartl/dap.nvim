@@ -44,6 +44,11 @@ require("wkddap").setup({
     ui_menu = true,
   },
 
+  -- Start the debuggee in a terminal.nvim terminal named `dap:<configuration name>` (it shows up in
+  -- `:Terminal list`, can be hidden and toggled back) instead of nvim-dap's own buffer. Needs
+  -- terminal.nvim. Applies to the adapters registered by setup() and their overrides.
+  terminal = { enable = false, layout = "split", name = "dap" },
+
   -- Adapter overrides, keyed by nvim-dap adapter name (`codelldb`,
   -- `pwa-node`, `coreclr`, ...), applied after the language modules
   -- registered theirs. A table is deep-merged over the built-in definition;
