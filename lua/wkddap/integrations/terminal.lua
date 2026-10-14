@@ -70,7 +70,13 @@ function M.handler(opts, terminal)
       })
       return
     end
-    local pid = handle and handle.job and vim.fn.jobpid(handle.job) or nil
+    -- `jobpid` raises for a job that has already ended (a program that exits at once): no pid then,
+    -- still a successful start.
+    local pid
+    if handle and handle.job then
+      local got, value = pcall(vim.fn.jobpid, handle.job)
+      pid = got and value or nil
+    end
     session:response(request, { success = true, body = { processId = pid } })
   end
 end
