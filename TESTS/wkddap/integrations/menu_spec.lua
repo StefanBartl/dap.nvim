@@ -109,6 +109,68 @@ describe("wkddap.integrations.menu", function()
     end
   end)
 
+  describe("key hints", function()
+    local function full_dap()
+      return {
+        continue = function() end,
+        step_over = function() end,
+        step_into = function() end,
+        step_out = function() end,
+        terminate = function() end,
+        restart = function() end,
+        toggle_breakpoint = function() end,
+        list_breakpoints = function() end,
+        repl = { open = function() end },
+        listeners = { after = {}, before = {} },
+      }
+    end
+
+    ---@return table<string, string|false> label -> keys (false when none)
+    local function hints_by_label(items)
+      local out = {}
+      for _, item in ipairs(items) do
+        out[vim.trim(item.label)] = item.keys or false
+      end
+      return out
+    end
+
+    after_each(function()
+      require("lib.nvim.bindings.keymap").forget("DAP")
+    end)
+
+    it("follow keymaps.prefix and per-action overrides; a key set to false shows none", function()
+      require("wkddap.config").setup({
+        keymaps = {
+          enable = true,
+          prefix = "<leader>da",
+          toggle_breakpoint = "<F9>",
+          restart = false,
+        },
+      })
+      package.loaded["dap"] = full_dap()
+      local cfg = require("wkddap.config").get()
+      require("wkddap.bindings.keymaps").setup(cfg.keymaps, false)
+      local menu = reload()
+
+      local hints = hints_by_label(menu.items())
+      assert.are.equal("<leader>dac", hints["Continue"])
+      assert.are.equal("<leader>das", hints["Step Over"])
+      assert.are.equal("<leader>dae", hints["Evaluate Expression / Selection"])
+      assert.are.equal("<F9>", hints["Toggle Breakpoint"])
+      assert.is_false(hints["Restart"])
+    end)
+
+    it("show nothing when keymaps.enable is false", function()
+      require("wkddap.config").setup({ keymaps = { enable = false } })
+      package.loaded["dap"] = full_dap()
+      local menu = reload()
+
+      for label, keys in pairs(hints_by_label(menu.items())) do
+        assert.is_false(keys, label)
+      end
+    end)
+  end)
+
   it("submenu() wraps items() as a single labeled entry", function()
     require("wkddap.config").setup({ menu = { enable = true } })
     package.loaded["dap"] = nil -- items() -> {} is enough to check the wrapping shape
