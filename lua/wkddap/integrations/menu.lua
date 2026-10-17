@@ -33,6 +33,30 @@ function M.enabled()
   return (cfg.menu or {}).enable ~= false
 end
 
+--- The key hint per keymap action, read back from what
+--- `bindings.keymaps` actually bound through `lib.nvim.bindings.keymap`'s
+--- registry -- so a custom `keymaps.prefix`, a per-action override, or a key
+--- dropped with `= false` all show up in the menu as they are mapped, and
+--- `keymaps.enable = false` shows no hints at all.
+---@param cfg table resolved config
+---@return table<string, string> hints action name -> lhs (first normal-mode bind)
+local function key_hints(cfg)
+  local hints = {}
+  if not (cfg.keymaps and cfg.keymaps.enable) then
+    return hints
+  end
+  local ok, keymap = pcall(require, "lib.nvim.bindings.keymap")
+  if not ok then
+    return hints
+  end
+  for _, e in ipairs(keymap.registered("DAP")) do
+    if e.bound and e.lhs and e.mode == "n" and e.name and hints[e.name] == nil then
+      hints[e.name] = e.lhs
+    end
+  end
+  return hints
+end
+
 --- Build the dap.nvim context-menu entries.
 --- Returns an empty list when the integration is disabled or nvim-dap isn't
 --- installed, so a host can safely `vim.list_extend` it unconditionally.
@@ -53,30 +77,31 @@ function M.items(_opts)
     return require("wkddap.ui.provider")
   end
 
+  local keys = key_hints(cfg)
   local out = {}
 
   -- Session control
   contextmenu.group(
     out,
-    contextmenu.entry(true, "  Continue", dap.continue, "<leader>dc"),
-    contextmenu.entry(true, "  Step Over", dap.step_over, "<leader>ds"),
-    contextmenu.entry(true, "  Step Into", dap.step_into, "<leader>di"),
-    contextmenu.entry(true, "  Step Out", dap.step_out, "<leader>do"),
-    contextmenu.entry(true, "  Terminate", dap.terminate, "<leader>dt"),
-    contextmenu.entry(true, "  Restart", dap.restart, "<leader>dr")
+    contextmenu.entry(true, "  Continue", dap.continue, keys.continue),
+    contextmenu.entry(true, "  Step Over", dap.step_over, keys.step_over),
+    contextmenu.entry(true, "  Step Into", dap.step_into, keys.step_into),
+    contextmenu.entry(true, "  Step Out", dap.step_out, keys.step_out),
+    contextmenu.entry(true, "  Terminate", dap.terminate, keys.terminate),
+    contextmenu.entry(true, "  Restart", dap.restart, keys.restart)
   )
 
   -- Breakpoints
   contextmenu.group(
     out,
-    contextmenu.entry(true, "  Toggle Breakpoint", dap.toggle_breakpoint, "<leader>db"),
+    contextmenu.entry(true, "  Toggle Breakpoint", dap.toggle_breakpoint, keys.toggle_breakpoint),
     contextmenu.entry(true, "  Conditional Breakpoint…", function()
       require("wkddap.core.breakpoints").prompt_condition()
-    end, "<leader>dB"),
+    end, keys.conditional_breakpoint),
     contextmenu.entry(true, "  Log Point…", function()
       require("wkddap.core.breakpoints").prompt_log_point()
-    end, "<leader>dL"),
-    contextmenu.entry(true, "  List Breakpoints", dap.list_breakpoints, "<leader>dl")
+    end, keys.log_point),
+    contextmenu.entry(true, "  List Breakpoints", dap.list_breakpoints, keys.list_breakpoints)
   )
 
   -- Panel UI
@@ -84,10 +109,10 @@ function M.items(_opts)
     out,
     contextmenu.entry(true, "  Toggle DAP UI", function()
       ui().toggle()
-    end, "<leader>du"),
+    end, keys.toggle_ui),
     contextmenu.entry(true, "  Evaluate Expression / Selection", function()
       ui().eval()
-    end, "<leader>de")
+    end, keys.eval)
   )
 
   return out
