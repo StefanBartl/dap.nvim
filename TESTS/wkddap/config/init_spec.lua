@@ -120,8 +120,8 @@ describe("wkddap.config.setup(): option validation", function()
     assert.are.equal("<leader>d", cfg.keymaps.prefix)
     assert.is_true(cfg.autocmds.enable)
     assert.are.equal(2, #config.issues())
-    assert.matches("'autocmds' must be a table, got string", config.issues()[1])
-    assert.matches("'keymaps' must be a table, got boolean", config.issues()[2])
+    assert.matches("'autocmds' must be a table, got "off"", config.issues()[1])
+    assert.matches("'keymaps' must be a table, got false", config.issues()[2])
   end)
 
   it(
@@ -140,8 +140,8 @@ describe("wkddap.config.setup(): option validation", function()
       assert.are.same({}, cfg.adapters)
       assert.are.same({}, cfg.configurations)
       assert.are.equal(2, #config.issues())
-      assert.matches("'adapters' must be a table, got string", config.issues()[1])
-      assert.matches("'configurations' must be a table, got boolean", config.issues()[2])
+      assert.matches("'adapters' must be a table, got "codelldb"", config.issues()[1])
+      assert.matches("'configurations' must be a table, got true", config.issues()[2])
     end
   )
 

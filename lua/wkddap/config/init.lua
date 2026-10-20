@@ -11,63 +11,6 @@ local executable = require("wkddap.utils.executable")
 
 local M = {}
 
----@type Dap.Config|nil
-local _active = nil
-
----What the last `setup()` had to ignore, for `:checkhealth`.
----@type string[]
-local _issues = {}
-
----Keys `setup()` accepts and, for the option tables among them, their keys.
----`true` means any key goes: `keymaps` carries per-action overrides
----(`toggle_breakpoint = "<leader>xb"`, see bindings/keymaps), `adapters` and
----`configurations` are keyed by adapter resp. language name.
----@type table<string, true|table<string, true>>
-local KNOWN = {
-  languages = true,
-  ui = {
-    enable = true,
-    provider = true,
-    dap_view = true,
-    dap_ui = true,
-    virtual_text = true,
-    signs = true,
-    highlights = true,
-  },
-  keymaps = true,
-  which_key = { enable = true },
-  autocmds = { enable = true },
-  menu = { enable = true },
-  integrations = { ui_menu = true },
-  terminal = { enable = true, layout = true, name = true },
-  adapters = true,
-  configurations = true,
-  auto_install = true,
-  log_level = true,
-}
-
----@internal
----`key` with the nearest known one as a hint when there is a plausible one.
----@param key any
----@param known table<string, any>
----@param prefix string
----@return string
-local function describe_unknown(key, known, prefix)
-  local levenshtein = require("lib.lua.strings.distance").levenshtein
-  local name = tostring(key)
-  local best, best_distance = nil, nil
-  for candidate in pairs(known) do
-    local d = levenshtein(name, candidate)
-    if d <= 3 and (best_distance == nil or d < best_distance) then
-      best, best_distance = candidate, d
-    end
-  end
-  if best then
-    return string.format("unknown option '%s%s' (did you mean '%s%s'?)", prefix, name, prefix, best)
-  end
-  return string.format("unknown option '%s%s'", prefix, name)
-end
-
 --- Stand-in for `languages` when the user's value has the wrong type. It
 --- deliberately does NOT fall back to `DEFAULTS.languages` (`{}`): every
 --- downstream consumer (`registry.register_all()`, `wkddap.adapters`,
@@ -81,81 +24,56 @@ end
 ---@type string[]
 local INVALID_LANGUAGES = { "__invalid_languages_option__" }
 
----@internal
----Drop what cannot be merged, and say so. A misspelled key would otherwise
----land in the active config as a dead field with the default still in force;
----a non-table value for an option table (`keymaps = false`) would replace the
----whole table and make the first `cfg.keymaps.enable` read throw.
----@param user_opts table
----@return table clean  the accepted subset, nested option tables copied
----@return string[] issues
-local function sanitize(user_opts)
-  local clean, issues = {}, {}
-  for key, value in pairs(user_opts) do
-    local known = KNOWN[key]
-    if known == nil then
-      issues[#issues + 1] = describe_unknown(key, KNOWN, "")
-    elseif key == "languages" and type(value) ~= "table" then
-      -- Not the generic fallback below: `languages`' default (`{}`) means
-      -- "enable everything" downstream, so falling back to it here would
-      -- turn this mistake into silent over-provisioning instead of a safe
-      -- no-op. See INVALID_LANGUAGES.
+--- What the schema inferred from `DEFAULTS` cannot say: `keymaps` carries
+--- per-action overrides (`toggle_breakpoint = "<leader>xb"`, see
+--- bindings/keymaps), and the two UI providers take an option table of their
+--- own that has no default. `adapters` and `configurations` are keyed by adapter
+--- resp. language name and empty in the defaults, so they are open already.
+---@type table<string, string|table>
+local SCHEMA = {
+  keymaps = { "table" },
+  ["ui.dap_view"] = "table",
+  ["ui.dap_ui"] = "table",
+}
+
+local cfg = require("lib.lua.config").new(DEFAULTS, {
+  name = "wkddap",
+  schema = SCHEMA,
+  -- Not the generic fallback to the default: `languages`' default (`{}`) means
+  -- "enable everything" downstream, so falling back to it for a mistyped value
+  -- would turn the mistake into silent over-provisioning instead of a safe no-op.
+  normalize = function(opts, issues)
+    if opts.languages ~= nil and type(opts.languages) ~= "table" then
       issues[#issues + 1] = string.format(
         "option 'languages' must be a table, got %s -- registering no languages (the default, an empty table, means \"all\" here, so it is not used as a fallback)",
-        type(value)
+        type(opts.languages)
       )
-      clean.languages = INVALID_LANGUAGES
-    elseif type(DEFAULTS[key]) == "table" and type(value) ~= "table" then
-      issues[#issues + 1] =
-        string.format("option '%s' must be a table, got %s -- using the default", key, type(value))
-    elseif type(known) == "table" then
-      local nested = {}
-      for sub_key, sub_value in pairs(value) do
-        if known[sub_key] then
-          nested[sub_key] = sub_value
-        else
-          issues[#issues + 1] = describe_unknown(sub_key, known, key .. ".")
-        end
-      end
-      clean[key] = nested
-    else
-      clean[key] = value
+      opts.languages = INVALID_LANGUAGES
     end
-  end
-  table.sort(issues)
-  return clean, issues
-end
+  end,
+  notify = function(message)
+    require("wkddap.utils.notify").warn(message)
+  end,
+})
 
---- Merge user options over the defaults and store the result.
+--- Set the options over the defaults and store the result. Every call starts
+--- from `DEFAULTS`.
 ---
 --- Unknown keys and mistyped option tables are reported once here and again
 --- by `:checkhealth wkddap` (see `issues()`); they never reach the merge.
 ---@param user_opts? Dap.Config
 ---@return Dap.Config
 function M.setup(user_opts)
-  if type(user_opts) ~= "table" then
-    user_opts = {}
-  end
-
-  local clean, issues = sanitize(user_opts)
-  _issues = issues
-  if #issues > 0 then
-    require("wkddap.utils.notify").warn("ignored config: " .. table.concat(issues, "; "))
-  end
-
-  _active = vim.tbl_deep_extend("force", vim.deepcopy(DEFAULTS), clean)
-  return _active
+  cfg.setup(type(user_opts) == "table" and user_opts or nil)
+  return cfg.get()
 end
 
 --- The active config. A live reference to the stored table, not a copy: read
 --- from it, never mutate it -- every other consumer (menu entries, health,
---- the UI wiring) sees the same table for the rest of the session.
+--- the UI wiring) sees the same table until the next `setup()`.
 ---@return Dap.Config
 function M.get()
-  if _active == nil then
-    _active = vim.deepcopy(DEFAULTS)
-  end
-  return _active
+  return cfg.get()
 end
 
 --- What the last `setup()` ignored: unknown keys and option tables of the
@@ -163,7 +81,7 @@ end
 --- accepted.
 ---@return string[]
 function M.issues()
-  return vim.list_extend({}, _issues)
+  return cfg.issues()
 end
 
 --- Default adapter binaries and their Mason package names
