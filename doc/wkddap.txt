@@ -51,10 +51,10 @@ Depends on lib.nvim and ui.nvim (deliberate shared dependencies).
 
 lazy.nvim: >lua
   {
-    "StefanBartl/dap.nvim",
+    "WKDSteve/dap.nvim",
     dependencies = {
-      "StefanBartl/lib.nvim",
-      "StefanBartl/ui.nvim",
+      "WKDSteve/lib.nvim",
+      "WKDSteve/ui.nvim",
       "mfussenegger/nvim-dap",
       "igorlfs/nvim-dap-view",
       "theHamsta/nvim-dap-virtual-text",
@@ -66,10 +66,10 @@ lazy.nvim: >lua
 <
 packer.nvim: >lua
   use({
-    "StefanBartl/dap.nvim",
+    "WKDSteve/dap.nvim",
     requires = {
-      "StefanBartl/lib.nvim",
-      "StefanBartl/ui.nvim",
+      "WKDSteve/lib.nvim",
+      "WKDSteve/ui.nvim",
       "mfussenegger/nvim-dap",
       "igorlfs/nvim-dap-view",
       "theHamsta/nvim-dap-virtual-text",

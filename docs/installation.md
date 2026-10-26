@@ -7,10 +7,10 @@ panel UI choice is covered separately in [panel-ui.md](panel-ui.md).
 
 ```lua
 {
-  "StefanBartl/dap.nvim",
+  "WKDSteve/dap.nvim",
   dependencies = {
-    "StefanBartl/lib.nvim",
-    "StefanBartl/ui.nvim",        -- ui.kit backs breakpoint/validation prompts
+    "WKDSteve/lib.nvim",
+    "WKDSteve/ui.nvim",        -- ui.kit backs breakpoint/validation prompts
     "mfussenegger/nvim-dap",
     "igorlfs/nvim-dap-view",      -- default panel UI
     -- "rcarriga/nvim-dap-ui",    -- opt-in alternative (ui.provider = "dap-ui")
@@ -27,10 +27,10 @@ panel UI choice is covered separately in [panel-ui.md](panel-ui.md).
 
 ```lua
 use({
-  "StefanBartl/dap.nvim",
+  "WKDSteve/dap.nvim",
   requires = {
-    "StefanBartl/lib.nvim",
-    "StefanBartl/ui.nvim",
+    "WKDSteve/lib.nvim",
+    "WKDSteve/ui.nvim",
     "mfussenegger/nvim-dap",
     "igorlfs/nvim-dap-view",
     "theHamsta/nvim-dap-virtual-text",

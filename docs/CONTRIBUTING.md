@@ -1,7 +1,7 @@
 # Contributing to dap.nvim
 
 Thank you for your interest! Bugs, ideas and questions are welcome in the
-[issue tracker](https://github.com/StefanBartl/dap.nvim/issues); pull requests
+[issue tracker](https://github.com/WKDSteve/dap.nvim/issues); pull requests
 very welcome.
 
 ## Getting the repository into a session
@@ -69,7 +69,7 @@ claim that name.
 ## Tests
 
 `TESTS/` is a busted-style suite run by
-[testing.nvim](https://github.com/StefanBartl/testing.nvim) (`bash scripts/test.sh`,
+[testing.nvim](https://github.com/WKDSteve/testing.nvim) (`bash scripts/test.sh`,
 see [`TESTS/README.md`](../TESTS/README.md)); no debug adapter has to be installed
 to run it.
 [GitHub Actions](../.github/workflows/ci.yml) runs it on every push and PR to

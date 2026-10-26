@@ -42,7 +42,7 @@ require("wkddap").setup({ terminal = { enable = true, layout = "split", name = "
 ```
 
 every adapter gets a `reverse_request_handlers.runInTerminal` that starts the program as a `direct`
-job of a [terminal.nvim](https://github.com/StefanBartl/terminal.nvim) terminal named
+job of a [terminal.nvim](https://github.com/WKDSteve/terminal.nvim) terminal named
 `dap:<configuration name>`. It then follows terminal.nvim's window options, appears in
 `:Terminal list`, can be hidden and toggled back, and a new run of the same configuration replaces
 the earlier terminal. The terminal stays open after the program ends (exit code visible).

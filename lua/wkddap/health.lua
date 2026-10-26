@@ -36,7 +36,7 @@ function M.check()
   -- path itself (wkddap.utils.notify wraps lib.nvim.notify), so lib.nvim
   -- absent means setup() fails outright, not a graceful per-feature
   -- degradation. "warn" was under-reporting a hard dependency.
-  local advice = { 'Install "StefanBartl/lib.nvim"' }
+  local advice = { 'Install "WKDSteve/lib.nvim"' }
   check_require("lib.nvim.notify", "notify", "error", advice)
   check_require("lib.nvim.cross", "cross (platform detection)", "error", advice)
   check_require("lib.nvim.normalize", "normalize (path helpers)", "error", advice)
@@ -52,7 +52,7 @@ function M.check()
   -- Required bare wherever a prompt or picker opens: the breakpoint
   -- condition/log-point prompts, the per-language executable prompts, the JS
   -- attach process picker, and the context-menu entries at module load.
-  local ui_advice = { 'Install "StefanBartl/ui.nvim"' }
+  local ui_advice = { 'Install "WKDSteve/ui.nvim"' }
   check_require("ui.kit", "kit (prompts and pickers)", "error", ui_advice)
   check_require("ui.contextmenu", "contextmenu (menu entries)", "error", ui_advice)
 

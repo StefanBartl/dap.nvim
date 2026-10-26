@@ -19,9 +19,9 @@
 [![Lua](https://img.shields.io/badge/Lua-5.1%2FLuaJIT-2C2D72?logo=lua&logoColor=white)](https://www.lua.org)
 ![Status](https://img.shields.io/badge/status-beta-orange)
 ![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20macOS%20%7C%20Windows-lightgrey)
-[![wkd](https://img.shields.io/badge/wkd-family-c6ff3d)](https://stefanbartl.github.io/wkd/p/dap/)
+[![wkd](https://img.shields.io/badge/wkd-family-c6ff3d)](https://wkdsteve.github.io/wkd/p/dap/)
 
-> Part of the [wkd](https://stefanbartl.github.io/wkd/) family — see this plugin's [page](https://stefanbartl.github.io/wkd/p/dap/) on the site.
+> Part of the [wkd](https://wkdsteve.github.io/wkd/) family — see this plugin's [page](https://wkdsteve.github.io/wkd/p/dap/) on the site.
 
 A config layer on top of [nvim-dap](https://github.com/mfussenegger/nvim-dap)
 that registers adapters and launch configurations for eleven targets, so that
@@ -29,18 +29,18 @@ that registers adapters and launch configurations for eleven targets, so that
 
 ---
 
-> **[debugging.nvim](https://github.com/StefanBartl/debugging.nvim)** — the other
+> **[debugging.nvim](https://github.com/WKDSteve/debugging.nvim)** — the other
 > half of the same question. dap.nvim runs a Debug Adapter Protocol session over
 > your program; debugging.nvim inspects the live editor state around it (buffers,
 > autocmds, messages) with no adapter involved.
 >
-> **[runtime-analysis.nvim](https://github.com/StefanBartl/runtime-analysis.nvim)** —
+> **[runtime-analysis.nvim](https://github.com/WKDSteve/runtime-analysis.nvim)** —
 > when the question is not "what is this variable now" but "was this ever called,
 > and how often".
 >
 > Both are soft: without them everything else works unchanged.
-> [lib.nvim](https://github.com/StefanBartl/lib.nvim),
-> [ui.nvim](https://github.com/StefanBartl/ui.nvim), and
+> [lib.nvim](https://github.com/WKDSteve/lib.nvim),
+> [ui.nvim](https://github.com/WKDSteve/ui.nvim), and
 > [nvim-dap](https://github.com/mfussenegger/nvim-dap) are the real
 > dependencies — see [Requirements](docs/requirements.md).
 
@@ -72,7 +72,7 @@ question each page answers.
 - [Health check](docs/health.md) — what `:checkhealth wkddap` verifies.
 - [Architecture](docs/architecture.md) — module layout and file responsibilities.
 - [Contributing](docs/CONTRIBUTING.md) — ground rules, project layout, and how to add a language.
-- [Feedback](https://github.com/StefanBartl/dap.nvim/issues)
+- [Feedback](https://github.com/WKDSteve/dap.nvim/issues)
 
 `:help wkddap` is the same reference inside the editor.
 

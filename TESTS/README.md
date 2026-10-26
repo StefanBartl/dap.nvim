@@ -1,7 +1,7 @@
 # dap.nvim tests
 
 A busted-style suite (`describe` / `it` with luassert-style assertions) run by
-[testing.nvim](https://github.com/StefanBartl/testing.nvim). Specs stick to
+[testing.nvim](https://github.com/WKDSteve/testing.nvim). Specs stick to
 code paths that don't require a real debug adapter binary (codelldb, delve,
 debugpy, gdb, ...) or `nvim-dap`/`nvim-dap-ui` themselves to be installed —
 registry/usercmd logic only.
