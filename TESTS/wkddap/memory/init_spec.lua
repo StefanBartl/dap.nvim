@@ -35,7 +35,15 @@ local function fake_session(caps)
     expressions = {
       ["&buffer"] = { result = "(char (*)[32]) 0x404010 <buffer>", memoryReference = "0x404010" },
       ["ptr"] = { result = '(char *) 0x404020 "QRS"' },
+      -- lldb-dap: a pointer's value, with a memoryReference of where the
+      -- pointer itself is stored.
+      ["image_start"] = { result = "0x0000000000404030", memoryReference = "0x404050" },
+      -- codelldb: a pointer to characters shown as the string, no
+      -- memoryReference; the `,x` format specifier gives the address.
+      ["&cbuf"] = { result = '"ABCDEFGH"', type = "unsigned char (*)[32]" },
+      ["&cbuf,x"] = { result = "0x0000000000404010", type = "unsigned char (*)[32]" },
       ["n"] = { result = "42" },
+      ["nptr"] = { result = '"42"', type = "char *" },
     },
   }
   for i = 0, 511 do
@@ -100,6 +108,11 @@ local function fake_session(caps)
       for i = 0, args.count - 1 do
         local a = addr + i
         if a < self.readable.lo or a >= self.readable.hi then
+          break
+        end
+        -- codelldb reads one region only: a read that starts below `cut_at`
+        -- stops there, although the memory beyond is readable.
+        if self.cut_at and addr < self.cut_at and a >= self.cut_at then
           break
         end
         data[#data + 1] = self.mem[a] or 0
@@ -248,6 +261,27 @@ describe("wkddap.memory", function()
     it("falls back to the first 0x... of the evaluate result", function()
       memory.open("ptr")
       assert.are.equal("0x404020", session:sent("readMemory")[1].args.memoryReference)
+    end)
+
+    it("takes a value that is an address over the memoryReference (lldb-dap pointer)", function()
+      memory.open("image_start")
+      assert.are.equal("0x0000000000404030", session:sent("readMemory")[1].args.memoryReference)
+    end)
+
+    it("asks codelldb for a pointer shown as a string again with ,x", function()
+      memory.open("&cbuf")
+      local evals = session:sent("evaluate")
+      assert.are.equal(2, #evals)
+      assert.are.equal("&cbuf,x", evals[2].args.expression)
+      assert.are.equal("0x0000000000404010", session:sent("readMemory")[1].args.memoryReference)
+      assert.truthy(lines()[1]:find("^&cbuf  @ 0x404010"))
+    end)
+
+    it("refuses a pointer whose ,x form is no address either", function()
+      memory.open("nptr")
+      assert.are.equal(2, #session:sent("evaluate"))
+      assert.is_not_nil(message_matching("is not an address"))
+      assert.is_nil(memory.state())
     end)
 
     it("sends a 64-bit literal unrounded and shows offsets instead of an address", function()
@@ -737,15 +771,38 @@ describe("wkddap.memory", function()
       assert.are.equal(0x00, session.mem[BASE])
     end)
 
-    it("keeps a context read that stops before the target, without a retry", function()
+    it("reads again from where a context read stopped at a region boundary (codelldb)", function()
+      session.cut_at = BASE - 32 -- 32 context bytes, then "unreadable" although it is not
+      memory.open("0x404010")
+      local reads = session:sent("readMemory")
+      assert.are.same({ -64, -32 }, { reads[1].args.offset, reads[2].args.offset })
+      local state = memory.state()
+      assert.are.equal(-32, state.offset)
+      assert.are.equal(256, #state.bytes)
+      assert.are.equal(0, state.unreadable)
+      assert.truthy(lines()[3]:find("^0x00403ff0  "))
+      assert.are.equal(33, cursor_byte())
+    end)
+
+    it("rounds the second read up to a row", function()
+      session.cut_at = BASE - 40 -- 24 context bytes: the row below is -32
+      memory.open("0x404010")
+      local reads = session:sent("readMemory")
+      assert.are.same({ -64, -32 }, { reads[1].args.offset, reads[2].args.offset })
+      assert.are.equal(-32, memory.state().offset)
+    end)
+
+    it("keeps the context rows when the target itself is unreadable", function()
       session.readable.hi = BASE -- context readable, the target is not
       memory.open("0x404010")
-      assert.are.equal(1, #session:sent("readMemory"))
+      local reads = session:sent("readMemory")
+      assert.are.same({ -64, 0 }, { reads[1].args.offset, reads[2].args.offset })
       local state = memory.state()
       assert.are.equal(-64, state.offset)
       assert.are.equal(64, #state.bytes)
       assert.are.equal(192, state.unreadable)
       assert.are.equal(65, cursor_byte())
+      assert.truthy(lines()[3 + 4]:find("0x00404010  ?? ", 1, true))
     end)
 
     it("shows the error when the retry at offset 0 fails too, and retries only once", function()

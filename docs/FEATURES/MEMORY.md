@@ -23,11 +23,18 @@ nvim-dap session you are debugging — no second Neovim, no terminal, no
 
 A literal hex address is sent as is (a decimal one as the exact same number
 in `0x…` form). Anything else goes to the adapter as an
-`evaluate` request in the current frame; its `memoryReference` is used, or —
-for adapters that do not set one — the first `0x…` in its result (as text,
-so a 64-bit address is not rounded). A value
-that is no address (`n` evaluating to `42`) is refused with a hint to try
-`&n`.
+`evaluate` request in the current frame. Like Visual Studio's memory window,
+a value that is an address (`ptr` evaluating to `0x7ff6…`) is where the view
+looks; otherwise the result's `memoryReference` is used (an array, `&buffer`
+under GDB), or — for adapters that set none — the first `0x…` in the result
+(as text, so a 64-bit address is not rounded). The value comes first because
+adapters disagree on a pointer's `memoryReference`: GDB gives where it
+points, lldb-dap where the pointer itself is stored. codelldb shows a
+pointer to characters as the string it points to (`&buffer` → `"ABC…"`)
+and sets no `memoryReference`; for a pointer type the view then asks once
+more with codelldb's `,x` format specifier (`&buffer,x` → `0x7ff6…`). A
+value that is no address (`n` evaluating to `42`) is refused with a hint to
+try `&n`.
 
 The view keeps the resolved **base reference** and an **offset**: paging only
 moves the offset (it may go negative, but not below address 0 when the base
@@ -49,13 +56,18 @@ and puts the cursor on the target byte. The same applies to a jump with `a`.
   `-0x43`). It never starts below address 0 (`0x20` → page at `0x0`).
 - **Unknown address** (an opaque `memoryReference`, an address above 2^53):
   the page starts exactly `context_rows * 16` bytes before the target.
-- **Unmapped memory before the target** (the target starts a mapping, e.g.
-  the image header): adapters such as GDB fail the whole read; others (such
-  as codelldb) answer it with success but no byte at all (`data` is
-  contiguous from the page start, the rest is `unreadableBytes`). That first
-  read is then retried **once at offset 0** — the target as the first row —
-  instead of showing the error or a page of `??`. A context read that got
-  some bytes is kept, even when it stops before the target. A refresh or an
+- **The context read does not reach the target.** Memory before the target
+  may be unmapped (the target starts a mapping, e.g. the image header): GDB
+  fails the whole read, lldb-dap and codelldb answer it with success but no
+  byte at all (`data` is contiguous from the page start, the rest is
+  `unreadableBytes`). codelldb also stops at a **region boundary** even when
+  the next region is readable (`&buffer` 64 bytes above a region start: 32
+  bytes and 224 "unreadable", while a read from the boundary gets all 256).
+  So when the first read stops before the target, the view reads **once
+  more**: from where the first read stopped, rounded up to a row (the
+  context rows it got stay), or from the target itself when it got nothing.
+  If that second read gets nothing either, the target really is unreadable
+  and the first page is shown, with `??` at the target. A refresh or an
   `event_stopped`/`event_memory` re-read while that first read is still
   pending keeps the fallback (and the cursor move); re-reads of a page that
   was already shown (paging, refresh, re-reads after an edit) are never
@@ -183,12 +195,22 @@ surface already does.
 
 ## Adapters
 
-Checked against **GDB 16.3** (`gdb -i dap`), which reports
-`supportsReadMemoryRequest = true` and `supportsWriteMemoryRequest = true`.
-GDB's server needs the `memoryReference` to be a number (`int(ref, 0)`),
-which is why expressions are resolved through `evaluate` first. Any adapter
-that advertises the two capabilities works the same way; one that does not
-gets the message above.
+Checked against three adapters on Windows, all of which report
+`supportsReadMemoryRequest = true` and `supportsWriteMemoryRequest = true`
+(a byte written through the view reached the running program in each case):
+
+| adapter | `evaluate` of a pointer | a read that starts before a mapping / region |
+|---|---|---|
+| **GDB 16.3** (`gdb -i dap`) | `memoryReference` = where it points | error response (the whole read fails) |
+| **lldb-dap 22** | `memoryReference` = where the pointer is stored; the value is the address | success, no byte, `unreadableBytes` = all; `address` = the one asked for |
+| **codelldb 1.12** | no `memoryReference`; a pointer to characters shows the string, `,x` gives the address | as lldb-dap; also stops at a **region boundary** before readable memory |
+
+None of them shifts `address` to the first readable byte: `address` is
+always the page start that was asked for, so the page is never shown
+displaced. GDB's server needs the `memoryReference` to be a number
+(`int(ref, 0)`), which is why expressions are resolved through `evaluate`
+first. Any adapter that advertises the two capabilities works the same way;
+one that does not gets the message above.
 
 `scripts/memory-gdb-check.lua` is the manual end-to-end check (not part of
 the spec suite): it compiles `scripts/fixtures/memory_target.c`, stops it at

@@ -222,16 +222,19 @@ A hex/bits view of an address range of the running debuggee, in a float,
 over DAP readMemory/writeMemory of the active nvim-dap session. Needs an
 adapter with supportsReadMemoryRequest (supportsWriteMemoryRequest for edits);
 GDB 16.3's `gdb -i dap` has both. A literal address ("0x404010") is used as
-is; anything else ("&buffer", "ptr") is evaluated in the current frame.
+is; anything else ("&buffer", "ptr") is evaluated in the current frame: a
+value that is an address is used (a pointer's value, as in Visual Studio),
+otherwise the result's memoryReference.
 
 Like Visual Studio's memory window, the view does not start at the target:
 it opens (and jumps with `a`) `memory.context_rows` rows (default 4, 16
 bytes each) above it, rows aligned to 16 bytes, never below address 0, with
 the cursor on the target byte. The target byte is highlighted
 (`WkddapMemoryTarget`, linked to `Search`) whenever it is on the page. When
-the memory before the target cannot be read (an error, or a response with
-no byte), that first read is retried once at the target itself instead of
-showing the error.
+that first read does not reach the target (the memory before it cannot be
+read, or the adapter stops at a region boundary as codelldb does), a second
+read starts where the first stopped, or at the target itself, instead of
+showing the error or a page of `??`.
 
 Keys in the view:
   e, <CR>          edit the byte under the cursor (writeMemory, then re-read)

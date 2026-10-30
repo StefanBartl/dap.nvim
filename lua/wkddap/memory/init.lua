@@ -6,8 +6,9 @@
 ---
 --- Flow: `open(target)` checks the session and its capabilities, resolves the
 --- target (a literal address is used as is; anything else is sent to the
---- adapter as an `evaluate` request and its `memoryReference`, or the first
---- "0x..." of its result, is used), then reads one page (`format.PAGE_SIZE`
+--- adapter as an `evaluate` request: a value that is an address, else its
+--- `memoryReference`, else the first "0x..." of the value, is used), then
+--- reads one page (`format.PAGE_SIZE`
 --- bytes) at `base + offset`. Paging only moves `offset`; the base reference
 --- stays what the target resolved to, so the target is always offset 0.
 ---
@@ -16,8 +17,9 @@
 --- (`format.context_offset`, row-aligned when the address is known), the
 --- cursor lands on the target byte when that read answers, and the target
 --- byte is highlighted whenever it is on the shown page. When that first read
---- fails or returns no byte (memory just before the target unmapped), it is
---- retried once at offset 0 instead of showing the error or a page of `??`.
+--- does not reach the target (memory just before it unmapped, or an adapter
+--- that stops at a region boundary), a second read starts where the first
+--- stopped, or at the target, instead of showing the error or a page of `??`.
 ---
 --- Requests are asynchronous, so the shown page (`base`, `label`, `offset`,
 --- `bytes`) only ever changes as a whole, when a read answers: navigation
@@ -68,9 +70,11 @@ local REFRESH_EVENTS = { "event_stopped", "event_memory" }
 ---@field label string
 ---@field offset integer
 ---@field focus? boolean put the cursor on the target byte when this read commits (open, jump)
----@field context? boolean `offset` starts above the target for context rows: on an
----  error response or one with no byte, retry once at offset 0 (the memory before the
----  target may be unmapped)
+---@field context? boolean `offset` starts above the target for context rows: when the
+---  read does not reach the target (an error, no byte, a region cut), read once more
+---  from where it stopped, or from the target
+---@field partial? { result: table, bytes: integer[], offset: integer } what the context
+---  read got before it stopped; shown instead when this re-read gets nothing
 
 ---@class Dap.MemoryState
 ---@field session table the nvim-dap session the view reads from
@@ -177,16 +181,39 @@ local function resolve(session, target, cb)
     return
   end
   local frame = type(session.current_frame) == "table" and session.current_frame or nil
-  request(session, "evaluate", {
-    expression = target,
-    frameId = frame and frame.id or nil,
-    context = "watch",
-  }, function(err, result)
+  local function evaluate(expression, on_result)
+    request(session, "evaluate", {
+      expression = expression,
+      frameId = frame and frame.id or nil,
+      context = "watch",
+    }, on_result)
+  end
+  evaluate(target, function(err, result)
     if err then
       cb(nil, ("could not evaluate %q: %s"):format(target, format.error_message(err)))
       return
     end
     result = type(result) == "table" and result or {}
+    local function refuse()
+      cb(
+        nil,
+        ("%q is not an address (it evaluated to %s); try &%s"):format(
+          target,
+          tostring(result.result),
+          target
+        )
+      )
+    end
+    -- A value that is an address wins (Visual Studio's rule: the expression's
+    -- value is where to look). For a pointer, lldb-dap's memoryReference is
+    -- where the pointer itself is stored, GDB's is where it points; the value
+    -- is the same on both. Only a hex value counts: `n` evaluating to `42` is
+    -- a number, not address 0x2a.
+    local value = type(result.result) == "string" and vim.trim(result.result) or ""
+    if value:match("^0[xX]%x+$") then
+      cb(value, nil)
+      return
+    end
     if type(result.memoryReference) == "string" and result.memoryReference ~= "" then
       cb(result.memoryReference, nil)
       return
@@ -196,14 +223,23 @@ local function resolve(session, target, cb)
       cb(addr, nil)
       return
     end
-    cb(
-      nil,
-      ("%q is not an address (it evaluated to %s); try &%s"):format(
-        target,
-        tostring(result.result),
-        target
-      )
-    )
+    -- codelldb shows a pointer to characters as the string it points to
+    -- ("ABC..." for `&buffer`, type `unsigned char (*)[32]`) and sets no
+    -- memoryReference; its `,x` format specifier gives the pointer in hex.
+    -- Only tried for a pointer type, so a plain number is still refused.
+    local kind = type(result.type) == "string" and result.type or ""
+    if not kind:find("*", 1, true) then
+      refuse()
+      return
+    end
+    evaluate(target .. ",x", function(err2, hex)
+      hex = not err2 and type(hex) == "table" and format.find_reference(hex.result) or nil
+      if hex then
+        cb(hex, nil)
+        return
+      end
+      refuse()
+    end)
   end)
 end
 
@@ -347,13 +383,39 @@ local function read(state, target)
     result = type(result) == "table" and result or {}
     local bytes = not err and format.decode(result.data) or {}
     -- The context rows above the target may be unmapped (the start of a
-    -- mapping): show the page from the target itself rather than the error.
-    -- GDB fails the whole read; others (codelldb) answer it with success and
-    -- no byte at all, since `data` is contiguous from the start. A read that
-    -- got some context bytes is kept, even when it stops before the target.
-    if target.context and (err or #bytes == 0) then
-      read(state, { base = target.base, label = target.label, offset = 0, focus = target.focus })
+    -- mapping), or the adapter stops at a region boundary before the target:
+    -- codelldb reads one region only (32 bytes and 224 "unreadable" where the
+    -- next region holds the target). GDB fails the whole read; lldb-dap and
+    -- codelldb answer with success and what they got, `data` contiguous from
+    -- the start. A read that does not reach the target is followed by one
+    -- from where it stopped (rounded up to a row), or from the target itself
+    -- when it got nothing -- never a page of `??` for a readable target.
+    local at = target_index(target.offset)
+    if target.context and at and #bytes < at then
+      local row = format.CONTEXT_ROW
+      local from = 0
+      if #bytes > 0 then
+        from = -math.floor(-(target.offset + #bytes) / row) * row
+      end
+      read(state, {
+        base = target.base,
+        label = target.label,
+        offset = from,
+        focus = target.focus,
+        partial = #bytes > 0 and { result = result, bytes = bytes, offset = target.offset } or nil,
+      })
       return
+    end
+    if target.partial and (err or #bytes == 0) then
+      -- The re-read got nothing: the target itself is unreadable, and the
+      -- context rows the first read got are worth more than a page of `??`.
+      err, result, bytes = nil, target.partial.result, target.partial.bytes
+      target = {
+        base = target.base,
+        label = target.label,
+        offset = target.partial.offset,
+        focus = target.focus,
+      }
     end
     state.pending = nil
     state.base, state.label, state.offset = target.base, target.label, target.offset
