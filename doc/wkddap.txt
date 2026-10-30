@@ -191,6 +191,7 @@ Installed under the configurable prefix (default "<leader>d") when
   <leader>de    Evaluate Expression/Selection (normal + visual)
   <leader>dR    Open REPL
   <leader>dm    Memory View (prompts for an address or expression)
+  <leader>dM    Memory View in a read-only companion window (prompts)
 
 ==============================================================================
 6. USER COMMANDS                                                    *wkddap-commands*
@@ -215,6 +216,10 @@ One command, :Dap <subcommand> (built via lib.nvim.bindings.usercmd.composer, wi
   :Dap repl                                                        *:Dap-repl*
   :Dap memory [address-or-expression]                           *:Dap-memory*
                     Memory view, see |wkddap-memory|. Prompts when omitted.
+  :Dap memory-window [address-or-expression]             *:Dap-memory-window*
+                    The same view, read-only, in a companion window (a
+                    second Neovim in its own terminal), see
+                    |wkddap-memory-window|. Prompts when omitted.
 
 MEMORY VIEW                                                      *wkddap-memory*
 
@@ -252,6 +257,22 @@ disconnects (or nvim-dap closes it because the adapter died), the view turns
 stale (read-only). While a new page is still being read, edits are refused.
 Full description:
 docs/FEATURES/MEMORY.md.
+
+                                                          *wkddap-memory-window*
+`:Dap memory-window` (`<leader>dM`; `require("wkddap.memory").open(target,
+{ companion = true })`) shows the view in a companion window instead of the
+float: a second Neovim in its own terminal window (lib.nvim.companion; Windows
+Terminal, $TERMINAL, Terminal.app, ...), for a second monitor. It gets the same
+lines and highlights after every read and is read-only: no edit keys. Keys
+there, each running in the main instance:
+  a    go to address/expression (asks in the companion)
+  n/p  next / previous page       b   toggle hex / bits
+  r    refresh                    q   close the companion
+The DAP requests, the state and the undo stack stay in the main instance. When
+the session ends the companion shows `Memory [stale]` like the float. One
+view at a time: `:Dap memory` replaces an open companion with the float and
+the other way round. The cursor cannot be moved from the main instance; the
+target byte is highlighted with `Search` there.
 
 ==============================================================================
 7. HEALTH CHECK                                                        *wkddap-health*

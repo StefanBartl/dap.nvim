@@ -29,6 +29,7 @@ Normal/visual-mode keymaps installed by `bindings.setup()`, gated by
 | `<leader>de` | n, v | Evaluate Expression / Selection (dap-ui: float, dap-view: watch) |
 | `<leader>dR` | n | Open REPL |
 | `<leader>dm` | n | Memory View (prompts for an address or expression) |
+| `<leader>dM` | n | Memory View in a read-only companion window (second Neovim in its own terminal; prompts) |
 
 `<leader>dB` and `<leader>dL` (and the no-argument `:Dap
 conditional-breakpoint` / `:Dap log-point`) open pre-filled: with this line's
@@ -64,6 +65,7 @@ Every default keymap has a 1:1 `:Dap` equivalent.
 | `:Dap eval` | Evaluate Expression (dap-ui: float, dap-view: watch) |
 | `:Dap repl` | Open REPL |
 | `:Dap memory [address-or-expression]` | Memory View (prompts if the target is omitted) |
+| `:Dap memory-window [address-or-expression]` | Memory View in a read-only companion window (prompts if the target is omitted) |
 
 ### Memory view keys
 
@@ -82,6 +84,22 @@ undo and endianness: [FEATURES/MEMORY.md](FEATURES/MEMORY.md).
 | `p` / `<PageUp>` | n | Previous page |
 | `r` | n | Refresh |
 | `q` / `<Esc>` | n | Close |
+
+### Companion window keys
+
+Normal-mode keys in the companion window (`:Dap memory-window`, `<leader>dM`);
+each one runs its action in the main instance. The companion is read-only: no
+edit, bit or undo keys. See
+[FEATURES/MEMORY.md](FEATURES/MEMORY.md#companion-window-second-monitor).
+
+| lhs | mode | desc |
+| --- | --- | --- |
+| `a` | n | Go to another address or expression (prompts in the companion) |
+| `n` | n | Next page |
+| `p` | n | Previous page |
+| `b` | n | Toggle hex / bits |
+| `r` | n | Refresh |
+| `q` | n | Close the companion window |
 
 ## Autocommands
 

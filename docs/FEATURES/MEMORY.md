@@ -3,14 +3,18 @@
 A Visual-Studio-style memory window for the session that is already running:
 a hex (or bit) dump of an address range, editable byte by byte, in a float of
 the same Neovim. It talks DAP `readMemory` / `writeMemory` through the
-nvim-dap session you are debugging — no second Neovim, no terminal, no
-`/proc/<pid>/mem`.
+nvim-dap session you are debugging — no `/proc/<pid>/mem`. Optionally the
+same view opens read-only in a [companion window](#companion-window-second-monitor)
+(a second Neovim in its own terminal) for a second monitor.
 
 - **Module:** `lua/wkddap/memory/init.lua` (session checks, requests, undo,
   listeners), `memory/format.lua` (pure: base64, parsing, page layout),
-  `memory/view.lua` (the float and its keys)
-- **Keymap:** `<leader>dm` (action `memory_view`, prompts for the target)
-- **Usercmd:** `:Dap memory [address-or-expression]`
+  `memory/view.lua` (the float and its keys), `memory/companion.lua` (the
+  same view in a companion window)
+- **Keymap:** `<leader>dm` (action `memory_view`, prompts for the target),
+  `<leader>dM` (`memory_window`: the companion window)
+- **Usercmd:** `:Dap memory [address-or-expression]`,
+  `:Dap memory-window [address-or-expression]`
 
 ## Opening it
 
@@ -139,6 +143,51 @@ place of the rows and as a warning — never a traceback.
 The edit prompt accepts `41`, `0x41`, `0b01000001`, `d65` (decimal) and
 `'A'`; in bits mode a bare run of 0/1 (`01000001`) is binary.
 
+## Companion window (second monitor)
+
+`:Dap memory-window &buffer` (or `<leader>dM`, or
+`require("wkddap.memory").open("&buffer", { companion = true })`) shows the
+view in a **companion window** instead of the float: a second Neovim in its
+own terminal window, opened by
+[`lib.nvim.companion`](https://github.com/WKDSteve/lib.nvim) (Windows
+Terminal on Windows, `$TERMINAL` or the usual terminals on Linux, Terminal.app
+or `$TERMINAL` on macOS), that connects back over msgpack-RPC. Drag it to the
+second monitor and keep debugging in the first.
+
+- **Same page, same layout.** The companion gets exactly the lines and
+  highlights `format.render` produces for the float (header, ruler, rows,
+  target and written-byte highlights), pushed after every read. Only the
+  legend differs: it lists the companion's keys. The companion's own buffer
+  is `nofile`, non-modifiable; nothing is typed into it.
+- **Navigation from there.** `a` asks for the address or expression *in the
+  companion* (`vim.ui.input` there) and sends the text here; `n`/`p` page,
+  `b` toggles hex/bits, `r` re-reads, `q` closes the companion (the view is
+  gone then, like closing the float). Every key arrives here as a named
+  action; the `evaluate`/`readMemory` requests, the state and the listeners
+  stay in this instance. The companion never talks to the adapter.
+- **Read-only on purpose.** No `e`, `<Space>`, `u` or double-click there:
+  `writeMemory` stays in the float. (The API `memory.edit()` still works while
+  the companion is open; the companion shows the result.)
+- **Session end** is shown like in the float: title `Memory [stale]`, the
+  header note, the last page stays readable; reads are refused with the same
+  message here. The companion is not closed automatically.
+- **One view at a time.** `:Dap memory` while the companion is open replaces
+  it with the float; `:Dap memory-window` while the float is open replaces
+  the float. A second `:Dap memory-window` (same session) moves the open
+  companion, keeping mode and undo stack, as `a` does.
+- **No cursor from here.** The cursor lives in the other process: the view
+  cannot put it on the target byte, the companion keeps its own cursor line
+  across updates. The target byte is highlighted (`Search` there, since the
+  companion runs `-u NONE` and has no `WkddapMemoryTarget`).
+- **When it cannot open** (no terminal found, no RPC server, the process does
+  not start) the error says why; nothing is left behind. A companion whose
+  terminal never ran the inner `nvim` is closed by lib.nvim's attach timeout
+  (15 s) with a warning.
+
+`scripts/memory-gdb-check.lua` runs this end to end with
+`WKDDAP_MEMORY_COMPANION=1` (a real terminal window) or `=headless` (a second
+`nvim --headless`, no window); see [Adapters](#adapters).
+
 ## Editing, undo, endianness
 
 - **Byte-wise.** Every edit is one `writeMemory` of exactly one byte (base64
@@ -223,6 +272,11 @@ a byte the program checks in its exit code.
 ```bash
 nvim --headless -u NONE -l scripts/memory-gdb-check.lua [path/to/nvim-dap]
 ```
+
+With `WKDDAP_MEMORY_COMPANION=1` it also opens the view in a real companion
+window before the final write (waits for the attach, reads the companion's
+buffer over RPC, presses `n` over there and checks that both sides moved,
+closes it); `WKDDAP_MEMORY_COMPANION=headless` does the same without a window.
 
 ## Limits
 

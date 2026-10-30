@@ -30,6 +30,8 @@ lua/wkddap/
                                 undo stack, nvim-dap session-lifetime listeners
     format.lua                  pure: base64, address/byte parsing, hex/bits page layout
     view.lua                    the ui.kit.surface float, its keys, cursor -> byte
+    companion.lua               the same view in a read-only companion window
+                                (lib.nvim.companion: a second nvim in its own terminal)
   bindings/                     Every user-facing trigger — registration only
     init.lua                    orchestrates usercmds/keymaps/autocmds
     usercmds/init.lua            registers all :Dap* user commands

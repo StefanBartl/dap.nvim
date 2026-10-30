@@ -130,6 +130,13 @@ function M.setup()
           require("wkddap.memory").open(table.concat(ctx.rest, " "))
         end,
       },
+      {
+        path = { "memory-window" },
+        desc = "Memory View in a read-only companion window (second Neovim in its own terminal)",
+        run = function(ctx)
+          require("wkddap.memory").open(table.concat(ctx.rest, " "), { companion = true })
+        end,
+      },
     },
   })
 end

@@ -19,6 +19,7 @@ describe("wkddap.bindings.usercmds", function()
     "eval",
     "repl",
     "memory",
+    "memory-window",
   }
 
   local function reload()
@@ -60,6 +61,24 @@ describe("wkddap.bindings.usercmds", function()
     package.loaded["wkddap.memory"] = nil
 
     assert.are.same({ "&buffer[4]", "" }, targets)
+  end)
+
+  it(":Dap memory-window opens the view in a companion window", function()
+    reload().setup()
+    local calls = {}
+    package.loaded["wkddap.memory"] = {
+      open = function(target, opts)
+        calls[#calls + 1] = { target = target, opts = opts }
+      end,
+    }
+    vim.cmd("Dap memory-window &buffer")
+    vim.cmd("Dap memory-window")
+    package.loaded["wkddap.memory"] = nil
+
+    assert.are.same({
+      { target = "&buffer", opts = { companion = true } },
+      { target = "", opts = { companion = true } },
+    }, calls)
   end)
 
   it("does not register any subcommand outside the expected set", function()

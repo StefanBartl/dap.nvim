@@ -34,10 +34,10 @@ describe("wkddap.bindings.keymaps.setup()", function()
   end)
 
   it(
-    "registers one entry per action, with eval's n/v binds counted separately (15 total)",
+    "registers one entry per action, with eval's n/v binds counted separately (16 total)",
     function()
       local bound = keymaps.setup({ prefix = "<leader>d" }, false)
-      assert.are.equal(15, #bound)
+      assert.are.equal(16, #bound)
     end
   )
 
@@ -55,6 +55,8 @@ describe("wkddap.bindings.keymaps.setup()", function()
     assert.are.equal("<leader>zb", by_name.toggle_breakpoint[1].lhs)
     assert.are.equal("<leader>zm", by_name.memory_view[1].lhs)
     assert.are.equal("DAP: Memory View", by_name.memory_view[1].desc)
+    assert.are.equal("<leader>zM", by_name.memory_window[1].lhs)
+    assert.are.equal("DAP: Memory View in a companion window", by_name.memory_window[1].desc)
   end)
 
   it("memory_view opens the memory view (prompting, no target)", function()
@@ -77,6 +79,29 @@ describe("wkddap.bindings.keymaps.setup()", function()
     package.loaded["wkddap.memory"] = nil
     assert.are.equal(1, #opened)
     assert.is_nil(opened[1].target)
+  end)
+
+  it("memory_window opens the memory view in a companion window (prompting)", function()
+    local bound = keymaps.setup({ prefix = "<leader>d" }, false)
+    local entry
+    for _, e in ipairs(bound) do
+      if e.name == "memory_window" then
+        entry = e
+      end
+    end
+    assert.are.equal("<leader>dM", entry.lhs)
+
+    local opened = {}
+    package.loaded["wkddap.memory"] = {
+      open = function(target, opts)
+        opened[#opened + 1] = { target = target, opts = opts }
+      end,
+    }
+    entry.rhs()
+    package.loaded["wkddap.memory"] = nil
+    assert.are.equal(1, #opened)
+    assert.is_nil(opened[1].target)
+    assert.are.same({ companion = true }, opened[1].opts)
   end)
 
   it("eval binds the same key in both normal and visual mode", function()

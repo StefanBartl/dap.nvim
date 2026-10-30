@@ -90,6 +90,7 @@ function M.setup(opts, which_key)
       "eval",
       "repl",
       "memory_view",
+      "memory_window",
     },
     actions = {
       -- Session control
@@ -180,6 +181,15 @@ function M.setup(opts, which_key)
           require("wkddap.memory").open()
         end,
         desc = "Memory View",
+      },
+      -- The same view in a read-only companion window (a second Neovim in
+      -- its own terminal, for a second monitor); edits stay in the float.
+      memory_window = {
+        default = prefix .. "M",
+        rhs = function()
+          require("wkddap.memory").open(nil, { companion = true })
+        end,
+        desc = "Memory View in a companion window",
       },
     },
   }

@@ -24,7 +24,7 @@ local NS = vim.api.nvim_create_namespace("wkddap_memory")
 ---@field click fun(index: integer|nil, bit: integer|nil)
 ---@field undo fun()
 ---@field toggle_mode fun()
----@field jump fun()
+---@field jump fun(target?: string) go to `target`, or prompt for one when omitted
 ---@field page fun(delta: integer)
 ---@field refresh fun()
 ---@field closed fun()
@@ -162,11 +162,15 @@ function M.focus_byte(view, index, bit)
 end
 
 ---Open the float and bind its keys. nil when the float could not be created.
+---(`_opts` is the companion's; the float takes none, the controller passes
+---the same arguments to both window layers.)
 ---@param render Dap.MemoryRender
 ---@param title string
 ---@param handlers Dap.MemoryHandlers
+---@param _opts? table
 ---@return Dap.MemoryView|nil
-function M.open(render, title, handlers)
+---@return string|nil err
+function M.open(render, title, handlers, _opts)
   local lines = with_legend(render)
   local width, height = size(lines)
   local surface = require("ui.kit.surface").open({
@@ -182,7 +186,7 @@ function M.open(render, title, handlers)
     wo = { cursorline = true, wrap = false },
   })
   if not surface then
-    return nil
+    return nil, "no float"
   end
 
   ---@type Dap.MemoryView
@@ -210,7 +214,9 @@ function M.open(render, title, handlers)
   end, "edit byte / toggle bit")
   map("u", handlers.undo, "undo last write")
   map("b", handlers.toggle_mode, "toggle hex/bits")
-  map("a", handlers.jump, "go to address or expression")
+  map("a", function()
+    handlers.jump()
+  end, "go to address or expression")
   map("n", function()
     handlers.page(1)
   end, "next page")

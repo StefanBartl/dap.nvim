@@ -40,6 +40,15 @@
 --- stack lives as long as the view; it is not the debuggee's history -- a byte
 --- the program changed in between is overwritten by an undo all the same.
 ---
+--- Window layer: the view draws on one of two implementations of the same
+--- interface (`open/show/close/is_valid/focus_byte/cursor_byte`): the float
+--- (`wkddap.memory.view`, the default, with the edit keys) or a read-only
+--- companion window (`wkddap.memory.companion`: a second Neovim in its own
+--- terminal, `lib.nvim.companion`; `:Dap memory-window`, `open(target,
+--- { companion = true })`). State and requests stay here either way; the
+--- companion only shows the page and sends its keys back as actions. One view
+--- at a time: opening the other kind replaces the open one.
+---
 --- Session lifetime: nvim-dap listeners (`event_terminated`, `event_exited`,
 --- `disconnect`) mark the view stale (read-only, title and header say so);
 --- so does a session nvim-dap closed without any of those events (adapter
@@ -88,13 +97,34 @@ local REFRESH_EVENTS = { "event_stopped", "event_memory" }
 ---@field error string|nil
 ---@field stale boolean
 ---@field undo Dap.MemoryUndo[]
----@field view Dap.MemoryView|nil
+---@field window Dap.MemoryWindow which window layer `view` belongs to
+---@field view Dap.MemoryView|Dap.MemoryCompanionView|nil
 ---@field pending Dap.MemoryTarget|nil the page the newest read asks for, until it answers
 ---@field seq integer number of the newest read; a response with another one is dropped
+
+---@alias Dap.MemoryWindow "float"|"companion"
+
+---Options of `open()`.
+---@class Dap.MemoryOpenOpts
+---@field companion? boolean show the view in a read-only companion window instead of the float
+---@field terminal? string[]|false companion only: the terminal argv template, or false for a
+---  headless companion (scripts); nil = the platform's default terminal
 
 ---The one open view (nil when none). A second `open()` reuses its window.
 ---@type Dap.MemoryState|nil
 local current = nil
+
+---The window layer modules by kind.
+---@type table<Dap.MemoryWindow, string>
+local WINDOW_MODULES = { float = "wkddap.memory.view", companion = "wkddap.memory.companion" }
+
+---The window layer `state` draws on.
+---@internal
+---@param state Dap.MemoryState
+---@return table
+local function view_module(state)
+  return require(WINDOW_MODULES[state.window] or WINDOW_MODULES.float)
+end
 
 ---The last target the user typed, to pre-fill the next prompt.
 ---@type string|nil
@@ -319,7 +349,7 @@ end
 ---@param state Dap.MemoryState
 local function redraw(state)
   if state.view then
-    require("wkddap.memory.view").show(state.view, render_of(state), title(state))
+    view_module(state).show(state.view, render_of(state), title(state))
   end
 end
 
@@ -434,7 +464,7 @@ local function read(state, target)
     redraw(state)
     local index = target.focus and target_index(target.offset)
     if index and state.view then
-      require("wkddap.memory.view").focus_byte(state.view, index)
+      view_module(state).focus_byte(state.view, index)
     end
   end)
 end
@@ -703,7 +733,9 @@ end
 ---@internal
 ---@param session table
 ---@param target string
-local function show(session, target)
+---@param window Dap.MemoryWindow
+---@param opts Dap.MemoryOpenOpts
+local function show(session, target, window, opts)
   resolve(session, target, function(ref, err)
     if not ref then
       notify().warn("Memory view: " .. tostring(err))
@@ -715,19 +747,21 @@ local function show(session, target)
     if
       state
       and state.session == session
-      and require("wkddap.memory.view").is_valid(state.view)
+      and state.window == window
+      and view_module(state).is_valid(state.view)
     then
-      -- Same session, view still open: move it, keep mode and undo stack.
-      -- The new place becomes the shown page when its read answers.
+      -- Same session, same kind of window, still open: move it, keep mode and
+      -- undo stack. The new place becomes the shown page when its read answers.
       state.stale = false
       read(state, first_page(ref, target))
       return
     end
     local page = first_page(ref, target)
     if state then
-      local old_view = state.view
+      -- Another session, a closed window, or the other kind of window.
+      local old_view, old_module = state.view, view_module(state)
       forget(state)
-      require("wkddap.memory.view").close(old_view)
+      old_module.close(old_view)
     end
 
     ---@type Dap.MemoryState
@@ -743,35 +777,40 @@ local function show(session, target)
       error = nil,
       stale = false,
       undo = {},
+      window = window,
       view = nil,
       pending = nil,
       seq = 0,
     }
     current = state
-    state.view = require("wkddap.memory.view").open(render_of(state), title(state), {
+    local view_mod = view_module(state)
+    local open_err
+    state.view, open_err = view_mod.open(render_of(state), title(state), {
       edit = M.edit,
       toggle_bit = M.toggle_bit,
       click = M.click,
       undo = M.undo,
       toggle_mode = M.toggle_mode,
-      jump = function()
-        M.jump()
+      jump = function(to)
+        M.jump(to)
       end,
       page = M.page,
       refresh = M.refresh,
       closed = function()
         forget(state)
       end,
-    })
+    }, { terminal = opts.terminal })
     if not state.view then
       forget(state)
-      notify().error("Memory view: could not open the window.")
+      notify().error(
+        "Memory view: could not open the window" .. (open_err and (": " .. open_err) or ".")
+      )
       return
     end
     attach_listeners(state)
     local index = target_index(page.offset)
     if index then
-      require("wkddap.memory.view").focus_byte(state.view, index)
+      view_mod.focus_byte(state.view, index)
     end
     read(state, page)
   end)
@@ -816,21 +855,23 @@ end
 
 ---@internal
 ---@param session table
-local function prompt(session)
+---@param window Dap.MemoryWindow
+---@param opts Dap.MemoryOpenOpts
+local function prompt(session, window, opts)
   require("ui.kit").input({
     title = "Memory address or expression: ",
     default = prompt_default(),
     on_submit = function(text)
       text = text and vim.trim(text) or ""
       if text ~= "" then
-        show(session, text)
+        show(session, text, window, opts)
       end
     end,
   })
 end
 
 ---Go to another address or expression in the open view (prompts when
----`target` is omitted).
+---`target` is omitted). The view keeps its kind of window.
 ---@param target? string
 function M.jump(target)
   local state = current
@@ -838,25 +879,30 @@ function M.jump(target)
     return
   end
   if target and vim.trim(target) ~= "" then
-    show(state.session, vim.trim(target))
+    show(state.session, vim.trim(target), state.window, {})
   else
-    prompt(state.session)
+    prompt(state.session, state.window, {})
   end
 end
 
 ---Open the memory view at `target` -- a literal address ("0x404010") or an
 ---expression the adapter evaluates to an address ("&buffer", "ptr") -- in the
----active nvim-dap session. Prompts when `target` is omitted.
+---active nvim-dap session. Prompts when `target` is omitted. In the float by
+---default; `opts.companion` shows it in a read-only companion window instead
+---(`wkddap.memory.companion`).
 ---@param target? string
-function M.open(target)
+---@param opts? Dap.MemoryOpenOpts
+function M.open(target, opts)
+  opts = opts or {}
   local session = active_session()
   if not session then
     return
   end
+  local window = opts.companion and "companion" or "float"
   if target and vim.trim(target) ~= "" then
-    show(session, vim.trim(target))
+    show(session, vim.trim(target), window, opts)
   else
-    prompt(session)
+    prompt(session, window, opts)
   end
 end
 
@@ -864,9 +910,9 @@ end
 function M.close()
   local state = current
   if state then
-    local view = state.view
+    local view, view_mod = state.view, view_module(state)
     forget(state)
-    require("wkddap.memory.view").close(view)
+    view_mod.close(view)
   end
 end
 

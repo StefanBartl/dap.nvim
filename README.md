@@ -69,6 +69,8 @@ question each page answers.
 - [Memory view](docs/FEATURES/MEMORY.md) — `:Dap memory &var`: a hex/bits view of the
   debuggee's memory over `readMemory`/`writeMemory`, with byte editing and undo; like Visual
   Studio's memory window it opens with a few rows above the target and the cursor on it.
+  `:Dap memory-window &var` shows the same view read-only in a companion window — a second
+  Neovim in its own terminal, for a second monitor — navigated from there.
 - [Panel UI](docs/panel-ui.md) — choosing between nvim-dap-view and nvim-dap-ui via `ui.provider`.
 - [Workflow](docs/WORKFLOW.md) — how the pieces combine in daily debugging use, with the gotchas.
 - [Integrations](docs/integrations.md) — the nvzone/menu context-menu bridge.

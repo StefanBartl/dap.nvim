@@ -23,6 +23,14 @@
 --- the program exits 0 only if that write reached it -- and checks that the
 --- view went stale when the session ended.
 ---
+--- With WKDDAP_MEMORY_COMPANION=1 it also opens the view in a REAL companion
+--- window (`:Dap memory-window`: a second nvim in the platform's terminal,
+--- lib.nvim.companion) before the final write: waits for it to attach, reads
+--- its buffer over RPC, presses `n` over there (the client's `send`, as its
+--- keymap does) and checks that the page moved here and over there, then
+--- closes it. WKDDAP_MEMORY_COMPANION=headless does the same with a headless
+--- companion (no window). Unset: no companion, no second process.
+---
 --- Exit code 0 = every check passed, 1 = a check failed, 2 = setup failed.
 
 local this = vim.fn.fnamemodify(debug.getinfo(1, "S").source:sub(2), ":p")
@@ -348,6 +356,110 @@ memory.jump("&buffer")
 check(wait_byte(at, 0x41), "jump back to &buffer (context rows again)")
 check(memory.state().offset == -(at - 1), "same context offset as on open")
 check(cursor_byte() == at, "cursor back on buffer[0]")
+
+-- Companion window (opt-in, see the header): the same view in a second nvim.
+local companion_mode = vim.env.WKDDAP_MEMORY_COMPANION
+if companion_mode and companion_mode ~= "" and companion_mode ~= "0" then
+  out("companion window: WKDDAP_MEMORY_COMPANION=" .. companion_mode)
+  memory.close()
+  memory.open("&buffer", {
+    companion = true,
+    terminal = companion_mode == "headless" and false or nil,
+  })
+  check(
+    wait(function()
+      local s = memory.state()
+      return s ~= nil and s.window == "companion" and s.pending == nil and #s.bytes > 0
+    end),
+    "companion view opened and read &buffer"
+  )
+  local cst = memory.state()
+  if not cst or cst.window ~= "companion" then
+    setup_fail("the companion view did not open")
+    return
+  end
+  local h = cst.view.handle
+  check(
+    wait(function()
+      return h:is_attached()
+    end, 20000),
+    "the companion attached (channel " .. tostring(h.chan) .. ")"
+  )
+
+  ---The companion's buffer, read over its channel (it is never blocked in a
+  ---request to us here, so a request is safe).
+  ---@return string[]|nil
+  local function companion_lines()
+    if not h.chan then
+      return nil
+    end
+    local ok, res = pcall(
+      vim.rpcrequest,
+      h.chan,
+      "nvim_exec_lua",
+      "return vim.api.nvim_buf_get_lines(0, 0, -1, false)",
+      {}
+    )
+    return ok and type(res) == "table" and res or nil
+  end
+  check(
+    wait(function()
+      local l = companion_lines()
+      return l ~= nil and l[1] ~= nil and l[1]:find("^&buffer  @") ~= nil
+    end),
+    "the companion shows the page (header: " .. tostring((companion_lines() or {})[1]) .. ")"
+  )
+  local shown = companion_lines() or {}
+  local legend = shown[#shown] or ""
+  check(
+    legend:find("n/p page", 1, true) ~= nil and legend:find("edit", 1, true) == nil,
+    "the companion's legend has navigation only (" .. legend .. ")"
+  )
+  check(
+    shown[rows + 3] ~= nil and shown[rows + 3]:find(" 41 42 43 44 ", 1, true) ~= nil,
+    "the companion shows buffer[0..3] on its target row"
+  )
+
+  -- `n` pressed in the companion: its keymap calls the client's send().
+  local offset_before = cst.offset
+  pcall(
+    vim.rpcrequest,
+    h.chan,
+    "nvim_exec_lua",
+    "require('lib.nvim.companion.client').send('page', { 1 })",
+    {}
+  )
+  check(
+    wait(function()
+      local s = memory.state()
+      return s ~= nil and s.offset == offset_before + 256 and s.pending == nil
+    end),
+    "n in the companion paged forward here (offset " .. tostring(memory.state().offset) .. ")"
+  )
+  local expected = "(+0x" .. format.hex(memory.state().offset) .. ")"
+  check(
+    wait(function()
+      local l = companion_lines()
+      return l ~= nil and l[1] ~= nil and l[1]:find(expected, 1, true) ~= nil
+    end),
+    "the companion shows the new page " .. expected
+  )
+  if companion_mode ~= "headless" then
+    vim.wait(1500, function()
+      return false
+    end, 50) -- a moment to look at the window
+  end
+  memory.close()
+  check(not h:is_open(), "close() closed the companion handle")
+  check(
+    wait(function()
+      return #require("lib.nvim.companion").handles() == 0
+    end),
+    "no companion handle left"
+  )
+  memory.open("&buffer")
+  check(wait_byte(at, 0x41), "float reopened on &buffer")
+end
 
 -- Final write that the program checks itself.
 memory.edit(at + 1, 0x5a) -- 'Z'
