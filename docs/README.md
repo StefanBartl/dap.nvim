@@ -21,6 +21,7 @@ is the short version of all of it.
 | [BINDINGS.md](BINDINGS.md) | Every keymap, user command and autocommand, machine-readably |
 | [panel-ui.md](panel-ui.md) | Why exactly **one** panel UI is wired, and what happens if you bring another |
 | [integrations.md](integrations.md) | The nvzone/menu context-menu bridge |
+| [FEATURES/MEMORY.md](FEATURES/MEMORY.md) | How to look at (and edit) the debuggee's memory as hex or bits |
 | [WORKFLOW.md](WORKFLOW.md) | The different question: not what each control does, but how a debugging session actually runs from start to finish |
 
 ## Why it is the way it is

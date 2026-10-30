@@ -15,6 +15,7 @@ CONTENTS                                                          *wkddap-conten
      Panel UI .................. |wkddap-panel-ui|
   5. Keymaps ................... |wkddap-keymaps|
   6. User commands .............. |wkddap-commands|
+     Memory view ............... |wkddap-memory|
   7. Health check .............. |wkddap-health|
   8. Architecture .............. |wkddap-architecture|
 
@@ -111,6 +112,12 @@ packer.nvim: >lua
       enable = true,
     },
 
+    -- Memory view (|wkddap-memory|): 16-byte rows shown above the target
+    -- when it opens or jumps (0..15; 0 = the target is the first row).
+    memory = {
+      context_rows = 4,
+    },
+
     -- Keyed by nvim-dap adapter name (codelldb, pwa-node, ...); a table is
     -- deep-merged over the built-in definition, a function replaces it.
     adapters = {},
@@ -129,7 +136,7 @@ packer.nvim: >lua
 <
 
 Every key is independently overridable. Unknown keys (top level, or inside
-`ui`, `which_key`, `autocmds`, `menu`) are ignored with a warning naming the
+`ui`, `which_key`, `autocmds`, `menu`, `memory`) are ignored with a warning naming the
 nearest known key; an option table given as a non-table falls back to its
 defaults. Both are listed again by `:checkhealth wkddap`.
 
@@ -183,6 +190,7 @@ Installed under the configurable prefix (default "<leader>d") when
   <leader>du    Toggle UI
   <leader>de    Evaluate Expression/Selection (normal + visual)
   <leader>dR    Open REPL
+  <leader>dm    Memory View (prompts for an address or expression)
 
 ==============================================================================
 6. USER COMMANDS                                                    *wkddap-commands*
@@ -205,6 +213,42 @@ One command, :Dap <subcommand> (built via lib.nvim.bindings.usercmd.composer, wi
   :Dap toggle-ui                                              *:Dap-toggle-ui*
   :Dap eval                                                        *:Dap-eval*
   :Dap repl                                                        *:Dap-repl*
+  :Dap memory [address-or-expression]                           *:Dap-memory*
+                    Memory view, see |wkddap-memory|. Prompts when omitted.
+
+MEMORY VIEW                                                      *wkddap-memory*
+
+A hex/bits view of an address range of the running debuggee, in a float,
+over DAP readMemory/writeMemory of the active nvim-dap session. Needs an
+adapter with supportsReadMemoryRequest (supportsWriteMemoryRequest for edits);
+GDB 16.3's `gdb -i dap` has both. A literal address ("0x404010") is used as
+is; anything else ("&buffer", "ptr") is evaluated in the current frame.
+
+Like Visual Studio's memory window, the view does not start at the target:
+it opens (and jumps with `a`) `memory.context_rows` rows (default 4, 16
+bytes each) above it, rows aligned to 16 bytes, never below address 0, with
+the cursor on the target byte. The target byte is highlighted
+(`WkddapMemoryTarget`, linked to `Search`) whenever it is on the page. When
+the memory before the target cannot be read (an error, or a response with
+no byte), that first read is retried once at the target itself instead of
+showing the error.
+
+Keys in the view:
+  e, <CR>          edit the byte under the cursor (writeMemory, then re-read)
+  <2-LeftMouse>    edit that byte; in bits mode flip that bit
+  <Space>          flip the bit under the cursor (bits mode)
+  u                undo the last write (writes the previous value back)
+  b                toggle hex / bits      a      go to address/expression
+  n, <PageDown>    next page              p, <PageUp>   previous page
+  r                refresh                q, <Esc>      close
+
+Edits are byte-wise, so endianness never matters for them; the display is
+the byte order in memory, bits MSB first. The undo stack is the plugin's own
+and lives as long as the view. When the session terminates, exits or
+disconnects (or nvim-dap closes it because the adapter died), the view turns
+stale (read-only). While a new page is still being read, edits are refused.
+Full description:
+docs/FEATURES/MEMORY.md.
 
 ==============================================================================
 7. HEALTH CHECK                                                        *wkddap-health*

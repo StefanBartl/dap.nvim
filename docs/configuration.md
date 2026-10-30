@@ -49,6 +49,12 @@ require("wkddap").setup({
   -- terminal.nvim. Applies to the adapters registered by setup() and their overrides.
   terminal = { enable = false, layout = "split", name = "dap" },
 
+  -- Memory view (`:Dap memory`, docs/FEATURES/MEMORY.md). Like Visual Studio's
+  -- memory window, opening it (or jumping with `a`) shows `context_rows`
+  -- rows of 16 bytes above the target, the cursor on the target byte.
+  -- A whole number 0..15; 0 = the target is the first row.
+  memory = { context_rows = 4 },
+
   -- Adapter overrides, keyed by nvim-dap adapter name (`codelldb`,
   -- `pwa-node`, `coreclr`, ...), applied after the language modules
   -- registered theirs. A table is deep-merged over the built-in definition;
@@ -80,7 +86,7 @@ require("wkddap").setup({
 Every key is independently overridable — set only what you want to change.
 
 Options are checked before they are merged. An unknown key — at the top level
-or inside `ui`, `which_key`, `autocmds`, `menu` — is ignored with a warning
+or inside `ui`, `which_key`, `autocmds`, `menu`, `memory` — is ignored with a warning
 that names the nearest known key (`keymaps = { enabled = false }` →
 "did you mean 'keymaps.enable'?"), and an option table given as something
 other than a table (`keymaps = false`) falls back to that table's defaults.

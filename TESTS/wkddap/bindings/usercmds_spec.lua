@@ -1,4 +1,4 @@
---- Covers bindings.usercmds.setup(): all 13 :Dap routes register and show
+--- Covers bindings.usercmds.setup(): all 14 :Dap routes register and show
 --- up in completion. setup() only closes over require("dap")/
 --- require("wkddap.ui.provider") inside route `run` callbacks, so this
 --- never needs nvim-dap or the UI providers installed.
@@ -18,6 +18,7 @@ describe("wkddap.bindings.usercmds", function()
     "toggle-ui",
     "eval",
     "repl",
+    "memory",
   }
 
   local function reload()
@@ -44,6 +45,21 @@ describe("wkddap.bindings.usercmds", function()
         )
       )
     end
+  end)
+
+  it(":Dap memory hands its argument (or nothing) to wkddap.memory.open()", function()
+    reload().setup()
+    local targets = {}
+    package.loaded["wkddap.memory"] = {
+      open = function(target)
+        targets[#targets + 1] = target
+      end,
+    }
+    vim.cmd("Dap memory &buffer[4]")
+    vim.cmd("Dap memory")
+    package.loaded["wkddap.memory"] = nil
+
+    assert.are.same({ "&buffer[4]", "" }, targets)
   end)
 
   it("does not register any subcommand outside the expected set", function()

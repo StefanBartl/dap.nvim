@@ -6,7 +6,9 @@ is a configuration layer on top of it, answering all of those: it registers
 adapters and launch configurations for eleven languages, detects and validates
 adapter binaries (with Mason fallback), wires exactly one panel UI, and ships
 user-configurable keymaps, commands, and health checks. It does not replace
-nvim-dap or talk DAP itself — everything here is setup and glue around it.
+nvim-dap — almost everything here is setup and glue around it. The one place
+that speaks DAP itself is the memory view, and it does so through the
+session nvim-dap already runs.
 
 Organized by theme:
 
@@ -17,3 +19,5 @@ Organized by theme:
 - [CONTROLS.md](CONTROLS.md) — keymaps, the `:Dap` user command, which-key,
   autocmds.
 - [HEALTH.md](HEALTH.md) — `:checkhealth wkddap`.
+- [MEMORY.md](MEMORY.md) — the memory view: hex/bits dump of an address
+  range over `readMemory`/`writeMemory`, byte editing with undo.

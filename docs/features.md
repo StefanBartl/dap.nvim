@@ -14,6 +14,12 @@
 Aliases: `typescript`/`javascriptreact`/`typescriptreact` → `javascript`,
 `cpp`/`c++` → `c`, `asm`/`nasm`/`gas` → `assembly`.
 
+Beyond adapters: a **memory view** (`:Dap memory`, `<leader>dm`) shows and
+edits an address range of the running debuggee as hex or bits, over DAP
+`readMemory`/`writeMemory` of the active session — see
+[FEATURES/MEMORY.md](FEATURES/MEMORY.md). Works with any adapter that
+advertises those capabilities (checked with GDB 16.3's `gdb -i dap`).
+
 Every adapter/configuration module is isolated and only registered if its
 binary (or Neovim plugin, for Lua) is actually available — see
 [Health Check](health.md).

@@ -62,6 +62,14 @@ local DEFAULTS = {
     name = "dap",
   },
 
+  -- Memory view (`:Dap memory`, wkddap.memory). `context_rows`: how many
+  -- 16-byte rows above the target are shown when the view opens or jumps
+  -- (like Visual Studio's memory window); 0 = the target is the first row.
+  -- 0..15 (a page has 16 rows of 16 bytes).
+  memory = {
+    context_rows = 4,
+  },
+
   -- Per-adapter overrides (keyed by nvim-dap adapter name) resp. custom
   -- launch configurations (keyed by language). Empty = none; present here
   -- (not simply absent) so config/init.lua's generic "must be a table" guard

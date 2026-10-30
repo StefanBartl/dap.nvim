@@ -34,6 +34,9 @@ local SCHEMA = {
   keymaps = { "table" },
   ["ui.dap_view"] = "table",
   ["ui.dap_ui"] = "table",
+  -- A page is 16 rows of 16 bytes: more context rows would push the target
+  -- off the page the view opens on.
+  ["memory.context_rows"] = { "number", min = 0, max = 15 },
 }
 
 local cfg = require("lib.lua.config").new(DEFAULTS, {
@@ -49,6 +52,22 @@ local cfg = require("lib.lua.config").new(DEFAULTS, {
         type(opts.languages)
       )
       opts.languages = INVALID_LANGUAGES
+    end
+    -- The schema has bounds but no integer check: a fraction is reported and
+    -- dropped here, so the default applies instead of a silently floored value.
+    local memory = type(opts.memory) == "table" and opts.memory or nil
+    local rows = memory and memory.context_rows
+    if
+      type(rows) == "number"
+      and rows == rows
+      and math.abs(rows) ~= math.huge
+      and rows % 1 ~= 0
+    then
+      issues[#issues + 1] = string.format(
+        "option 'memory.context_rows' must be a whole number, got %s -- using the default",
+        tostring(rows)
+      )
+      memory.context_rows = nil
     end
   end,
   notify = function(message)

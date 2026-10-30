@@ -90,6 +90,23 @@ describe("wkddap.config.setup(): option validation", function()
     assert.are.same({}, config.issues())
   end)
 
+  it("memory.context_rows defaults to 4 and accepts whole numbers 0..15 only", function()
+    local config = reload()
+    assert.are.equal(4, config.get().memory.context_rows)
+    assert.are.equal(0, config.setup({ memory = { context_rows = 0 } }).memory.context_rows)
+    assert.are.same({}, config.issues())
+    assert.are.equal(15, config.setup({ memory = { context_rows = 15 } }).memory.context_rows)
+    assert.are.same({}, config.issues())
+
+    for _, bad in ipairs({ 16, -1, "4", 2.5, 0.5, 14.9 }) do
+      local cfg = config.setup({ memory = { context_rows = bad } })
+      assert.are.equal(4, cfg.memory.context_rows, tostring(bad))
+      assert.are.equal(1, #config.issues(), tostring(bad))
+      assert.matches("memory.context_rows", config.issues()[1])
+    end
+    config.setup({})
+  end)
+
   it("drops an unknown top-level key and names the nearest known one", function()
     local config = reload()
     local cfg = config.setup({ keymap = { enable = false } })

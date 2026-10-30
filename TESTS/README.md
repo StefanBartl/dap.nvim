@@ -97,13 +97,31 @@ files below, rather than a gap worth a contrived test.
   only between `it()` blocks *within* the same file, which matters for
   specs that reload a module to reset its internal state.
 
+## Manual check against a real GDB
+
+`scripts/memory-gdb-check.lua` runs the memory view end to end against GDB's
+DAP server (`gdb -i dap`) through the real nvim-dap. It compiles, spawns gdb
+and runs a program, so it is not part of the suite (the guards forbid all
+three); run it by hand when touching `lua/wkddap/memory/`:
+
+```bash
+nvim --headless -u NONE -l scripts/memory-gdb-check.lua [path/to/nvim-dap]
+```
+
+Needs gcc and gdb on PATH; exit 0 = all checks passed.
+
 ## Coverage
 
 Covered: `languages/*` (all 11 per-language modules, via two generic specs
 instead of 11 near-duplicate ones — see below), `core/*`, `config/init.lua`,
 `configurations/init.lua`, `registry.lua`, `adapters/init.lua`,
 `integrations/menu.lua`, `bindings/*` (usercmds, keymaps, autocmds,
-orchestration), `utils/*`, `ui/*` (signs, highlights, virtual_text, provider,
+orchestration), `memory/*` (the memory view: `format_spec.lua` for the pure
+helpers, `init_spec.lua` for the controller and its real float, driven by a
+fake session that answers readMemory/writeMemory/evaluate like GDB does —
+render hex/bits, paging, jump, edit round-trip and re-read, undo, bit flips,
+missing capabilities, no session, error responses, unreadable bytes, the
+session-lifetime listeners), `utils/*`, `ui/*` (signs, highlights, virtual_text, provider,
 dapui, dapview, and the `ui/init.lua` orchestrator — all pure wiring/gating
 logic exercised with a stubbed `dap-view`/`dapui`/`dap`, not a live debug
 session), the top-level `init.lua` (`wkddap.setup()`, including a real,

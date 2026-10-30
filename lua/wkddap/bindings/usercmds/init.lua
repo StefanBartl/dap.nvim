@@ -123,6 +123,13 @@ function M.setup()
           dap().repl.open()
         end,
       },
+      {
+        path = { "memory" },
+        desc = "Memory View (address or expression, or prompts when omitted)",
+        run = function(ctx)
+          require("wkddap.memory").open(table.concat(ctx.rest, " "))
+        end,
+      },
     },
   })
 end

@@ -89,6 +89,7 @@ function M.setup(opts, which_key)
       "toggle_ui",
       "eval",
       "repl",
+      "memory_view",
     },
     actions = {
       -- Session control
@@ -170,6 +171,16 @@ function M.setup(opts, which_key)
 
       -- REPL
       repl = { default = prefix .. "R", rhs = dap.repl.open, desc = "Open REPL" },
+
+      -- Memory view (hex/bits over readMemory/writeMemory of the session);
+      -- prompts for the address or expression.
+      memory_view = {
+        default = prefix .. "m",
+        rhs = function()
+          require("wkddap.memory").open()
+        end,
+        desc = "Memory View",
+      },
     },
   }
 

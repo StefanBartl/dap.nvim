@@ -11,6 +11,7 @@
 ---@field menu? Dap.MenuOptions nvzone/menu context-menu contribution
 ---@field integrations? Dap.IntegrationsOptions Which hosts may drive this plugin (`ui_menu`)
 ---@field terminal? Dap.TerminalOptions Start debuggee programs in a terminal.nvim terminal
+---@field memory? Dap.MemoryOptions Memory view (`:Dap memory`)
 ---@field adapters? table<string, table|function> Adapter overrides keyed by nvim-dap
 ---  adapter name (`codelldb`, `pwa-node`, ...): a table is deep-merged over the
 ---  built-in definition, a function replaces it
@@ -43,6 +44,10 @@
 
 ---@class Dap.MenuOptions
 ---@field enable boolean Provide nvzone/menu entries via integrations/menu.lua. Default true.
+
+---@class Dap.MemoryOptions
+---@field context_rows integer 16-byte rows shown above the target when the view opens or
+---  jumps (0..15, default 4); 0 = the target is the first row
 
 ---@class Dap.IntegrationsOptions
 ---@field ui_menu boolean Let ui.nvim's right-click menu (`ui.menu`) compose the DAP fly-out. Default true.

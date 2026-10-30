@@ -25,6 +25,11 @@ lua/wkddap/
     provider.lua                Resolves + dispatches to the active panel UI
     dapview.lua                 nvim-dap-view wiring (default)
     dapui.lua                   nvim-dap-ui wiring (opt-in)
+  memory/                       Memory view (:Dap memory) over DAP readMemory/writeMemory
+    init.lua                    session/capability checks, target resolution, requests,
+                                undo stack, nvim-dap session-lifetime listeners
+    format.lua                  pure: base64, address/byte parsing, hex/bits page layout
+    view.lua                    the ui.kit.surface float, its keys, cursor -> byte
   bindings/                     Every user-facing trigger — registration only
     init.lua                    orchestrates usercmds/keymaps/autocmds
     usercmds/init.lua            registers all :Dap* user commands

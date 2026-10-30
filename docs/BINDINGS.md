@@ -28,6 +28,7 @@ Normal/visual-mode keymaps installed by `bindings.setup()`, gated by
 | `<leader>du` | n | Toggle UI (active panel UI provider) |
 | `<leader>de` | n, v | Evaluate Expression / Selection (dap-ui: float, dap-view: watch) |
 | `<leader>dR` | n | Open REPL |
+| `<leader>dm` | n | Memory View (prompts for an address or expression) |
 
 `<leader>dB` and `<leader>dL` (and the no-argument `:Dap
 conditional-breakpoint` / `:Dap log-point`) open pre-filled: with this line's
@@ -62,6 +63,25 @@ Every default keymap has a 1:1 `:Dap` equivalent.
 | `:Dap toggle-ui` | Toggle UI (active panel UI provider) |
 | `:Dap eval` | Evaluate Expression (dap-ui: float, dap-view: watch) |
 | `:Dap repl` | Open REPL |
+| `:Dap memory [address-or-expression]` | Memory View (prompts if the target is omitted) |
+
+### Memory view keys
+
+Buffer-local in the memory view float (`:Dap memory`, `<leader>dm`). Details,
+undo and endianness: [FEATURES/MEMORY.md](FEATURES/MEMORY.md).
+
+| lhs | mode | desc |
+| --- | --- | --- |
+| `e` / `<CR>` | n | Edit the byte under the cursor (writeMemory, then re-read) |
+| `<2-LeftMouse>` | n | Edit that byte; in bits mode flip that bit |
+| `<Space>` | n | Flip the bit under the cursor (bits mode) |
+| `u` | n | Undo the last write (writes the previous value back) |
+| `b` | n | Toggle hex / bits |
+| `a` | n | Go to another address or expression |
+| `n` / `<PageDown>` | n | Next page |
+| `p` / `<PageUp>` | n | Previous page |
+| `r` | n | Refresh |
+| `q` / `<Esc>` | n | Close |
 
 ## Autocommands
 
