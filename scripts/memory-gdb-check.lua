@@ -362,10 +362,12 @@ local companion_mode = vim.env.WKDDAP_MEMORY_COMPANION
 if companion_mode and companion_mode ~= "" and companion_mode ~= "0" then
   out("companion window: WKDDAP_MEMORY_COMPANION=" .. companion_mode)
   memory.close()
-  memory.open("&buffer", {
-    companion = true,
-    terminal = companion_mode == "headless" and false or nil,
-  })
+  -- Not `cond and false or nil`: that is always nil (the and/or trap).
+  local terminal = nil
+  if companion_mode == "headless" then
+    terminal = false
+  end
+  memory.open("&buffer", { companion = true, terminal = terminal })
   check(
     wait(function()
       local s = memory.state()
@@ -385,6 +387,14 @@ if companion_mode and companion_mode ~= "" and companion_mode ~= "0" then
     end, 20000),
     "the companion attached (channel " .. tostring(h.chan) .. ")"
   )
+  check(terminal == false or h.stop == nil, "a terminal companion is not our own process")
+  check(terminal ~= false or h.stop ~= nil, "a headless companion is our own process")
+  if not h:is_attached() then
+    -- The attach timeout closed the handle: the view is gone (`memory.state()` is
+    -- nil), nothing below could run.
+    setup_fail("the companion did not attach")
+    return
+  end
 
   ---The companion's buffer, read over its channel (it is never blocked in a
   ---request to us here, so a request is safe).
@@ -434,9 +444,11 @@ if companion_mode and companion_mode ~= "" and companion_mode ~= "0" then
       local s = memory.state()
       return s ~= nil and s.offset == offset_before + 256 and s.pending == nil
     end),
-    "n in the companion paged forward here (offset " .. tostring(memory.state().offset) .. ")"
+    "n in the companion paged forward here (offset "
+      .. tostring(memory.state() and memory.state().offset)
+      .. ")"
   )
-  local expected = "(+0x" .. format.hex(memory.state().offset) .. ")"
+  local expected = "(+0x" .. format.hex(offset_before + 256) .. ")"
   check(
     wait(function()
       local l = companion_lines()

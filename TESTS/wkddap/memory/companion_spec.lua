@@ -290,6 +290,79 @@ describe("wkddap.memory in a companion window", function()
       assert.are.equal(1, legend)
     end)
 
+    it("sends the target marks first, so a written byte's DiffText shows over them", function()
+      require("wkddap.config").setup({})
+      memory.open("0x404010", { companion = true })
+      memory.edit(65, 0x00) -- the target byte itself
+      local hls = handle().highlights
+      local last_search, first_diff = 0, math.huge
+      for i, hl in ipairs(hls) do
+        if hl.group == "Search" then
+          last_search = math.max(last_search, i)
+        elseif hl.group == "DiffText" then
+          first_diff = math.min(first_diff, i)
+        end
+      end
+      assert.are.equal(2, last_search)
+      assert.truthy(first_diff > last_search)
+      -- Both marks are on the same cell: the later one (DiffText) wins there.
+      local cell = memory.state().view.render.layout.cells[1]
+      local on_cell = vim.tbl_filter(function(hl)
+        return hl.line == 6 and hl.col_start == cell
+      end, hls)
+      assert.are.same({ "Search", "DiffText" }, { on_cell[1].group, on_cell[2].group })
+    end)
+
+    it("reports an update the companion refused", function()
+      memory.open("0x404010", { companion = true })
+      local h = handle()
+      h.update = function()
+        return false, "line 3 holds a newline"
+      end
+      memory.refresh()
+      assert.is_not_nil(message_matching("companion refused the update: line 3 holds a newline"))
+    end)
+
+    it("does not report the update a closing companion refuses", function()
+      memory.open("0x404010", { companion = true })
+      local h = handle()
+      h.update = function()
+        return false, "closed"
+      end
+      memory.refresh()
+      assert.is_nil(message_matching("refused the update"))
+    end)
+
+    it("shows a multi-line adapter error as one line in the companion", function()
+      session.request = function(self, command, args, cb)
+        table.insert(self.requests, { command = command, args = args })
+        if command == "readMemory" then
+          cb({ code = 7, data = { reason = "boom" } }, nil) -- no message: vim.inspect
+        end
+      end
+      memory.open("0x404010", { companion = true })
+      assert.are.equal(1, handle().updates)
+      for i, line in ipairs(handle().lines) do
+        assert.is_nil(line:find("\n", 1, true), "line " .. i) -- the real update would refuse it
+      end
+      assert.truthy(handle().lines[3]:find("^readMemory failed: {"))
+      assert.truthy(handle().lines[3]:find('reason = "boom"', 1, true))
+    end)
+
+    it("says so when lib.nvim.companion cannot be loaded, without a traceback", function()
+      package.loaded["lib.nvim.companion"] = nil
+      package.preload["lib.nvim.companion"] = function()
+        error("module 'lib.nvim.companion' not found")
+      end
+      local ok, err = pcall(memory.open, "0x404010", { companion = true })
+      package.preload["lib.nvim.companion"] = nil
+      package.loaded["lib.nvim.companion"] = comp
+      assert.is_true(ok, err)
+      local m = message_matching("could not open the window: lib.nvim.companion is not available")
+      assert.is_not_nil(m)
+      assert.is_nil(memory.state())
+    end)
+
     it("prompts in this instance when no target is given", function()
       memory.open(nil, { companion = true })
       assert.are.equal(1, #prompts)

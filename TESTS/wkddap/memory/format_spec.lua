@@ -190,6 +190,15 @@ describe("wkddap.memory.format.error_message", function()
     assert.are.equal("Out of memory", format.error_message({ message = "Out of memory" }))
     assert.are.equal("boom", format.error_message("boom"))
   end)
+
+  it("is always one line (it becomes a buffer line)", function()
+    -- A table without message/format is shown as vim.inspect: many lines.
+    local text = format.error_message({ code = 1, data = { a = 1, b = 2 } })
+    assert.is_nil(text:find("\n", 1, true))
+    assert.truthy(text:find("code = 1", 1, true))
+    assert.are.equal("first second", format.error_message("first\n  second"))
+    assert.are.equal("a b", format.error_message({ message = "a\r\nb" }))
+  end)
 end)
 
 ---@param n integer

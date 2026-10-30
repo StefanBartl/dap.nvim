@@ -315,21 +315,26 @@ end
 
 ---Human-readable message of a DAP error response (nvim-dap hands over
 ---`{ message = ..., body = { error = { format = ... } } }`), or of anything
----else that arrives in its place.
+---else that arrives in its place. Always ONE line: the message becomes a
+---buffer line of the view (`nvim_buf_set_lines` refuses a newline, and so
+---does the companion's `update`), and `vim.inspect` of a table is many.
 ---@param err any
 ---@return string
 function M.error_message(err)
+  local text
   if type(err) == "table" then
     local body_err = type(err.body) == "table" and err.body.error or nil
     if type(body_err) == "table" and type(body_err.format) == "string" then
-      return body_err.format
+      text = body_err.format
+    elseif type(err.message) == "string" and err.message ~= "" then
+      text = err.message
+    else
+      text = vim.inspect(err)
     end
-    if type(err.message) == "string" and err.message ~= "" then
-      return err.message
-    end
-    return vim.inspect(err)
+  else
+    text = tostring(err)
   end
-  return tostring(err)
+  return (text:gsub("%s*\r?\n%s*", " "))
 end
 
 ---@class Dap.MemoryLayout

@@ -47,20 +47,28 @@ end
 
 ---The render's highlights as the companion takes them: `WkddapMemoryTarget`
 ---(unknown over there) becomes `Search`, plus the legend in `Comment`.
+---
+---The companion applies no priorities (every extmark gets the default, the
+---later one wins where they overlap), while the float gives the target mark
+---a LOWER priority so a written byte's `DiffText` shows over it. To keep
+---that stacking, the target marks are sent first and everything else after.
 ---@internal
 ---@param render Dap.MemoryRender
 ---@param line_count integer
 ---@return Lib.Companion.Highlight[]
 local function highlights_of(render, line_count)
-  local out = {}
+  local target, rest = {}, {}
   for _, hl in ipairs(render.highlights) do
-    out[#out + 1] = {
+    local is_target = hl.group == format.TARGET_GROUP
+    local list = is_target and target or rest
+    list[#list + 1] = {
       line = hl.line,
       col_start = hl.col_start,
       col_end = hl.col_end,
-      group = hl.group == format.TARGET_GROUP and "Search" or hl.group,
+      group = is_target and "Search" or hl.group,
     }
   end
+  local out = vim.list_extend(target, rest)
   out[#out + 1] = { line = line_count - 1, col_start = 0, col_end = #M.LEGEND, group = "Comment" }
   return out
 end
@@ -99,7 +107,13 @@ function M.show(view, render, title)
     view.handle:set_title(title)
   end
   local lines = with_legend(render)
-  view.handle:update(lines, highlights_of(render, #lines))
+  local ok, err = view.handle:update(lines, highlights_of(render, #lines))
+  -- `false, "closed"` is the companion going away (its on_close follows);
+  -- anything else means the content was refused and the window shows an
+  -- old page -- say so instead of leaving the two silently apart.
+  if not ok and err and err ~= "closed" then
+    require("wkddap.utils.notify").warn("Memory view: the companion refused the update: " .. err)
+  end
 end
 
 ---Open the companion window with `render` and bind its keys to `handlers`.
@@ -114,7 +128,13 @@ end
 function M.open(render, title, handlers, opts)
   opts = opts or {}
   local lines = with_legend(render)
-  local handle, err = require("lib.nvim.companion").open({
+  -- `open` runs in the resolve callback (after the evaluate request): a
+  -- missing module (an older lib.nvim) must be a reason, not a traceback.
+  local ok, companion = pcall(require, "lib.nvim.companion")
+  if not ok then
+    return nil, "lib.nvim.companion is not available: " .. tostring(companion)
+  end
+  local handle, err = companion.open({
     title = title,
     lines = lines,
     highlights = highlights_of(render, #lines),
