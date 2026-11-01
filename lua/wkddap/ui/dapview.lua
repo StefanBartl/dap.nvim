@@ -4,6 +4,8 @@
 --- The default panel UI. Mirrors the nvim-dap-ui wiring (see ui/dapui.lua) so
 --- both providers open on `event_initialized` and close on session end.
 
+local listeners = require("wkddap.ui.listeners")
+
 local M = {}
 
 --- Set up nvim-dap-view as the panel UI provider.
@@ -28,25 +30,11 @@ function M.setup(opts)
     return false
   end
 
-  dap.listeners = dap.listeners or { before = {}, after = {} }
-  dap.listeners.before = dap.listeners.before or {}
-  dap.listeners.after = dap.listeners.after or {}
-
-  dap.listeners.after.event_initialized = dap.listeners.after.event_initialized or {}
-  dap.listeners.before.event_terminated = dap.listeners.before.event_terminated or {}
-  dap.listeners.before.event_exited = dap.listeners.before.event_exited or {}
-
-  dap.listeners.after.event_initialized["dap_dapview"] = function()
+  listeners.open_close(dap, "dap_dapview", function()
     pcall(dap_view.open)
-  end
-
-  dap.listeners.before.event_terminated["dap_dapview"] = function()
+  end, function()
     pcall(dap_view.close)
-  end
-
-  dap.listeners.before.event_exited["dap_dapview"] = function()
-    pcall(dap_view.close)
-  end
+  end)
 
   return true
 end

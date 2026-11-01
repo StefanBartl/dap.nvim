@@ -5,6 +5,7 @@
 --- `ui.provider = "dap-ui"`. See ui/provider.lua.
 
 local config = require("wkddap.config")
+local listeners = require("wkddap.ui.listeners")
 
 local M = {}
 
@@ -23,29 +24,15 @@ function M.setup(opts)
     return false
   end
 
-  dap.listeners = dap.listeners or { before = {}, after = {} }
-  dap.listeners.before = dap.listeners.before or {}
-  dap.listeners.after = dap.listeners.after or {}
-
   dapui.setup(opts.dap_ui or {
     layouts = config.dapui_layout,
   })
 
-  dap.listeners.after.event_initialized = dap.listeners.after.event_initialized or {}
-  dap.listeners.before.event_terminated = dap.listeners.before.event_terminated or {}
-  dap.listeners.before.event_exited = dap.listeners.before.event_exited or {}
-
-  dap.listeners.after.event_initialized["dapui_config"] = function()
+  listeners.open_close(dap, "dapui_config", function()
     dapui.open()
-  end
-
-  dap.listeners.before.event_terminated["dapui_config"] = function()
+  end, function()
     dapui.close()
-  end
-
-  dap.listeners.before.event_exited["dapui_config"] = function()
-    dapui.close()
-  end
+  end)
 
   return true
 end

@@ -57,6 +57,7 @@
 --- The listeners are removed when the view closes.
 
 local format = require("wkddap.memory.format")
+local listeners = require("wkddap.ui.listeners")
 
 local M = {}
 
@@ -528,16 +529,8 @@ local function attach_listeners(state)
   if not dap or not dap.listeners then
     return
   end
-  local after = dap.listeners.after
   local function on(event, fn)
-    -- nvim-dap creates the per-event tables lazily (metatable); a plain
-    -- table (an older nvim-dap, a test double) may not have them yet.
-    local tbl = after[event]
-    if not tbl then
-      tbl = {}
-      after[event] = tbl
-    end
-    tbl[LISTENER] = fn
+    listeners.set(dap, "after", event, LISTENER, fn)
   end
   for _, event in ipairs(END_EVENTS) do
     on(event, function(session)
